@@ -1,73 +1,59 @@
-# React + TypeScript + Vite
+# Gymelli
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Premium personal gym tracking app — speed-first, mobile-first, progress-driven.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- React 19 + TypeScript + Vite
+- SCSS Modules (styling)
+- Supabase (auth + database)
+- Vercel (hosting)
 
-## React Compiler
+## Getting Started
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+cp .env.example .env.local   # fill in Supabase credentials
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Environment Variables
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```
+VITE_SUPABASE_URL=
+VITE_SUPABASE_ANON_KEY=
+```
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Scripts
+
+```bash
+npm run dev       # Dev server with HMR
+npm run build     # Type-check + production bundle
+npm run lint      # ESLint
+npm run preview   # Preview production build
+```
+
+## What It Does
+
+Gymelli is a single-user fitness tracker focused on:
+
+- **Fast workout logging** — registar sets com o mínimo de toques possível
+- **Progress visibility** — PRs, volume, consistency always in view
+- **Premium UX** — dark theme, gold accents, clean cards, fluid transitions
+
+### Feature Priority
+
+1. **Workout Session** — core screen; log sets, rest timer, repeat-last-set
+2. **Exercise Library** — search, filter by muscle/equipment, personal history
+3. **Workout Templates** — Upper/Lower/Push/Pull/etc., editable and reorderable
+4. **History & Analytics** — session log, per-exercise graphs, volume trends
+5. **Dashboard** — suggested workout, streak, last session summary
+
+## Data Model
+
+```
+profiles
+exercises          → muscle_groups, equipment
+workout_templates  → workout_template_exercises
+workout_sessions   → workout_session_exercises → exercise_sets
 ```

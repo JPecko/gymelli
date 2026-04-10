@@ -1,0 +1,15 @@
+// ============================================================
+// GYMELLI — Breakpoints
+// Mobile-first. Use min-width queries only.
+//
+// In .module.scss files: bp is auto-injected via vite.config.ts
+//   → use bp.$breakpoint-sm-up, bp.$breakpoint-md-up, etc.
+//
+// In _*.scss partials: must import manually:
+//   @use '../../styles/breakpoints' as bp;
+// ============================================================
+
+$breakpoint-sm-up:  480px;
+$breakpoint-md-up:  768px;
+$breakpoint-lg-up:  1024px;
+$breakpoint-xl-up:  1280px;
