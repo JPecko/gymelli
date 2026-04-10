@@ -1,10 +1,8 @@
 .nav {
   position: fixed;
   bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
   width: 100%;
-  max-width: var(--page-max-width);
   height: var(--nav-height);
   display: flex;
   align-items: center;
@@ -63,4 +61,11 @@
   font-size: var(--text-2xl);
   font-weight: var(--font-bold);
   line-height: 1;
+}
+
+// Hidden on desktop — SideNav takes over
+@media (min-width: bp.$breakpoint-tablet-up) {
+  .nav {
+    display: none;
+  }
 }

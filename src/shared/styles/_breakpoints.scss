@@ -3,13 +3,24 @@
 // Mobile-first. Use min-width queries only.
 //
 // In .module.scss files: bp is auto-injected via vite.config.ts
-//   → use bp.$breakpoint-sm-up, bp.$breakpoint-md-up, etc.
+//   → use bp.$breakpoint-tablet-up, etc. directly
 //
 // In _*.scss partials: must import manually:
 //   @use '../../styles/breakpoints' as bp;
 // ============================================================
 
-$breakpoint-sm-up:  480px;
-$breakpoint-md-up:  768px;
-$breakpoint-lg-up:  1024px;
-$breakpoint-xl-up:  1280px;
+$breakpoint-mobile-sm:      480px;
+$breakpoint-mobile-grid:    640px;
+$breakpoint-tablet:         768px;
+$breakpoint-content:        900px;
+$breakpoint-laptop:         992px;
+$breakpoint-desktop-grid:   1024px;
+$breakpoint-container:      1200px;
+
+$breakpoint-mobile-sm-up:     $breakpoint-mobile-sm + 1px;
+$breakpoint-mobile-grid-up:   $breakpoint-mobile-grid + 1px;
+$breakpoint-tablet-up:        $breakpoint-tablet + 1px;
+$breakpoint-content-up:       $breakpoint-content + 1px;
+$breakpoint-laptop-up:        $breakpoint-laptop + 1px;
+$breakpoint-desktop-grid-up:  $breakpoint-desktop-grid + 1px;
+$breakpoint-container-up:     $breakpoint-container + 1px;
