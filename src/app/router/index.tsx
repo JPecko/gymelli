@@ -6,6 +6,7 @@ import { LoginPage } from '@/pages/LoginPage'
 import { SignUpPage } from '@/pages/SignUpPage'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { WorkoutsPage } from '@/pages/WorkoutsPage'
+import { WorkoutSetupPage } from '@/pages/WorkoutSetupPage'
 import { WorkoutSessionPage } from '@/pages/WorkoutSessionPage'
 import { ExercisesPage } from '@/pages/ExercisesPage'
 import { ExerciseDetailPage } from '@/pages/ExerciseDetailPage'
@@ -27,6 +28,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true,           element: <DashboardPage /> },
       { path: 'workouts',      element: <WorkoutsPage /> },
+      { path: 'workouts/new',  element: <WorkoutSetupPage /> },
       { path: 'exercises',     element: <ExercisesPage /> },
       { path: 'exercises/:id', element: <ExerciseDetailPage /> },
       { path: 'templates',     element: <TemplatesPage /> },
