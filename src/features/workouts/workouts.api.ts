@@ -1,5 +1,5 @@
 import { supabase } from '@/shared/lib/supabase'
-import type { WorkoutSession, WorkoutSessionExercise, ExerciseSet } from './workouts.types'
+import type { WorkoutSession, WorkoutSessionExercise, ExerciseSet, SessionHistoryItem } from './workouts.types'
 
 export async function getSessionById(id: string): Promise<WorkoutSession> {
   const { data, error } = await supabase
@@ -10,6 +10,47 @@ export async function getSessionById(id: string): Promise<WorkoutSession> {
 
   if (error) throw error
   return data
+}
+
+export async function getSessionHistory(limit = 20): Promise<SessionHistoryItem[]> {
+  const { data, error } = await supabase
+    .from('workout_sessions')
+    .select(`
+      id,
+      started_at,
+      finished_at,
+      workout_session_exercises (
+        order_index,
+        exercises ( name ),
+        exercise_sets ( id )
+      )
+    `)
+    .not('finished_at', 'is', null)
+    .order('started_at', { ascending: false })
+    .limit(limit)
+
+  if (error) throw error
+
+  return (data ?? []).map((session) => {
+    const sessionExercises = (session.workout_session_exercises ?? []) as Array<{
+      order_index: number
+      exercises: { name: string } | null
+      exercise_sets: Array<{ id: string }>
+    }>
+
+    const sorted = [...sessionExercises].sort((a, b) => a.order_index - b.order_index)
+
+    return {
+      id: session.id,
+      started_at: session.started_at,
+      finished_at: session.finished_at as string,
+      exercise_names: sorted.map((se) => se.exercises?.name ?? '').filter(Boolean),
+      duration_seconds: Math.floor(
+        (new Date(session.finished_at as string).getTime() - new Date(session.started_at).getTime()) / 1000,
+      ),
+      total_sets: sorted.reduce((acc, se) => acc + (se.exercise_sets?.length ?? 0), 0),
+    }
+  })
 }
 
 export async function getActiveSessions(): Promise<WorkoutSession[]> {

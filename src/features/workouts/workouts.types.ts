@@ -24,3 +24,12 @@ export interface ExerciseSet {
   rpe: number | null
   logged_at: string
 }
+
+export interface SessionHistoryItem {
+  id: string
+  started_at: string
+  finished_at: string
+  exercise_names: string[]
+  duration_seconds: number
+  total_sets: number
+}
