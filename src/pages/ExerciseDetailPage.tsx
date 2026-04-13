@@ -8,7 +8,7 @@ import {
 } from '@/features/exercises/exercises.api'
 import type { Exercise, MuscleGroup, Equipment, ExerciseHistorySession } from '@/features/exercises/exercises.types'
 import { deleteSessionExercise } from '@/features/workouts/workouts.api'
-import { SwipeableItem } from '@/shared/components'
+import { SwipeableItem, Badge, SetsCard } from '@/shared/components'
 import styles from './ExerciseDetailPage.module.scss'
 
 function toSlug(name: string): string {
@@ -24,12 +24,6 @@ function formatDate(iso: string): string {
     month: 'short',
     year: 'numeric',
   })
-}
-
-function formatSet(weight_kg: number | null, reps: number | null): string {
-  const w = weight_kg != null ? `${weight_kg} kg` : '— kg'
-  const r = reps != null ? `× ${reps}` : '× —'
-  return `${w} ${r}`
 }
 
 interface PageState {
@@ -69,14 +63,12 @@ export function ExerciseDetailPage() {
   }, [id])
 
   function handleDeleteSession(sessionExerciseId: string) {
-    // Optimistic: remove from UI immediately
     setState((prev) =>
       prev
         ? { ...prev, history: prev.history.filter((s) => s.session_exercise_id !== sessionExerciseId) }
         : prev,
     )
     deleteSessionExercise(sessionExerciseId).catch(() => {
-      // Rollback on error — refetch history
       if (id) getExerciseHistory(id).then((history) => setState((prev) => prev ? { ...prev, history } : prev))
     })
   }
@@ -116,7 +108,7 @@ export function ExerciseDetailPage() {
       <div className={styles.header}>
         <div className={styles.titleRow}>
           <h1 className={styles.title}>{exercise.name}</h1>
-          <span className={styles.badge}>{exercise.type}</span>
+          <Badge>{exercise.type}</Badge>
         </div>
         <p className={styles.meta}>{meta}</p>
       </div>
@@ -143,20 +135,10 @@ export function ExerciseDetailPage() {
                 onDelete={() => handleDeleteSession(session.session_exercise_id)}
                 deleteLabel="Delete session"
               >
-                <div className={styles.sessionBlock}>
-                  <p className={styles.sessionDate}>{formatDate(session.started_at)}</p>
-                  <div className={styles.sets}>
-                    {session.sets.map((set) => (
-                      <div key={set.id} className={styles.setRow}>
-                        <span className={styles.setNumber}>Set {set.set_number}</span>
-                        <span className={styles.setValue}>{formatSet(set.weight_kg, set.reps)}</span>
-                      </div>
-                    ))}
-                    {session.sets.length === 0 && (
-                      <p className={styles.empty}>No sets recorded.</p>
-                    )}
-                  </div>
-                </div>
+                <SetsCard
+                  header={<p className={styles.sessionDate}>{formatDate(session.started_at)}</p>}
+                  sets={session.sets}
+                />
               </SwipeableItem>
             ))}
           </div>

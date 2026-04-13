@@ -9,7 +9,7 @@ import {
 import { getExerciseById } from '@/features/exercises/exercises.api'
 import type { WorkoutSession, WorkoutSessionExercise, ExerciseSet } from '@/features/workouts/workouts.types'
 import type { Exercise } from '@/features/exercises/exercises.types'
-import { Button } from '@/shared/components'
+import { Button, Badge, SetsCard } from '@/shared/components'
 import styles from './WorkoutSummaryPage.module.scss'
 
 interface SummarySet {
@@ -70,37 +70,29 @@ export function WorkoutSummaryPage() {
               getPreviousSetsForExercise(se.exercise_id, sessionId!),
             ])
 
-          const currentMax = maxWeight(sets)
-          const previousMax = maxWeight(previousSets)
-          const is_pr = currentMax > 0 && currentMax > previousMax
+          const is_pr = maxWeight(sets) > 0 && maxWeight(sets) > maxWeight(previousSets)
 
           return {
             exercise,
-            sets: sets.map((s) => ({
-              set_number: s.set_number,
-              weight_kg: s.weight_kg,
-              reps: s.reps,
-            })),
+            sets: sets.map((s) => ({ set_number: s.set_number, weight_kg: s.weight_kg, reps: s.reps })),
             is_pr,
           }
         }),
       )
 
       const allSets = exercises.flatMap((e) => e.sets)
-      const total_volume_kg = allSets.reduce(
-        (acc, s) => acc + (s.weight_kg ?? 0) * (s.reps ?? 0),
-        0,
-      )
-      const total_sets = allSets.length
 
-      const duration_seconds = session.finished_at
-        ? Math.floor(
-            (new Date(session.finished_at).getTime() - new Date(session.started_at).getTime()) /
-              1000,
-          )
-        : 0
-
-      setData({ session, exercises, total_volume_kg, total_sets, duration_seconds })
+      setData({
+        session,
+        exercises,
+        total_volume_kg: allSets.reduce((acc, s) => acc + (s.weight_kg ?? 0) * (s.reps ?? 0), 0),
+        total_sets: allSets.length,
+        duration_seconds: session.finished_at
+          ? Math.floor(
+              (new Date(session.finished_at).getTime() - new Date(session.started_at).getTime()) / 1000,
+            )
+          : 0,
+      })
     }
 
     load()
@@ -141,26 +133,16 @@ export function WorkoutSummaryPage() {
       {/* ── Exercise list ─────────────────────────────────────────── */}
       <div className={styles.exercises}>
         {exercises.map(({ exercise, sets, is_pr }) => (
-          <div key={exercise.id} className={styles.exerciseBlock}>
-            <div className={styles.exerciseHeader}>
-              <p className={styles.exerciseName}>{exercise.name}</p>
-              {is_pr && <span className={styles.prBadge}>PR</span>}
-            </div>
-            <div className={styles.sets}>
-              {sets.map((set) => (
-                <div key={set.set_number} className={styles.setRow}>
-                  <span className={styles.setNumber}>Set {set.set_number}</span>
-                  <span className={styles.setValue}>
-                    {set.weight_kg != null ? `${set.weight_kg} kg` : '—'}{' '}
-                    {set.reps != null ? `× ${set.reps}` : ''}
-                  </span>
-                </div>
-              ))}
-              {sets.length === 0 && (
-                <p className={styles.noSets}>No sets logged.</p>
-              )}
-            </div>
-          </div>
+          <SetsCard
+            key={exercise.id}
+            header={
+              <>
+                <p className={styles.exerciseName}>{exercise.name}</p>
+                {is_pr && <Badge variant="gold">PR</Badge>}
+              </>
+            }
+            sets={sets}
+          />
         ))}
       </div>
 

@@ -85,18 +85,6 @@
   line-height: var(--leading-tight);
 }
 
-.badge {
-  flex-shrink: 0;
-  padding: 0.125rem var(--space-2);
-  border-radius: var(--radius-full);
-  background-color: var(--color-bg-elevated);
-  border: 1px solid var(--color-border);
-  font-size: var(--text-xs);
-  font-weight: var(--font-medium);
-  color: var(--color-text-secondary);
-  text-transform: capitalize;
-}
-
 .meta {
   font-size: var(--text-sm);
   color: var(--color-text-muted);
@@ -130,53 +118,14 @@
   gap: var(--space-4);
 }
 
-.sessionBlock {
-  background-color: var(--color-bg-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-}
-
+// SetsCard header content
 .sessionDate {
-  padding: var(--space-3) var(--space-4);
   font-size: var(--text-xs);
   font-weight: var(--font-semibold);
   color: var(--color-gold);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  border-bottom: 1px solid var(--color-border-subtle);
 }
-
-.sets {
-  display: flex;
-  flex-direction: column;
-}
-
-.setRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--space-3) var(--space-4);
-  border-bottom: 1px solid var(--color-border-subtle);
-
-  &:last-child {
-    border-bottom: none;
-  }
-}
-
-.setNumber {
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
-}
-
-.setValue {
-  font-size: var(--text-sm);
-  font-weight: var(--font-medium);
-  color: var(--color-text-primary);
-  font-variant-numeric: tabular-nums;
-}
-
-// ── Empty state ───────────────────────────────────────────────────────────────
 
 .empty {
   font-size: var(--text-sm);

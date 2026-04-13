@@ -32,7 +32,7 @@ export async function getSessionHistory(limit = 20): Promise<SessionHistoryItem[
   if (error) throw error
 
   return (data ?? []).map((session) => {
-    const sessionExercises = (session.workout_session_exercises ?? []) as Array<{
+    const sessionExercises = (session.workout_session_exercises ?? []) as unknown as Array<{
       order_index: number
       exercises: { name: string } | null
       exercise_sets: Array<{ id: string }>
