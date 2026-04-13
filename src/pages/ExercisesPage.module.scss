@@ -1,0 +1,73 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-bottom: var(--space-8);
+}
+
+// ── Header ───────────────────────────────────────────────────────────────────
+
+.header {
+  padding-top: var(--space-4);
+}
+
+.title {
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  color: var(--color-text-primary);
+}
+
+// ── Search ───────────────────────────────────────────────────────────────────
+
+.searchWrap {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: var(--color-bg);
+  padding: var(--space-2) 0;
+}
+
+.search {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-bg-input);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  color: var(--color-text-primary);
+  font-size: 1rem; // mandatory — prevents iOS Safari zoom on focus
+  outline: none;
+  transition: border-color 0.15s;
+
+  &::placeholder {
+    color: var(--color-text-muted);
+  }
+
+  &:focus {
+    border-color: var(--color-gold-dim);
+  }
+}
+
+// ── Grid ─────────────────────────────────────────────────────────────────────
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+
+  @media (min-width: bp.$breakpoint-tablet-up) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (min-width: bp.$breakpoint-desktop-grid-up) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+// ── States ───────────────────────────────────────────────────────────────────
+
+.state {
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  padding: var(--space-8) 0;
+}

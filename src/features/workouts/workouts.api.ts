@@ -120,6 +120,15 @@ export async function deleteSet(setId: string): Promise<void> {
   if (error) throw error
 }
 
+export async function deleteSessionExercise(sessionExerciseId: string): Promise<void> {
+  const { error } = await supabase
+    .from('workout_session_exercises')
+    .delete()
+    .eq('id', sessionExerciseId)
+
+  if (error) throw error
+}
+
 export async function addSessionExercise(
   sessionId: string,
   exerciseId: string,

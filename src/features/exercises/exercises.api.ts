@@ -1,5 +1,5 @@
 import { supabase } from '@/shared/lib/supabase'
-import type { Exercise, MuscleGroup, Equipment } from './exercises.types'
+import type { Exercise, MuscleGroup, Equipment, ExerciseHistorySession } from './exercises.types'
 
 export async function getExercises(): Promise<Exercise[]> {
   const { data, error } = await supabase
@@ -40,4 +40,45 @@ export async function getEquipment(): Promise<Equipment[]> {
 
   if (error) throw error
   return data
+}
+
+export async function getExerciseHistory(exerciseId: string): Promise<ExerciseHistorySession[]> {
+  // 1. All session_exercises for this exercise
+  const { data: sessionExercises } = await supabase
+    .from('workout_session_exercises')
+    .select('id, session_id')
+    .eq('exercise_id', exerciseId)
+
+  if (!sessionExercises?.length) return []
+
+  // 2. Finished sessions in descending order (last 10)
+  const { data: sessions } = await supabase
+    .from('workout_sessions')
+    .select('id, started_at')
+    .in('id', sessionExercises.map((se) => se.session_id))
+    .not('finished_at', 'is', null)
+    .order('started_at', { ascending: false })
+    .limit(10)
+
+  if (!sessions?.length) return []
+
+  // 3. Sets for each relevant session_exercise
+  const sessionIds = new Set(sessions.map((s) => s.id))
+  const relevantSEs = sessionExercises.filter((se) => sessionIds.has(se.session_id))
+
+  const { data: sets } = await supabase
+    .from('exercise_sets')
+    .select('id, session_exercise_id, set_number, weight_kg, reps')
+    .in('session_exercise_id', relevantSEs.map((se) => se.id))
+    .order('set_number')
+
+  return sessions.map((session) => {
+    const se = relevantSEs.find((s) => s.session_id === session.id)
+    return {
+      session_exercise_id: se?.id ?? '',
+      session_id: session.id,
+      started_at: session.started_at,
+      sets: (sets ?? []).filter((s) => s.session_exercise_id === se?.id),
+    }
+  })
 }

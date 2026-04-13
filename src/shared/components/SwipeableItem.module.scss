@@ -1,0 +1,74 @@
+.wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+// ── Delete action (touch — revealed by swipe) ─────────────────────────────
+
+.deleteAction {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-error);
+}
+
+.deleteBtn {
+  color: #fff;
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+// ── Main content ─────────────────────────────────────────────────────────────
+
+.content {
+  position: relative;
+  background-color: var(--color-bg-surface); // prevent bleed-through
+  will-change: transform;
+
+  // Show desktop delete button on hover
+  &:hover .desktopDelete {
+    opacity: 1;
+  }
+}
+
+.animated {
+  transition: transform 0.2s ease;
+}
+
+// ── Desktop delete button (hover) ─────────────────────────────────────────
+
+.desktopDelete {
+  position: absolute;
+  top: 50%;
+  right: var(--space-4);
+  transform: translateY(-50%);
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: var(--radius-full);
+  background-color: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s, border-color 0.15s;
+
+  &:hover {
+    color: var(--color-error);
+    border-color: var(--color-error);
+  }
+
+  // Only show on non-touch — hide on touch devices
+  @media (hover: none) {
+    display: none;
+  }
+}
