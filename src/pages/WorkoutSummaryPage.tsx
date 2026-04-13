@@ -1,0 +1,175 @@
+import { useState, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import {
+  getSessionById,
+  getSessionExercises,
+  getSetsForSessionExercise,
+  getPreviousSetsForExercise,
+} from '@/features/workouts/workouts.api'
+import { getExerciseById } from '@/features/exercises/exercises.api'
+import type { WorkoutSession, WorkoutSessionExercise, ExerciseSet } from '@/features/workouts/workouts.types'
+import type { Exercise } from '@/features/exercises/exercises.types'
+import { Button } from '@/shared/components'
+import styles from './WorkoutSummaryPage.module.scss'
+
+interface SummarySet {
+  set_number: number
+  weight_kg: number | null
+  reps: number | null
+}
+
+interface SummaryExercise {
+  exercise: Exercise
+  sets: SummarySet[]
+  is_pr: boolean
+}
+
+interface SummaryData {
+  session: WorkoutSession
+  exercises: SummaryExercise[]
+  total_volume_kg: number
+  total_sets: number
+  duration_seconds: number
+}
+
+function formatDuration(seconds: number): string {
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m`
+  const h = Math.floor(seconds / 3600)
+  const m = Math.floor((seconds % 3600) / 60)
+  return m > 0 ? `${h}h ${m}m` : `${h}h`
+}
+
+function formatVolume(kg: number): string {
+  return kg >= 1000
+    ? `${(kg / 1000).toFixed(1)}t`
+    : `${Math.round(kg).toLocaleString()} kg`
+}
+
+function maxWeight(sets: Array<{ weight_kg: number | null }>): number {
+  return Math.max(0, ...sets.map((s) => s.weight_kg ?? 0))
+}
+
+export function WorkoutSummaryPage() {
+  const { sessionId } = useParams<{ sessionId: string }>()
+  const navigate = useNavigate()
+  const [data, setData] = useState<SummaryData | null>(null)
+
+  useEffect(() => {
+    if (!sessionId) return
+
+    async function load() {
+      const session = await getSessionById(sessionId!)
+      const sessionExercises: WorkoutSessionExercise[] = await getSessionExercises(sessionId!)
+
+      const exercises: SummaryExercise[] = await Promise.all(
+        sessionExercises.map(async (se) => {
+          const [exercise, sets, previousSets]: [Exercise, ExerciseSet[], ExerciseSet[]] =
+            await Promise.all([
+              getExerciseById(se.exercise_id),
+              getSetsForSessionExercise(se.id),
+              getPreviousSetsForExercise(se.exercise_id, sessionId!),
+            ])
+
+          const currentMax = maxWeight(sets)
+          const previousMax = maxWeight(previousSets)
+          const is_pr = currentMax > 0 && currentMax > previousMax
+
+          return {
+            exercise,
+            sets: sets.map((s) => ({
+              set_number: s.set_number,
+              weight_kg: s.weight_kg,
+              reps: s.reps,
+            })),
+            is_pr,
+          }
+        }),
+      )
+
+      const allSets = exercises.flatMap((e) => e.sets)
+      const total_volume_kg = allSets.reduce(
+        (acc, s) => acc + (s.weight_kg ?? 0) * (s.reps ?? 0),
+        0,
+      )
+      const total_sets = allSets.length
+
+      const duration_seconds = session.finished_at
+        ? Math.floor(
+            (new Date(session.finished_at).getTime() - new Date(session.started_at).getTime()) /
+              1000,
+          )
+        : 0
+
+      setData({ session, exercises, total_volume_kg, total_sets, duration_seconds })
+    }
+
+    load()
+  }, [sessionId])
+
+  if (!data) {
+    return <div className={styles.loading}>Loading summary...</div>
+  }
+
+  const { exercises, total_volume_kg, total_sets, duration_seconds } = data
+
+  return (
+    <div className={styles.page}>
+      {/* ── Hero ─────────────────────────────────────────────────── */}
+      <div className={styles.hero}>
+        <div className={styles.checkmark}>✓</div>
+        <h1 className={styles.heroTitle}>Workout Complete</h1>
+      </div>
+
+      {/* ── Stats row ─────────────────────────────────────────────── */}
+      <div className={styles.stats}>
+        <div className={styles.stat}>
+          <span className={styles.statValue}>{formatDuration(duration_seconds)}</span>
+          <span className={styles.statLabel}>Duration</span>
+        </div>
+        <div className={styles.statDivider} />
+        <div className={styles.stat}>
+          <span className={styles.statValue}>{formatVolume(total_volume_kg)}</span>
+          <span className={styles.statLabel}>Volume</span>
+        </div>
+        <div className={styles.statDivider} />
+        <div className={styles.stat}>
+          <span className={styles.statValue}>{total_sets}</span>
+          <span className={styles.statLabel}>Sets</span>
+        </div>
+      </div>
+
+      {/* ── Exercise list ─────────────────────────────────────────── */}
+      <div className={styles.exercises}>
+        {exercises.map(({ exercise, sets, is_pr }) => (
+          <div key={exercise.id} className={styles.exerciseBlock}>
+            <div className={styles.exerciseHeader}>
+              <p className={styles.exerciseName}>{exercise.name}</p>
+              {is_pr && <span className={styles.prBadge}>PR</span>}
+            </div>
+            <div className={styles.sets}>
+              {sets.map((set) => (
+                <div key={set.set_number} className={styles.setRow}>
+                  <span className={styles.setNumber}>Set {set.set_number}</span>
+                  <span className={styles.setValue}>
+                    {set.weight_kg != null ? `${set.weight_kg} kg` : '—'}{' '}
+                    {set.reps != null ? `× ${set.reps}` : ''}
+                  </span>
+                </div>
+              ))}
+              {sets.length === 0 && (
+                <p className={styles.noSets}>No sets logged.</p>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Footer ───────────────────────────────────────────────── */}
+      <footer className={styles.footer}>
+        <Button variant="primary" size="lg" fullWidth onClick={() => navigate('/')}>
+          Done
+        </Button>
+      </footer>
+    </div>
+  )
+}

@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router-dom'
 import { AppLayout } from '@/app/layouts/AppLayout'
 import { SessionLayout } from '@/app/layouts/SessionLayout'
 import { RequireAuth } from './RequireAuth'
+import { WorkoutSummaryPage } from '@/pages/WorkoutSummaryPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { SignUpPage } from '@/pages/SignUpPage'
 import { DashboardPage } from '@/pages/DashboardPage'
@@ -38,6 +39,9 @@ export const router = createBrowserRouter([
   {
     path: '/workouts/session/:sessionId',
     element: <RequireAuth><SessionLayout /></RequireAuth>,
-    children: [{ index: true, element: <WorkoutSessionPage /> }],
+    children: [
+      { index: true, element: <WorkoutSessionPage /> },
+      { path: 'summary', element: <WorkoutSummaryPage /> },
+    ],
   },
 ])

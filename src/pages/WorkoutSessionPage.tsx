@@ -23,17 +23,24 @@ export function WorkoutSessionPage() {
     return <div className={styles.loading}>Loading session...</div>
   }
 
-  return <SessionView session={session} onFinish={() => navigate('/')} />
+  return (
+    <SessionView
+      session={session}
+      onCancel={() => navigate('/')}
+      onFinish={() => navigate(`/workouts/session/${sessionId}/summary`)}
+    />
+  )
 }
 
 // ─── Inner component — hook called unconditionally ───────────────────────────
 
 interface SessionViewProps {
   session: WorkoutSession
+  onCancel: () => void
   onFinish: () => void
 }
 
-function SessionView({ session, onFinish }: SessionViewProps) {
+function SessionView({ session, onCancel, onFinish }: SessionViewProps) {
   const {
     exercises,
     active_index,
@@ -61,7 +68,7 @@ function SessionView({ session, onFinish }: SessionViewProps) {
     <div className={styles.page}>
       {/* ── Header ─────────────────────────────────────────────── */}
       <header className={styles.header}>
-        <IconButton size="sm" onClick={onFinish} aria-label="Cancel workout">
+        <IconButton size="sm" onClick={onCancel} aria-label="Cancel workout">
           ✕
         </IconButton>
 
