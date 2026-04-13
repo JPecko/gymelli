@@ -66,8 +66,15 @@ src/
 **Shared rules:**
 - Only truly reusable, domain-agnostic logic goes here
 - No business-specific logic allowed
-- **Always check `shared/components/` before creating any button, input, or icon button.**
-  Existing: `Button` (primary/secondary/ghost, sm/md/lg, fullWidth), `Input` (label + error), `IconButton` (circular, done state)
+- **Always check `shared/components/` before creating any UI primitive.**
+  Existing components (all exported from `shared/components/index.ts`):
+  - `Button` — variants: primary (gold fill), secondary (gold border), ghost. Sizes: sm/md/lg. Prop: fullWidth.
+  - `Input` — label + input + error. font-size: 1rem enforced.
+  - `IconButton` — circular button. Props: `done` (success state), `size` (sm/md).
+  - `Badge` — inline pill label. Variants: `default` (neutral), `gold` (PR/achievement highlight).
+  - `SetRow` — read-only display row: "Set N · X kg × Y". For logged set history.
+  - `SetsCard` — card with header slot + list of `SetRow`. Props: `header: ReactNode`, `sets[]`, `emptyMessage?`.
+  - `SwipeableItem` — swipe-left-to-delete wrapper (touch). Shows delete button on hover (desktop, `hover: none` media query excluded).
 - **Always check `shared/hooks/` before creating a new hook.**
   Existing: `useElapsedTime(startedAt)` → formatted elapsed string (e.g. `"4:32"`)
 
@@ -180,10 +187,23 @@ Avoid global state overuse.
 
 ---
 
+## Exercise Images
+
+Static images live in `public/images/exercises/`. Filename = exercise name slugified:
+```
+"Bench Press" → bench-press.png
+"Overhead Press" → overhead-press.png
+```
+
+Slug derivation: `name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')`
+
+Reference in components: `src={'/images/exercises/${slug}.png'}`. Always provide an `onError` fallback (placeholder div with muscle group name). Do not store the slug in the database — derive it from `exercise.name` at render time.
+
+---
+
 ## Constraints
 
 - No monolithic files
 - No mixed concerns in a single file
 - No `components/` dumping ground or generic `utils/` folder
-- Do not add features before the core (Workout Session) is solid
 - Do not introduce new patterns without justification — stay consistent with existing architecture
