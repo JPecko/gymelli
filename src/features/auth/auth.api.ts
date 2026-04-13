@@ -21,6 +21,13 @@ export async function signInWithEmail(email: string, password: string) {
   return data
 }
 
+export async function signUp(email: string, password: string) {
+  const { data, error } = await supabase.auth.signUp({ email, password })
+  if (error) throw error
+  // session is null when email confirmation is required
+  return { user: data.user, requiresConfirmation: !data.session }
+}
+
 export async function signOut() {
   const { error } = await supabase.auth.signOut()
   if (error) throw error

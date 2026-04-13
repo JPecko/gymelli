@@ -1,0 +1,15 @@
+<svg width="220" height="64" viewBox="0 0 220 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Icon -->
+  <g transform="scale(0.246)">
+    <rect x="20" y="20" width="220" height="220" rx="60" fill="#0B0B0C"/>
+    <rect x="70" y="110" width="40" height="48" rx="12" fill="#D4AF37"/>
+    <rect x="150" y="110" width="40" height="48" rx="12" fill="#D4AF37"/>
+    <rect x="110" y="124" width="40" height="20" rx="10" fill="#FACC15"/>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="72" y="46" font-family="Inter, Arial" font-size="36">
+    <tspan fill="#E5E7EB" font-weight="700">Gym</tspan>
+    <tspan dx="-19" fill="#FACC15" font-weight="800" font-style="italic">elli</tspan>
+  </text>
+</svg>

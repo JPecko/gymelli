@@ -26,6 +26,10 @@ No test runner is configured yet.
 Stack: React 19 + TypeScript + Vite, SCSS Modules for styling, Supabase for auth and database.
 Theme: dark neutrals (90%) with gold accents (10%).
 
+**Layouts:**
+- `AppLayout` — standard layout with bottom nav (mobile) and sidebar (desktop). Used for all main routes.
+- `SessionLayout` — minimal full-screen layout with no nav. Used for screens requiring full focus (e.g. active workout session). Route must be declared **outside** the `AppLayout` tree in the router.
+
 ### Feature Priority Order
 1. **Workout Session** (core — most critical screen)
 2. Exercise Library
@@ -62,6 +66,10 @@ src/
 **Shared rules:**
 - Only truly reusable, domain-agnostic logic goes here
 - No business-specific logic allowed
+- **Always check `shared/components/` before creating any button, input, or icon button.**
+  Existing: `Button` (primary/secondary/ghost, sm/md/lg, fullWidth), `Input` (label + error), `IconButton` (circular, done state)
+- **Always check `shared/hooks/` before creating a new hook.**
+  Existing: `useElapsedTime(startedAt)` → formatted elapsed string (e.g. `"4:32"`)
 
 **Import direction:** `features` → `shared` → never the reverse.
 
@@ -92,6 +100,8 @@ SCSS Modules are the primary styling system. Inline styles and Tailwind are disc
 - Breakpoint variables defined in `shared/styles/_breakpoints.scss`
 - In `.module.scss` files: `bp` namespace is **auto-injected** — never add `@use` manually. Use `bp.$breakpoint-*-up`
 - In `_*.scss` partials: `bp` is NOT injected — must explicitly `@use '../../styles/breakpoints' as bp;`
+
+**Input font-size (mandatory):** All `<input>` elements must have `font-size: 1rem` (16px) minimum — iOS Safari auto-zooms on inputs smaller than 16px. Use the shared `Input` component (enforced automatically) or set `font-size: 1rem` explicitly with a comment.
 
 **px → rem (mandatory)** — all dimensional values use `rem`:
 

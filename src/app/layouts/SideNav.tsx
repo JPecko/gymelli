@@ -15,7 +15,11 @@ export function SideNav() {
   return (
     <aside className={styles.sidebar}>
       <div className={styles.logo}>
-        <span className={styles.logoText}>Gymelli</span>
+        <img
+          src="/gymelli-wordmark.svg"
+          alt="Gymelli"
+          className={styles.logoImage}
+        />
       </div>
 
       <nav className={styles.nav}>

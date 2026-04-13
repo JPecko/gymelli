@@ -1,0 +1,48 @@
+.btn {
+  border-radius: var(--radius-full);
+  border: 2px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+  transition: border-color 0.15s, color 0.15s, background-color 0.15s;
+  cursor: pointer;
+
+  &:hover:not(:disabled):not(.done) {
+    border-color: var(--color-gold);
+    color: var(--color-gold);
+  }
+
+  &:active:not(:disabled):not(.done) {
+    background-color: var(--color-gold-subtle);
+  }
+
+  &:disabled:not(.done) {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+// ── Sizes ───────────────────────────────────────────────────────────────────
+
+.sm {
+  width: 2rem;
+  height: 2rem;
+  font-size: var(--text-xs);
+}
+
+.md {
+  width: 2.5rem;
+  height: 2.5rem;
+  font-size: var(--text-sm);
+}
+
+// ── Done / success state ─────────────────────────────────────────────────────
+
+.done {
+  border-color: var(--color-success);
+  color: var(--color-success);
+  background-color: rgba(76, 175, 125, 0.1);
+  cursor: default;
+}
