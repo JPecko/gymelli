@@ -67,6 +67,18 @@
   gap: var(--space-1);
 }
 
+// ── Desktop: leave space so SwipeableItem's hover × doesn't overlap ✓ ───────
+
+@media (hover: hover) {
+  .setList {
+    padding-right: 2rem;
+  }
+
+  .tableHeader {
+    padding-right: 2rem;
+  }
+}
+
 // ── Add Set — extends Button ghost with dashed border ───────────────────────
 
 .addSet {

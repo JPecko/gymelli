@@ -53,6 +53,7 @@ function SessionView({ session, onCancel, onFinish }: SessionViewProps) {
     updateDraftSet,
     confirmSet,
     addSet,
+    removeSet,
     finishWorkout,
     dismissRestTimer,
   } = useWorkoutSession(session)
@@ -102,6 +103,7 @@ function SessionView({ session, onCancel, onFinish }: SessionViewProps) {
             onConfirmSet={(i) => confirmSet(active_index, i)}
             onUpdateSet={(i, field, value) => updateDraftSet(active_index, i, field, value)}
             onAddSet={() => addSet(active_index)}
+            onRemoveSet={(i) => removeSet(active_index, i)}
           />
         )}
 
