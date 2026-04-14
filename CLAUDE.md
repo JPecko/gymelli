@@ -31,18 +31,24 @@ Theme: dark neutrals (90%) with gold accents (10%).
 - `SessionLayout` — minimal full-screen layout with no nav. Used for screens requiring full focus (e.g. active workout session). Route must be declared **outside** the `AppLayout` tree in the router.
 
 ### Feature Priority Order
-1. **Workout Session** (core — most critical screen)
-2. Exercise Library
-3. Workout Templates
-4. History & Analytics
-5. Dashboard polish
+1. **Workout Session** (core — most critical screen) ✓
+2. Exercise Library ✓
+3. Workout Templates ✓
+4. History & Analytics ✓
+5. Dashboard ✓
+6. Profile / Settings ✓
 
 ### Core Screens
 - **Dashboard** — suggested workout, streak, volume, last session
-- **Workout Session** — active exercise, set table, quick weight/reps input, repeat-last-set, rest timer
+- **Workout Session** — active exercise, set table, quick weight/reps input, rest timer per exercise
 - **Exercises** — searchable list with muscle/equipment filters, detail page with personal history
 - **Templates** — create/edit workout templates, reorder exercises, set defaults
 - **History** — session log, per-exercise progress, volume/PR metrics
+- **Profile** — display name, email (read-only), sign out
+
+### Navigation
+- **BottomNav (mobile):** Home · Workouts · [+] · History · Profile
+- **SideNav (desktop):** Home · Workouts · Exercises · History · Profile + Start Workout button + version label
 
 ---
 
@@ -77,10 +83,13 @@ src/
   - `SwipeableItem` — swipe-left-to-delete wrapper (touch). Shows delete button on hover (desktop, `hover: none` media query excluded).
   - `StepperInput` — numeric stepper with −/+ buttons. Props: `value: number | null`, `onChange`, `step`, `min`, `disabled`, `inputMode`. Disabled state hides buttons and shows static value. Touch-friendly (44px min-height).
   - `StatCard` — metric display card. Props: `label`, `value`, `unit?`, `accent?` (gold highlight). Used in History and Dashboard.
+- **Auth-scoped components** live in `features/auth/components/` (not `shared/`):
+  - `AuthCard` — full-screen centred shell with Gymelli logo. Used by LoginPage and SignUpPage.
 - **Always check `shared/hooks/` before creating a new hook.**
   Existing:
   - `useElapsedTime(startedAt)` → formatted elapsed string (e.g. `"4:32"`)
   - `useCountdown(totalSeconds, onComplete)` → `{ remaining, progress, display }`. Counts down to 0 then calls `onComplete`. `totalSeconds` fixed on mount.
+  - `useVersionCheck()` → `{ updateAvailable }`. Polls `app_config.app_version` every 5 min and on window focus.
 
 **Import direction:** `features` → `shared` → never the reverse.
 
@@ -91,8 +100,9 @@ src/
 ```
 profiles
 exercises          → muscle_groups, equipment
-workout_templates  → workout_template_exercises
-workout_sessions   → workout_session_exercises → exercise_sets
+workout_templates  → workout_template_exercises (incl. rest_seconds)
+workout_sessions   → workout_session_exercises (incl. rest_seconds) → exercise_sets
+app_config         → key/value store (app_version for update checks)
 ```
 
 App is mostly CRUD + derived metrics. No heavy backend logic required.

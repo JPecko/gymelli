@@ -28,6 +28,21 @@ export async function signUp(email: string, password: string) {
   return { user: data.user, requiresConfirmation: !data.session }
 }
 
+export async function updateProfile(displayName: string): Promise<Profile> {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .update({ display_name: displayName })
+    .eq('id', user.id)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
 export async function signOut() {
   const { error } = await supabase.auth.signOut()
   if (error) throw error

@@ -14,6 +14,7 @@ import { ExerciseDetailPage } from '@/pages/ExerciseDetailPage'
 import { TemplatesPage } from '@/pages/TemplatesPage'
 import { TemplateEditorPage } from '@/pages/TemplateEditorPage'
 import { HistoryPage } from '@/pages/HistoryPage'
+import { ProfilePage } from '@/pages/ProfilePage'
 
 export const router = createBrowserRouter([
   {
@@ -37,6 +38,7 @@ export const router = createBrowserRouter([
       { path: 'templates/new',      element: <TemplateEditorPage /> },
       { path: 'templates/:id/edit', element: <TemplateEditorPage /> },
       { path: 'history',            element: <HistoryPage /> },
+      { path: 'profile',            element: <ProfilePage /> },
     ],
   },
   {

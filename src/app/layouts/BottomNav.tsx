@@ -5,8 +5,8 @@ import styles from './BottomNav.module.scss'
 const navItems = [
   { to: '/',          label: 'Home',      icon: '⌂' },
   { to: '/templates', label: 'Workouts',  icon: '☰' },
-  { to: '/exercises', label: 'Exercises', icon: '◈' },
   { to: '/history',   label: 'History',   icon: '◷' },
+  { to: '/profile',   label: 'Profile',   icon: '◉' },
 ]
 
 export function BottomNav() {

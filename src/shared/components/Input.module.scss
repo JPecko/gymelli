@@ -28,6 +28,16 @@
   &::placeholder {
     color: var(--color-text-muted);
   }
+
+  &:disabled,
+  &:read-only {
+    color: var(--color-text-muted);
+    cursor: default;
+
+    &:focus {
+      border-color: var(--color-border);
+    }
+  }
 }
 
 .inputError {

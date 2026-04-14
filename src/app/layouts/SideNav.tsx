@@ -8,6 +8,7 @@ const navItems = [
   { to: '/templates', label: 'Workouts',  icon: '☰' },
   { to: '/exercises', label: 'Exercises', icon: '◈' },
   { to: '/history',   label: 'History',   icon: '◷' },
+  { to: '/profile',   label: 'Profile',   icon: '◉' },
 ]
 
 export function SideNav() {
