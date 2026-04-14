@@ -39,23 +39,6 @@ export function WorkoutSetupPage() {
 
   return (
     <div className={styles.page}>
-      {/* ── Header ──────────────────────────────────────────────── */}
-      <header className={styles.header}>
-        <button className={styles.backBtn} onClick={() => navigate('/workouts')}>
-          ← Back
-        </button>
-        <h1 className={styles.title}>New Workout</h1>
-        <Button
-          variant="primary"
-          size="sm"
-          onClick={handleStart}
-          disabled={selected.length === 0 || loading}
-        >
-          {ctaLabel}
-        </Button>
-      </header>
-
-      {/* ── Selected pills ──────────────────────────────────────── */}
       {selected.length > 0 && (
         <div className={styles.pillsWrap}>
           <div className={styles.pills}>
@@ -72,12 +55,25 @@ export function WorkoutSetupPage() {
         </div>
       )}
 
-      {/* ── Exercise picker ─────────────────────────────────────── */}
       <div className={styles.content}>
         <ExercisePicker
           selectedIds={selected.map((e) => e.id)}
           onToggle={handleToggle}
         />
+      </div>
+
+      <div className={styles.bottomBar}>
+        <div className={styles.bottomBarInner}>
+          <Button
+            variant="primary"
+            size="lg"
+            fullWidth
+            onClick={handleStart}
+            disabled={selected.length === 0 || loading}
+          >
+            {ctaLabel}
+          </Button>
+        </div>
       </div>
     </div>
   )

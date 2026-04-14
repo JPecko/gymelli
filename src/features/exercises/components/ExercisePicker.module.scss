@@ -8,31 +8,18 @@
 
 .searchWrap {
   position: sticky;
-  top: 0;
-  z-index: 1;
-  background-color: var(--color-bg);
-  padding-bottom: var(--space-2);
-}
-
-.search {
-  width: 100%;
-  padding: var(--space-3) var(--space-4);
-  background-color: var(--color-bg-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-full);
-  // 1rem = 16px — prevents iOS Safari zoom on focus
-  font-size: 1rem;
-  color: var(--color-text-primary);
-  transition: border-color 0.15s;
-
-  &:focus {
-    border-color: var(--color-gold-dim);
-    outline: none;
-  }
-
-  &::placeholder {
-    color: var(--color-text-muted);
-  }
+  top: var(--picker-sticky-top, var(--space-2));
+  z-index: 10;
+  padding: var(--space-5) 0 var(--space-4);
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(13, 13, 13, 0.98) 0%,
+      rgba(13, 13, 13, 0.94) 72%,
+      rgba(13, 13, 13, 0) 100%
+    );
+  backdrop-filter: blur(14px);
+  transition: top 220ms ease;
 }
 
 // ── Grouped list ─────────────────────────────────────────────────────────────

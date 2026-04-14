@@ -31,7 +31,16 @@ export const router = createBrowserRouter([
     children: [
       { index: true,           element: <DashboardPage /> },
       { path: 'workouts',      element: <WorkoutsPage /> },
-      { path: 'workouts/new',  element: <WorkoutSetupPage /> },
+      {
+        path: 'workouts/new',
+        element: <WorkoutSetupPage />,
+        handle: {
+          mobileHeader: {
+            title: 'New Workout',
+            backTo: '/workouts',
+          },
+        },
+      },
       { path: 'exercises',     element: <ExercisesPage /> },
       { path: 'exercises/:id', element: <ExerciseDetailPage /> },
       { path: 'templates',          element: <TemplatesPage /> },

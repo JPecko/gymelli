@@ -32,14 +32,10 @@
 
 .imageWrap {
   width: 100%;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 4 / 3;
   border-radius: var(--radius-lg);
   overflow: hidden;
   background-color: var(--color-bg-elevated);
-
-  @media (min-width: bp.$breakpoint-tablet-up) {
-    aspect-ratio: 21 / 9;
-  }
 }
 
 .image {

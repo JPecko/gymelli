@@ -1,46 +1,18 @@
 .page {
+  --picker-sticky-top: calc(var(--mobile-sticky-offset, 0px) - var(--space-2));
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
-  padding-bottom: var(--space-8);
-}
-
-// ── Header ──────────────────────────────────────────────────────────────────
-
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   gap: var(--space-3);
-  padding: var(--space-4) 0 var(--space-2);
+  padding-bottom: calc(var(--nav-height) + 6.5rem + env(safe-area-inset-bottom, 0px));
 }
-
-.backBtn {
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
-  transition: color 0.15s;
-  white-space: nowrap;
-
-  &:hover {
-    color: var(--color-text-primary);
-  }
-}
-
-.title {
-  flex: 1;
-  font-size: var(--text-lg);
-  font-weight: var(--font-semibold);
-  color: var(--color-text-primary);
-  text-align: center;
-}
-
-// ── Selected pills ───────────────────────────────────────────────────────────
 
 .pillsWrap {
   overflow-x: auto;
-  // hide scrollbar visually, keep functional
   scrollbar-width: none;
-  &::-webkit-scrollbar { display: none; }
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .pills {
@@ -66,8 +38,41 @@
   }
 }
 
-// ── Picker content ───────────────────────────────────────────────────────────
-
 .content {
   flex: 1;
+}
+
+.bottomBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: var(--nav-height);
+  z-index: 40;
+  padding: var(--space-3) var(--page-padding-x) calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
+  background:
+    linear-gradient(
+      to top,
+      rgba(13, 13, 13, 0.98) 0%,
+      rgba(13, 13, 13, 0.94) 70%,
+      rgba(13, 13, 13, 0) 100%
+    );
+  backdrop-filter: blur(14px);
+}
+
+.bottomBarInner {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .page {
+    --picker-sticky-top: var(--space-2);
+    padding-bottom: var(--space-8);
+  }
+
+  .bottomBar {
+    position: static;
+    padding: 0;
+    background: none;
+    backdrop-filter: none;
+  }
 }

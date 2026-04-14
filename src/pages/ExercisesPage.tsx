@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { getExercises, getMuscleGroups, getEquipment } from '@/features/exercises/exercises.api'
 import type { Exercise, MuscleGroup, Equipment } from '@/features/exercises/exercises.types'
 import { ExerciseCard } from '@/features/exercises/components/ExerciseCard'
+import { SearchField } from '@/shared/components'
 import styles from './ExercisesPage.module.scss'
 
 interface ExerciseWithMeta extends Exercise {
@@ -43,9 +44,7 @@ export function ExercisesPage() {
       </header>
 
       <div className={styles.searchWrap}>
-        <input
-          className={styles.search}
-          type="search"
+        <SearchField
           placeholder="Search exercises..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}

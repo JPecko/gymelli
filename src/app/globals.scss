@@ -77,6 +77,8 @@
 
   // --- Layout: Mobile ---
   --nav-height:       4.5rem; // 72px — bottom nav
+  --mobile-topbar-height: 3rem;
+  --mobile-topbar-total-height: calc(var(--mobile-topbar-height) + env(safe-area-inset-top, 0px) + var(--space-4));
   --page-padding-x:   1rem;   // 16px
 
   // --- Layout: Desktop (>768px) ---

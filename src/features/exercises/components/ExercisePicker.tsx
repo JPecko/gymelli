@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { getExercises, getMuscleGroups, getEquipment } from '@/features/exercises/exercises.api'
 import type { Exercise, MuscleGroup, Equipment } from '@/features/exercises/exercises.types'
+import { SearchField } from '@/shared/components'
 import { ExercisePickerItem } from './ExercisePickerItem'
 import styles from './ExercisePicker.module.scss'
 
@@ -53,10 +54,7 @@ export function ExercisePicker({ selectedIds, onToggle }: ExercisePickerProps) {
   return (
     <div className={styles.picker}>
       <div className={styles.searchWrap}>
-        {/* font-size: 1rem — prevents iOS Safari zoom on focus */}
-        <input
-          className={styles.search}
-          type="search"
+        <SearchField
           placeholder="Search exercises..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}

@@ -2,11 +2,16 @@
 .root {
   display: flex;
   flex-direction: column;
-  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
 }
 
 .main {
   flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
   padding-bottom: var(--nav-height); // space for fixed bottom nav
   min-width: 0;
 }
@@ -14,6 +19,7 @@
 .content {
   width: 100%;
   padding: 0 var(--page-padding-x);
+  --mobile-sticky-offset: 0px;
 }
 
 // ── Mobile Profile button (top-right, mobile only) ────────────────────────────
@@ -42,10 +48,17 @@
   color: var(--color-gold);
 }
 
+@media (max-width: 767px) {
+  .profileButton {
+    display: none;
+  }
+}
+
 // Desktop: sidebar + content side by side
 @media (min-width: bp.$breakpoint-tablet-up) {
   .root {
     flex-direction: row;
+    overflow: visible;
   }
 
   .main {

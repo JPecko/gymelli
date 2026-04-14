@@ -1,5 +1,6 @@
 export { Button } from './Button'
 export { Input } from './Input'
+export { SearchField } from './SearchField'
 export { IconButton } from './IconButton'
 export { SwipeableItem } from './SwipeableItem'
 export { Badge } from './Badge'
