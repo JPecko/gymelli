@@ -5,6 +5,7 @@ import { useWorkoutSession } from '@/features/workouts/hooks/useWorkoutSession'
 import { getSessionById } from '@/features/workouts'
 import { useElapsedTime } from '@/shared/hooks/useElapsedTime'
 import { ExerciseBlock } from '@/features/workouts/components/ExerciseBlock'
+import { RestTimer } from '@/features/workouts/components/RestTimer'
 import { Button, IconButton } from '@/shared/components'
 import type { WorkoutSession } from '@/features/workouts'
 import styles from './WorkoutSessionPage.module.scss'
@@ -46,11 +47,13 @@ function SessionView({ session, onCancel, onFinish }: SessionViewProps) {
     active_index,
     is_loading,
     is_finishing,
+    rest_timer_active,
     goToExercise,
     updateDraftSet,
     confirmSet,
     addSet,
     finishWorkout,
+    dismissRestTimer,
   } = useWorkoutSession(session)
 
   const elapsed = useElapsedTime(session.started_at)
@@ -143,6 +146,8 @@ function SessionView({ session, onCancel, onFinish }: SessionViewProps) {
           {is_finishing ? 'Finishing...' : 'Finish Workout'}
         </Button>
       </footer>
+
+      {rest_timer_active && <RestTimer onDismiss={dismissRestTimer} />}
     </div>
   )
 }

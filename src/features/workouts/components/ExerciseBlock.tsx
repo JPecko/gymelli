@@ -6,7 +6,7 @@ import styles from './ExerciseBlock.module.scss'
 interface ExerciseBlockProps {
   state: SessionExerciseState
   onConfirmSet: (setIdx: number) => void
-  onUpdateSet: (setIdx: number, field: 'weight_kg' | 'reps', value: number) => void
+  onUpdateSet: (setIdx: number, field: 'weight_kg' | 'reps', value: number | null) => void
   onAddSet: () => void
 }
 

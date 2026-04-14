@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { IconButton } from '@/shared/components'
+import { IconButton, StepperInput } from '@/shared/components'
 import type { DraftSet } from '../hooks/useWorkoutSession'
 import type { ExerciseSet } from '../workouts.types'
 import styles from './SetRow.module.scss'
@@ -9,7 +9,7 @@ interface SetRowProps {
   set: DraftSet
   previousSet: ExerciseSet | undefined
   onConfirm: () => void
-  onUpdate: (field: 'weight_kg' | 'reps', value: number) => void
+  onUpdate: (field: 'weight_kg' | 'reps', value: number | null) => void
 }
 
 export function SetRow({ index, set, previousSet, onConfirm, onUpdate }: SetRowProps) {
@@ -23,28 +23,22 @@ export function SetRow({ index, set, previousSet, onConfirm, onUpdate }: SetRowP
 
       <span className={styles.prev}>{prevLabel}</span>
 
-      <input
-        type="number"
-        className={clsx(styles.field, set.is_completed && styles.fieldDone)}
-        value={set.weight_kg ?? ''}
-        onChange={(e) => onUpdate('weight_kg', parseFloat(e.target.value))}
-        disabled={set.is_completed}
-        placeholder="—"
-        min={0}
+      <StepperInput
+        value={set.weight_kg}
+        onChange={(v) => onUpdate('weight_kg', v)}
         step={2.5}
+        min={0}
+        disabled={set.is_completed}
         inputMode="decimal"
         aria-label={`Set ${index + 1} weight`}
       />
 
-      <input
-        type="number"
-        className={clsx(styles.field, set.is_completed && styles.fieldDone)}
-        value={set.reps ?? ''}
-        onChange={(e) => onUpdate('reps', parseInt(e.target.value, 10))}
-        disabled={set.is_completed}
-        placeholder="—"
-        min={0}
+      <StepperInput
+        value={set.reps}
+        onChange={(v) => onUpdate('reps', v)}
         step={1}
+        min={0}
+        disabled={set.is_completed}
         inputMode="numeric"
         aria-label={`Set ${index + 1} reps`}
       />

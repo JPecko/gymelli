@@ -75,8 +75,11 @@ src/
   - `SetRow` — read-only display row: "Set N · X kg × Y". For logged set history.
   - `SetsCard` — card with header slot + list of `SetRow`. Props: `header: ReactNode`, `sets[]`, `emptyMessage?`.
   - `SwipeableItem` — swipe-left-to-delete wrapper (touch). Shows delete button on hover (desktop, `hover: none` media query excluded).
+  - `StepperInput` — numeric stepper with −/+ buttons. Props: `value: number | null`, `onChange`, `step`, `min`, `disabled`, `inputMode`. Disabled state hides buttons and shows static value. Touch-friendly (44px min-height).
 - **Always check `shared/hooks/` before creating a new hook.**
-  Existing: `useElapsedTime(startedAt)` → formatted elapsed string (e.g. `"4:32"`)
+  Existing:
+  - `useElapsedTime(startedAt)` → formatted elapsed string (e.g. `"4:32"`)
+  - `useCountdown(totalSeconds, onComplete)` → `{ remaining, progress, display }`. Counts down to 0 then calls `onComplete`. `totalSeconds` fixed on mount.
 
 **Import direction:** `features` → `shared` → never the reverse.
 

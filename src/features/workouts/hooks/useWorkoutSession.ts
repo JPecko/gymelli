@@ -39,6 +39,7 @@ export function useWorkoutSession(session: WorkoutSession) {
   const [activeIndex, setActiveIndex] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [isFinishing, setIsFinishing] = useState(false)
+  const [restTimerActive, setRestTimerActive] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -68,7 +69,7 @@ export function useWorkoutSession(session: WorkoutSession) {
   }, [session.id])
 
   const updateDraftSet = useCallback(
-    (exIdx: number, setIdx: number, field: 'weight_kg' | 'reps', value: number) => {
+    (exIdx: number, setIdx: number, field: 'weight_kg' | 'reps', value: number | null) => {
       setExercises((prev) =>
         prev.map((ex, i) =>
           i !== exIdx
@@ -93,6 +94,7 @@ export function useWorkoutSession(session: WorkoutSession) {
             : { ...e, sets: e.sets.map((s, j) => (j !== setIdx ? s : { ...s, is_completed: true })) },
         ),
       )
+      setRestTimerActive(true)
 
       try {
         const logged = await logSet({
@@ -151,16 +153,22 @@ export function useWorkoutSession(session: WorkoutSession) {
     await finishSession(session.id)
   }, [session.id])
 
+  const dismissRestTimer = useCallback(() => {
+    setRestTimerActive(false)
+  }, [])
+
   return {
     exercises,
     active_index: activeIndex,
     is_loading: isLoading,
     is_finishing: isFinishing,
+    rest_timer_active: restTimerActive,
     goToExercise: setActiveIndex,
     updateDraftSet,
     confirmSet,
     addSet,
     removeSet,
     finishWorkout,
+    dismissRestTimer,
   }
 }
