@@ -77,6 +77,13 @@
   margin-top: var(--space-4);
 }
 
+.version {
+  margin-top: var(--space-4);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
 .startButton {
   display: flex;
   align-items: center;

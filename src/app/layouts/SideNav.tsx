@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import clsx from 'clsx'
+import { APP_VERSION } from '@/shared/lib/version'
 import styles from './SideNav.module.scss'
 
 const navItems = [
@@ -44,6 +45,7 @@ export function SideNav() {
           <span>+</span>
           Start Workout
         </button>
+        <p className={styles.version}>v{APP_VERSION}</p>
       </div>
     </aside>
   )
