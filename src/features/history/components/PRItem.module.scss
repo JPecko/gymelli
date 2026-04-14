@@ -1,0 +1,35 @@
+.row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.name {
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.set {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--color-gold);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.date {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}

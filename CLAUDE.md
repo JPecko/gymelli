@@ -76,6 +76,7 @@ src/
   - `SetsCard` — card with header slot + list of `SetRow`. Props: `header: ReactNode`, `sets[]`, `emptyMessage?`.
   - `SwipeableItem` — swipe-left-to-delete wrapper (touch). Shows delete button on hover (desktop, `hover: none` media query excluded).
   - `StepperInput` — numeric stepper with −/+ buttons. Props: `value: number | null`, `onChange`, `step`, `min`, `disabled`, `inputMode`. Disabled state hides buttons and shows static value. Touch-friendly (44px min-height).
+  - `StatCard` — metric display card. Props: `label`, `value`, `unit?`, `accent?` (gold highlight). Used in History and Dashboard.
 - **Always check `shared/hooks/` before creating a new hook.**
   Existing:
   - `useElapsedTime(startedAt)` → formatted elapsed string (e.g. `"4:32"`)
