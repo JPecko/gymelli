@@ -40,6 +40,7 @@ export function useWorkoutSession(session: WorkoutSession) {
   const [isLoading, setIsLoading] = useState(true)
   const [isFinishing, setIsFinishing] = useState(false)
   const [restTimerActive, setRestTimerActive] = useState(false)
+  const [restTimerDuration, setRestTimerDuration] = useState(90)
 
   useEffect(() => {
     async function load() {
@@ -94,6 +95,7 @@ export function useWorkoutSession(session: WorkoutSession) {
             : { ...e, sets: e.sets.map((s, j) => (j !== setIdx ? s : { ...s, is_completed: true })) },
         ),
       )
+      setRestTimerDuration(ex.session_exercise.rest_seconds ?? 90)
       setRestTimerActive(true)
 
       try {
@@ -163,6 +165,7 @@ export function useWorkoutSession(session: WorkoutSession) {
     is_loading: isLoading,
     is_finishing: isFinishing,
     rest_timer_active: restTimerActive,
+    rest_timer_duration: restTimerDuration,
     goToExercise: setActiveIndex,
     updateDraftSet,
     confirmSet,

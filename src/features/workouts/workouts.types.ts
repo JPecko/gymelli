@@ -13,6 +13,7 @@ export interface WorkoutSessionExercise {
   exercise_id: string
   order_index: number
   is_completed: boolean
+  rest_seconds: number | null
 }
 
 export interface ExerciseSet {

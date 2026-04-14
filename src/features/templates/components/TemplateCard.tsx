@@ -27,7 +27,9 @@ export function TemplateCard({ template }: TemplateCardProps) {
     setIsStarting(true)
     try {
       const session = await startSession(template.id)
-      await Promise.all(sorted.map((te, i) => addSessionExercise(session.id, te.exercise_id, i)))
+      await Promise.all(
+        sorted.map((te, i) => addSessionExercise(session.id, te.exercise_id, i, te.rest_seconds)),
+      )
       navigate(`/workouts/session/${session.id}`)
     } catch {
       setIsStarting(false)

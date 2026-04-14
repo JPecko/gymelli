@@ -174,10 +174,17 @@ export async function addSessionExercise(
   sessionId: string,
   exerciseId: string,
   orderIndex: number,
+  restSeconds?: number | null,
 ): Promise<WorkoutSessionExercise> {
   const { data, error } = await supabase
     .from('workout_session_exercises')
-    .insert({ session_id: sessionId, exercise_id: exerciseId, order_index: orderIndex, is_completed: false })
+    .insert({
+      session_id: sessionId,
+      exercise_id: exerciseId,
+      order_index: orderIndex,
+      is_completed: false,
+      rest_seconds: restSeconds ?? null,
+    })
     .select()
     .single()
 

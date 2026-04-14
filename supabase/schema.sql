@@ -119,6 +119,7 @@ create table workout_session_exercises (
   exercise_id  uuid not null references exercises (id),
   order_index  integer not null,
   is_completed boolean not null default false,
+  rest_seconds integer,
   unique (session_id, order_index)
 );
 

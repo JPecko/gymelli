@@ -48,6 +48,7 @@ function SessionView({ session, onCancel, onFinish }: SessionViewProps) {
     is_loading,
     is_finishing,
     rest_timer_active,
+    rest_timer_duration,
     goToExercise,
     updateDraftSet,
     confirmSet,
@@ -147,7 +148,9 @@ function SessionView({ session, onCancel, onFinish }: SessionViewProps) {
         </Button>
       </footer>
 
-      {rest_timer_active && <RestTimer onDismiss={dismissRestTimer} />}
+      {rest_timer_active && (
+        <RestTimer durationSeconds={rest_timer_duration} onDismiss={dismissRestTimer} />
+      )}
     </div>
   )
 }

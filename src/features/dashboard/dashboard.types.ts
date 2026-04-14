@@ -1,5 +1,27 @@
-export interface DashboardStats {
-  weekly_streak: number
-  weekly_volume_kg: number
-  last_session_date: string | null
+export interface RawDashboardSession {
+  id: string
+  started_at: string
+  finished_at: string
+  template_id: string | null
+  workout_session_exercises: Array<{
+    order_index: number
+    exercises: { name: string } | null
+    exercise_sets: Array<{ weight_kg: number | null; reps: number | null }>
+  }>
+}
+
+export interface DashboardLastSession {
+  id: string
+  started_at: string
+  finished_at: string
+  template_id: string | null
+  exercise_names: string[]
+  duration_seconds: number
+  total_sets: number
+}
+
+export interface DashboardData {
+  streak: number
+  this_week_volume_kg: number
+  last_session: DashboardLastSession | null
 }
