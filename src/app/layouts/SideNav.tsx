@@ -1,14 +1,14 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import clsx from 'clsx'
 import { APP_VERSION } from '@/shared/lib/version'
+import { HomeIcon, ProgramsIcon, ExercisesIcon, ProgressIcon, ProfileIcon, PlusIcon } from './NavIcons'
 import styles from './SideNav.module.scss'
 
 const navItems = [
-  { to: '/',          label: 'Home',      icon: '⌂' },
-  { to: '/templates', label: 'Workouts',  icon: '☰' },
-  { to: '/exercises', label: 'Exercises', icon: '◈' },
-  { to: '/history',   label: 'History',   icon: '◷' },
-  { to: '/profile',   label: 'Profile',   icon: '◉' },
+  { to: '/',          label: 'Home',      Icon: HomeIcon,      end: true },
+  { to: '/templates', label: 'Programs',  Icon: ProgramsIcon,  end: false },
+  { to: '/exercises', label: 'Exercises', Icon: ExercisesIcon, end: false },
+  { to: '/history',   label: 'Progress',  Icon: ProgressIcon,  end: false },
 ]
 
 export function SideNav() {
@@ -25,15 +25,15 @@ export function SideNav() {
       </div>
 
       <nav className={styles.nav}>
-        {navItems.map((item) => (
+        {navItems.map(({ to, label, Icon, end }) => (
           <NavLink
-            key={item.to}
-            to={item.to}
-            end={item.to === '/'}
+            key={to}
+            to={to}
+            end={end}
             className={({ isActive }) => clsx(styles.item, isActive && styles.active)}
           >
-            <span className={styles.icon}>{item.icon}</span>
-            <span className={styles.label}>{item.label}</span>
+            <span className={styles.icon}><Icon /></span>
+            <span className={styles.label}>{label}</span>
           </NavLink>
         ))}
       </nav>
@@ -41,11 +41,20 @@ export function SideNav() {
       <div className={styles.footer}>
         <button
           className={styles.startButton}
-          onClick={() => navigate('/workouts')}
+          onClick={() => navigate('/workouts/new')}
         >
-          <span>+</span>
+          <PlusIcon />
           Start Workout
         </button>
+
+        <NavLink
+          to="/profile"
+          className={({ isActive }) => clsx(styles.profileLink, isActive && styles.active)}
+        >
+          <span className={styles.icon}><ProfileIcon /></span>
+          <span className={styles.label}>Profile</span>
+        </NavLink>
+
         <p className={styles.version}>v{APP_VERSION}</p>
       </div>
     </aside>

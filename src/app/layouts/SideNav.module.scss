@@ -61,9 +61,10 @@
 }
 
 .icon {
-  font-size: var(--text-lg);
-  width: 1.25rem;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
   flex-shrink: 0;
 }
 
@@ -72,16 +73,12 @@
 }
 
 .footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
   padding: var(--space-4) var(--space-3) 0;
   border-top: 1px solid var(--color-border-subtle);
   margin-top: var(--space-4);
-}
-
-.version {
-  margin-top: var(--space-4);
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
-  text-align: center;
 }
 
 .startButton {
@@ -102,4 +99,33 @@
   &:active {
     opacity: 0.85;
   }
+}
+
+.profileLink {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  transition: background-color 150ms ease, color 150ms ease;
+
+  &:hover {
+    background-color: var(--color-bg-elevated);
+    color: var(--color-text-primary);
+  }
+
+  &.active {
+    background-color: var(--color-gold-subtle);
+    color: var(--color-gold);
+  }
+}
+
+.version {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: var(--space-2) 0;
 }

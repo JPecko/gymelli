@@ -47,8 +47,11 @@ Theme: dark neutrals (90%) with gold accents (10%).
 - **Profile** — display name, email (read-only), sign out
 
 ### Navigation
-- **BottomNav (mobile):** Home · Workouts · [+] · History · Profile
-- **SideNav (desktop):** Home · Workouts · Exercises · History · Profile + Start Workout button + version label
+- **BottomNav (mobile):** Home(/) · Programs(/templates) · [FAB→/workouts/new] · Exercises(/exercises) · Progress(/history)
+  - Profile accessible via floating icon (top-right of AppLayout, mobile only)
+- **SideNav (desktop):** Home · Programs · Exercises · Progress · Profile (in footer) + Start Workout button + version label
+- **NavIcons** (`src/app/layouts/NavIcons.tsx`) — shared SVG line icons for both navs
+- Nav height: 72px (`--nav-height: 4.5rem`)
 
 ---
 

@@ -1,12 +1,13 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import clsx from 'clsx'
+import { HomeIcon, ProgramsIcon, ExercisesIcon, ProgressIcon, PlusIcon } from './NavIcons'
 import styles from './BottomNav.module.scss'
 
 const navItems = [
-  { to: '/',          label: 'Home',      icon: '⌂' },
-  { to: '/templates', label: 'Workouts',  icon: '☰' },
-  { to: '/history',   label: 'History',   icon: '◷' },
-  { to: '/profile',   label: 'Profile',   icon: '◉' },
+  { to: '/',          label: 'Home',      Icon: HomeIcon,      end: true },
+  { to: '/templates', label: 'Programs',  Icon: ProgramsIcon,  end: false },
+  { to: '/exercises', label: 'Exercises', Icon: ExercisesIcon, end: false },
+  { to: '/history',   label: 'Progress',  Icon: ProgressIcon,  end: false },
 ]
 
 export function BottomNav() {
@@ -14,34 +15,47 @@ export function BottomNav() {
 
   return (
     <nav className={styles.nav}>
-      {navItems.slice(0, 2).map((item) => (
-        <NavItem key={item.to} {...item} />
+      {navItems.slice(0, 2).map(({ to, label, Icon, end }) => (
+        <NavLink
+          key={to}
+          to={to}
+          end={end}
+          className={({ isActive }) => clsx(styles.item, isActive && styles.active)}
+        >
+          {({ isActive }) => (
+            <>
+              <span className={styles.icon}><Icon /></span>
+              <span className={styles.label}>{label}</span>
+              {isActive && <span className={styles.dot} aria-hidden />}
+            </>
+          )}
+        </NavLink>
       ))}
 
       <button
-        className={styles.startButton}
-        onClick={() => navigate('/workouts')}
+        className={styles.fab}
+        onClick={() => navigate('/workouts/new')}
         aria-label="Start workout"
       >
-        <span className={styles.startIcon}>+</span>
+        <PlusIcon />
       </button>
 
-      {navItems.slice(2).map((item) => (
-        <NavItem key={item.to} {...item} />
+      {navItems.slice(2).map(({ to, label, Icon, end }) => (
+        <NavLink
+          key={to}
+          to={to}
+          end={end}
+          className={({ isActive }) => clsx(styles.item, isActive && styles.active)}
+        >
+          {({ isActive }) => (
+            <>
+              <span className={styles.icon}><Icon /></span>
+              <span className={styles.label}>{label}</span>
+              {isActive && <span className={styles.dot} aria-hidden />}
+            </>
+          )}
+        </NavLink>
       ))}
     </nav>
-  )
-}
-
-function NavItem({ to, label, icon }: { to: string; label: string; icon: string }) {
-  return (
-    <NavLink
-      to={to}
-      end={to === '/'}
-      className={({ isActive }) => clsx(styles.item, isActive && styles.active)}
-    >
-      <span className={styles.icon}>{icon}</span>
-      <span className={styles.label}>{label}</span>
-    </NavLink>
   )
 }
