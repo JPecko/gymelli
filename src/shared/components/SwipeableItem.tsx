@@ -16,26 +16,35 @@ export function SwipeableItem({ children, onDelete, deleteLabel = 'Delete' }: Sw
   const [isRevealed, setIsRevealed] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const startXRef = useRef<number | null>(null)
+  const startYRef = useRef<number | null>(null)
 
   function handleTouchStart(e: React.TouchEvent) {
     startXRef.current = e.touches[0].clientX
+    startYRef.current = e.touches[0].clientY
     setIsDragging(true)
   }
 
   function handleTouchMove(e: React.TouchEvent) {
-    if (startXRef.current === null) return
+    if (startXRef.current === null || startYRef.current === null) return
     const dx = startXRef.current - e.touches[0].clientX
-    if (dx > 0) {
-      setOffset(Math.min(dx, REVEAL_WIDTH))
-    } else if (isRevealed) {
-      // allow swiping back
-      setOffset(Math.max(REVEAL_WIDTH + dx, 0))
+    const dy = Math.abs(e.touches[0].clientY - startYRef.current)
+
+    // Only handle horizontal gestures — stop propagation so parent swipe handlers don't fire
+    if (Math.abs(dx) > dy) {
+      e.stopPropagation()
+      if (dx > 0) {
+        setOffset(Math.min(dx, REVEAL_WIDTH))
+      } else if (isRevealed) {
+        setOffset(Math.max(REVEAL_WIDTH + dx, 0))
+      }
     }
   }
 
-  function handleTouchEnd() {
+  function handleTouchEnd(e: React.TouchEvent) {
     setIsDragging(false)
     startXRef.current = null
+    startYRef.current = null
+    if (isRevealed || offset > 0) e.stopPropagation()
     if (offset > SNAP_THRESHOLD) {
       setOffset(REVEAL_WIDTH)
       setIsRevealed(true)

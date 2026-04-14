@@ -104,6 +104,8 @@ function SessionView({ session, onCancel, onFinish }: SessionViewProps) {
             onUpdateSet={(i, field, value) => updateDraftSet(active_index, i, field, value)}
             onAddSet={() => addSet(active_index)}
             onRemoveSet={(i) => removeSet(active_index, i)}
+            onSwipeLeft={!isLast ? () => goToExercise(active_index + 1) : undefined}
+            onSwipeRight={!isFirst ? () => goToExercise(active_index - 1) : undefined}
           />
         )}
 

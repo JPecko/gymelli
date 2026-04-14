@@ -90,6 +90,7 @@ src/
   - `useElapsedTime(startedAt)` → formatted elapsed string (e.g. `"4:32"`)
   - `useCountdown(totalSeconds, onComplete)` → `{ remaining, progress, display }`. Counts down to 0 then calls `onComplete`. `totalSeconds` fixed on mount.
   - `useVersionCheck()` → `{ updateAvailable }`. Polls `app_config.app_version` every 5 min and on window focus.
+  - `useSwipeGesture({ onSwipeLeft?, onSwipeRight?, threshold? })` → `{ onTouchStart, onTouchEnd }`. Fires only when gesture is primarily horizontal (`|dx| > |dy|`). Safe to use alongside `SwipeableItem` — `SwipeableItem` stops propagation on horizontal moves.
 
 **Import direction:** `features` → `shared` → never the reverse.
 

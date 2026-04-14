@@ -71,6 +71,10 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
+
+  @media (hover: none) {
+    justify-content: center;
+  }
 }
 
 .switchBtn {
@@ -80,6 +84,11 @@
   &:hover:not(:disabled) {
     border-color: var(--color-text-muted) !important;
     color: var(--color-text-primary) !important;
+  }
+
+  // Touch devices use swipe — buttons are redundant
+  @media (hover: none) {
+    display: none;
   }
 }
 

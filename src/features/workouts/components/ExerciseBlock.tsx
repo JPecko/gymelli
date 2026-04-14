@@ -1,4 +1,5 @@
 import { Button, SwipeableItem } from '@/shared/components'
+import { useSwipeGesture } from '@/shared/hooks/useSwipeGesture'
 import { SetRow } from './SetRow'
 import type { SessionExerciseState } from '../hooks/useWorkoutSession'
 import styles from './ExerciseBlock.module.scss'
@@ -9,10 +10,15 @@ interface ExerciseBlockProps {
   onUpdateSet: (setIdx: number, field: 'weight_kg' | 'reps', value: number | null) => void
   onAddSet: () => void
   onRemoveSet: (setIdx: number) => void
+  onSwipeLeft?: () => void
+  onSwipeRight?: () => void
 }
 
-export function ExerciseBlock({ state, onConfirmSet, onUpdateSet, onAddSet, onRemoveSet }: ExerciseBlockProps) {
+export function ExerciseBlock({
+  state, onConfirmSet, onUpdateSet, onAddSet, onRemoveSet, onSwipeLeft, onSwipeRight,
+}: ExerciseBlockProps) {
   const { exercise, sets, previous_sets } = state
+  const swipeHandlers = useSwipeGesture({ onSwipeLeft, onSwipeRight })
 
   const prevSummary = previous_sets
     .slice(0, 5)
@@ -20,7 +26,10 @@ export function ExerciseBlock({ state, onConfirmSet, onUpdateSet, onAddSet, onRe
     .join('  ·  ')
 
   return (
-    <div className={styles.block}>
+    <div className={styles.block} {...swipeHandlers}>
+      {onSwipeRight && <span className={styles.chevronLeft} aria-hidden>‹</span>}
+      {onSwipeLeft  && <span className={styles.chevronRight} aria-hidden>›</span>}
+
       <div className={styles.header}>
         <h2 className={styles.name}>{exercise.name}</h2>
         <p className={styles.type}>{exercise.type}</p>
