@@ -49,6 +49,28 @@ export async function getEquipment(): Promise<Equipment[]> {
   return data
 }
 
+export async function getExercisePR(
+  exerciseId: string,
+): Promise<{ weight_kg: number; reps: number | null } | null> {
+  const { data: ses } = await supabase
+    .from('workout_session_exercises')
+    .select('id')
+    .eq('exercise_id', exerciseId)
+
+  if (!ses?.length) return null
+
+  const { data } = await supabase
+    .from('exercise_sets')
+    .select('weight_kg, reps')
+    .in('session_exercise_id', ses.map((se) => se.id))
+    .not('weight_kg', 'is', null)
+    .order('weight_kg', { ascending: false })
+    .limit(1)
+    .single()
+
+  return (data as { weight_kg: number; reps: number | null } | null) ?? null
+}
+
 export async function getExerciseHistory(exerciseId: string): Promise<ExerciseHistorySession[]> {
   // 1. All session_exercises for this exercise
   const { data: sessionExercises } = await supabase

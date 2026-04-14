@@ -5,10 +5,12 @@ import {
   getMuscleGroups,
   getEquipment,
   getExerciseHistory,
+  getExercisePR,
 } from '@/features/exercises/exercises.api'
 import type { Exercise, MuscleGroup, Equipment, ExerciseHistorySession } from '@/features/exercises/exercises.types'
 import { deleteSessionExercise } from '@/features/workouts/workouts.api'
-import { SwipeableItem, Badge, SetsCard } from '@/shared/components'
+import { SwipeableItem, Badge, SetsCard, StatCard } from '@/shared/components'
+import { WeightProgressChart } from '@/features/exercises/components/WeightProgressChart'
 import styles from './ExerciseDetailPage.module.scss'
 
 function toSlug(name: string): string {
@@ -20,10 +22,12 @@ function toSlug(name: string): string {
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
+    day: 'numeric', month: 'short', year: 'numeric',
   })
+}
+
+function formatShortDate(iso: string): string {
+  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
 }
 
 interface PageState {
@@ -31,6 +35,7 @@ interface PageState {
   muscleGroupName: string
   equipmentName: string | null
   history: ExerciseHistorySession[]
+  pr: { weight_kg: number; reps: number | null } | null
 }
 
 export function ExerciseDetailPage() {
@@ -48,7 +53,8 @@ export function ExerciseDetailPage() {
       getMuscleGroups(),
       getEquipment(),
       getExerciseHistory(id),
-    ]).then(([exercise, muscleGroups, equipment, history]: [Exercise, MuscleGroup[], Equipment[], ExerciseHistorySession[]]) => {
+      getExercisePR(id),
+    ]).then(([exercise, muscleGroups, equipment, history, pr]: [Exercise, MuscleGroup[], Equipment[], ExerciseHistorySession[], { weight_kg: number; reps: number | null } | null]) => {
       const mgMap = new Map(muscleGroups.map((mg) => [mg.id, mg]))
       const equipMap = new Map(equipment.map((e) => [e.id, e]))
 
@@ -57,6 +63,7 @@ export function ExerciseDetailPage() {
         muscleGroupName: mgMap.get(exercise.muscle_group_id)?.name ?? '',
         equipmentName: exercise.equipment_id ? (equipMap.get(exercise.equipment_id)?.name ?? null) : null,
         history,
+        pr,
       })
       setIsLoading(false)
     })
@@ -77,9 +84,17 @@ export function ExerciseDetailPage() {
     return <div className={styles.loading}>Loading...</div>
   }
 
-  const { exercise, muscleGroupName, equipmentName, history } = state
+  const { exercise, muscleGroupName, equipmentName, history, pr } = state
   const slug = toSlug(exercise.name)
   const meta = [muscleGroupName, equipmentName].filter(Boolean).join(' · ')
+
+  const chartPoints = [...history]
+    .reverse()
+    .map((s) => ({
+      label: formatShortDate(s.started_at),
+      weight_kg: Math.max(...s.sets.map((set) => set.weight_kg ?? 0), 0),
+    }))
+    .filter((p) => p.weight_kg > 0)
 
   return (
     <div className={styles.page}>
@@ -118,6 +133,22 @@ export function ExerciseDetailPage() {
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Instructions</h2>
           <p className={styles.instructions}>{exercise.instructions}</p>
+        </section>
+      )}
+
+      {/* ── Stats ─────────────────────────────────────────────── */}
+      {history.length > 0 && (
+        <div className={styles.stats}>
+          <StatCard label="Sessions" value={history.length} />
+          {pr && <StatCard label="Best weight" value={pr.weight_kg} unit="kg" accent />}
+        </div>
+      )}
+
+      {/* ── Progress ──────────────────────────────────────────── */}
+      {chartPoints.length > 1 && (
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Progress</h2>
+          <WeightProgressChart points={chartPoints} />
         </section>
       )}
 
