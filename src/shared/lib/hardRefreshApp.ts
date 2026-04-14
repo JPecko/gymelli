@@ -10,6 +10,5 @@ export async function hardRefreshApp(): Promise<void> {
     await Promise.all(keys.map((k) => caches.delete(k)))
   }
 
-  const { origin, pathname } = window.location
-  window.location.href = `${origin}${pathname}?refresh=${Date.now()}`
+  window.location.replace(`/?refresh=${Date.now()}`)
 }
