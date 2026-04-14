@@ -1,0 +1,55 @@
+.row {
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+// ── Top row: name + reorder/remove actions ────────────────────────────────────
+
+.top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.name {
+  flex: 1;
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-1);
+  flex-shrink: 0;
+}
+
+// ── Bottom row: default sets / reps / rest steppers ───────────────────────────
+
+.defaults {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.label {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  font-weight: var(--font-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}

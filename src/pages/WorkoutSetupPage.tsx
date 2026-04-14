@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { startSession, addSessionExercise } from '@/features/workouts'
-import { ExercisePicker } from '@/features/workouts/components/ExercisePicker'
+import { ExercisePicker } from '@/features/exercises/components/ExercisePicker'
 import type { Exercise } from '@/features/exercises/exercises.types'
 import { Button } from '@/shared/components'
 import styles from './WorkoutSetupPage.module.scss'

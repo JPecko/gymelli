@@ -14,3 +14,11 @@ export interface WorkoutTemplateExercise {
   default_reps: number | null
   rest_seconds: number | null
 }
+
+export interface TemplateListItem extends WorkoutTemplate {
+  workout_template_exercises: Array<{
+    exercise_id: string
+    order_index: number
+    exercises: { name: string } | null
+  }>
+}

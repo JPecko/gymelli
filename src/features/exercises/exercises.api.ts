@@ -11,6 +11,13 @@ export async function getExercises(): Promise<Exercise[]> {
   return data
 }
 
+export async function getExercisesByIds(ids: string[]): Promise<Exercise[]> {
+  if (ids.length === 0) return []
+  const { data, error } = await supabase.from('exercises').select('*').in('id', ids)
+  if (error) throw error
+  return data
+}
+
 export async function getExerciseById(id: string): Promise<Exercise> {
   const { data, error } = await supabase
     .from('exercises')

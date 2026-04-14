@@ -204,6 +204,30 @@ Reference in components: `src={'/images/exercises/${slug}.png'}`. Always provide
 
 ---
 
+## Pre-implementation checklist (mandatory)
+
+Before writing any code for a new feature, verify all of the following. Raise issues with the user **before** implementing — not after.
+
+**Architecture**
+- No cross-feature imports (`features/A` → `features/B`) unless truly unavoidable. If a component is used by 2+ features, move it to the feature that owns its data or to `shared/`.
+- Import direction: `features` → `shared`, never the reverse.
+- New component location: `shared/` only if domain-agnostic and reusable; otherwise inside the owning feature.
+
+**Reuse**
+- Check `shared/components/index.ts` and `shared/hooks/` before creating anything new.
+- Check the feature's own components/hooks first.
+
+**Data / Performance**
+- No N+1 queries: never call an API inside `.map()`. Use `.in()` batch queries instead.
+- Prefer one Supabase round-trip over sequential queries where possible.
+- Optimistic UI for any user-facing write during a workout session.
+
+**Quality**
+- Components ≤ ~150 lines, hooks ≤ ~100 lines.
+- No data fetching inside UI components — use hooks or API files.
+
+---
+
 ## Constraints
 
 - No monolithic files

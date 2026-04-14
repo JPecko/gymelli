@@ -53,6 +53,7 @@ export function ExercisePicker({ selectedIds, onToggle }: ExercisePickerProps) {
   return (
     <div className={styles.picker}>
       <div className={styles.searchWrap}>
+        {/* font-size: 1rem — prevents iOS Safari zoom on focus */}
         <input
           className={styles.search}
           type="search"

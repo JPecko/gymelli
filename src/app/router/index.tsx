@@ -12,6 +12,7 @@ import { WorkoutSessionPage } from '@/pages/WorkoutSessionPage'
 import { ExercisesPage } from '@/pages/ExercisesPage'
 import { ExerciseDetailPage } from '@/pages/ExerciseDetailPage'
 import { TemplatesPage } from '@/pages/TemplatesPage'
+import { TemplateEditorPage } from '@/pages/TemplateEditorPage'
 import { HistoryPage } from '@/pages/HistoryPage'
 
 export const router = createBrowserRouter([
@@ -32,8 +33,10 @@ export const router = createBrowserRouter([
       { path: 'workouts/new',  element: <WorkoutSetupPage /> },
       { path: 'exercises',     element: <ExercisesPage /> },
       { path: 'exercises/:id', element: <ExerciseDetailPage /> },
-      { path: 'templates',     element: <TemplatesPage /> },
-      { path: 'history',       element: <HistoryPage /> },
+      { path: 'templates',          element: <TemplatesPage /> },
+      { path: 'templates/new',      element: <TemplateEditorPage /> },
+      { path: 'templates/:id/edit', element: <TemplateEditorPage /> },
+      { path: 'history',            element: <HistoryPage /> },
     ],
   },
   {
