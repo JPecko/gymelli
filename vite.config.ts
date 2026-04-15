@@ -1,9 +1,12 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
-import { readFileSync } from 'fs'
+import { readFileSync, writeFileSync } from 'fs'
 
 const pkg = JSON.parse(readFileSync('./package.json', 'utf-8')) as { version: string }
+
+// Write public/version.json so deployed bundles can compare against the live version
+writeFileSync('./public/version.json', JSON.stringify({ version: pkg.version }))
 
 // https://vite.dev/config/
 export default defineConfig({

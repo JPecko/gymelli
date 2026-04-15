@@ -1,14 +1,10 @@
-import { supabase } from './supabase'
-
-/** Returns the remote app_version from app_config, or null on any failure. */
+/** Fetches the deployed app version from /version.json (generated at build time). */
 export async function getRemoteAppVersion(): Promise<string | null> {
   try {
-    const { data } = await supabase
-      .from('app_config')
-      .select('value')
-      .eq('key', 'app_version')
-      .single()
-    return (data as { value: string } | null)?.value ?? null
+    const res = await fetch(`/version.json?t=${Date.now()}`)
+    if (!res.ok) return null
+    const data = (await res.json()) as { version: string }
+    return data.version ?? null
   } catch {
     return null
   }
