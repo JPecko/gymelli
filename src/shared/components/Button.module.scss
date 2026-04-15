@@ -7,12 +7,20 @@
   font-weight: var(--font-semibold);
   letter-spacing: 0.02em;
   cursor: pointer;
-  transition: opacity 0.15s, background-color 0.15s, border-color 0.15s, color 0.15s;
+  transition: opacity 0.15s, background-color 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
   white-space: nowrap;
 
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  // Native-feel press feedback on touch devices
+  @media (hover: none) {
+    &:active:not(:disabled) {
+      transform: scale(0.96);
+      opacity: 0.75;
+    }
   }
 }
 

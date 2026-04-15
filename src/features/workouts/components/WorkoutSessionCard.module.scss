@@ -18,6 +18,14 @@
   &:active {
     transform: translateY(0);
   }
+
+  // No hover highlight on touch — avoids gold border flash during swipe
+  @media (hover: none) {
+    &:hover, &:active {
+      border-color: var(--color-border);
+      transform: none;
+    }
+  }
 }
 
 // ── Left: main content ─────────────────────────────────────────────────────

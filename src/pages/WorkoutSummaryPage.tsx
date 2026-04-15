@@ -6,6 +6,7 @@ import {
   getSetsForSessionExercise,
   getPreviousSetsForExercise,
   updateSessionCalories,
+  deleteSession,
 } from '@/features/workouts/workouts.api'
 import { useWorkoutScore } from '@/features/workouts/hooks/useWorkoutScore'
 import { WorkoutScoreCard } from '@/features/workouts/components/WorkoutScoreCard'
@@ -182,6 +183,15 @@ export function WorkoutSummaryPage() {
         <Button variant="primary" size="lg" fullWidth onClick={() => navigate('/')}>
           Done
         </Button>
+        <button
+          className={styles.deleteBtn}
+          onClick={async () => {
+            if (sessionId) await deleteSession(sessionId)
+            navigate('/')
+          }}
+        >
+          Delete workout
+        </button>
       </footer>
     </div>
   )

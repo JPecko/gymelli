@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import { getVolumeStats, getPersonalRecords } from '../history.api'
 import { buildLast8Weeks, getWeekStart, computeStreak } from '../history.utils'
 import type { VolumeWeek, PersonalRecord } from '../history.types'
@@ -13,6 +14,7 @@ export interface HistoryStats {
 }
 
 export function useHistoryStats(): HistoryStats {
+  const { key } = useLocation()
   const [stats, setStats] = useState<HistoryStats>({
     total_sessions: 0,
     total_volume_kg: 0,
@@ -23,6 +25,7 @@ export function useHistoryStats(): HistoryStats {
   })
 
   useEffect(() => {
+    setStats((prev) => ({ ...prev, is_loading: true }))
     Promise.all([getVolumeStats(90), getPersonalRecords()]).then(([sessions, rawPRs]) => {
       // ── Volume + weekly breakdown ────────────────────────────
       let totalVolume = 0
@@ -53,6 +56,7 @@ export function useHistoryStats(): HistoryStats {
       for (const row of rawPRs) {
         const se = row.workout_session_exercises
         if (!se) continue
+        if (!se.workout_sessions?.finished_at) continue
         if (!prMap.has(se.exercise_id)) {
           prMap.set(se.exercise_id, {
             exercise_id: se.exercise_id,
@@ -77,7 +81,7 @@ export function useHistoryStats(): HistoryStats {
         is_loading: false,
       })
     })
-  }, [])
+  }, [key])
 
   return stats
 }

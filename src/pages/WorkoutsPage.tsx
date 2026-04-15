@@ -1,11 +1,11 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getSessionHistory } from '@/features/workouts/workouts.api'
+import { getSessionHistory, deleteSession } from '@/features/workouts/workouts.api'
 import { computeWorkoutScore } from '@/features/workouts/hooks/useWorkoutScore'
 import { WorkoutSessionCard } from '@/features/workouts/components/WorkoutSessionCard'
 import { useProfile } from '@/features/auth/hooks/useProfile'
 import type { SessionHistoryItem } from '@/features/workouts/workouts.types'
-import { Button } from '@/shared/components'
+import { Button, SwipeableItem, ConfirmSheet } from '@/shared/components'
 import styles from './WorkoutsPage.module.scss'
 
 export function WorkoutsPage() {
@@ -13,6 +13,7 @@ export function WorkoutsPage() {
   const [sessions, setSessions] = useState<SessionHistoryItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const { profile } = useProfile()
+  const [pendingDelete, setPendingDelete] = useState<SessionHistoryItem | null>(null)
 
   useEffect(() => {
     getSessionHistory().then((data) => {
@@ -57,9 +58,35 @@ export function WorkoutsPage() {
       {!isLoading && sessions.length > 0 && (
         <div className={styles.list}>
           {sessions.map((session, i) => (
-            <WorkoutSessionCard key={session.id} session={session} score={scores[i]} />
+            <SwipeableItem
+              key={session.id}
+              deleteLabel="Delete session"
+              onDelete={() => setPendingDelete(session)}
+            >
+              <WorkoutSessionCard session={session} score={scores[i]} />
+            </SwipeableItem>
           ))}
         </div>
+      )}
+
+      {pendingDelete && (
+        <ConfirmSheet
+          message="Delete this workout?"
+          confirmLabel="Delete workout"
+          onConfirm={() => {
+            const target = pendingDelete
+            setPendingDelete(null)
+            setSessions((prev) => prev.filter((s) => s.id !== target.id))
+            deleteSession(target.id).catch(() => {
+              setSessions((prev) =>
+                [...prev, target].sort(
+                  (a, b) => new Date(b.started_at).getTime() - new Date(a.started_at).getTime(),
+                ),
+              )
+            })
+          }}
+          onCancel={() => setPendingDelete(null)}
+        />
       )}
     </div>
   )

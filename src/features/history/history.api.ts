@@ -32,7 +32,8 @@ export async function getPersonalRecords(): Promise<RawPRSet[]> {
       logged_at,
       workout_session_exercises!inner (
         exercise_id,
-        exercises!inner ( name )
+        exercises!inner ( name ),
+        workout_sessions!inner ( finished_at )
       )
     `)
     .not('weight_kg', 'is', null)

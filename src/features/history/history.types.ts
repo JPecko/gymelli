@@ -34,5 +34,6 @@ export interface RawPRSet {
   workout_session_exercises: {
     exercise_id: string
     exercises: { name: string } | null
+    workout_sessions: { finished_at: string | null } | null
   } | null
 }

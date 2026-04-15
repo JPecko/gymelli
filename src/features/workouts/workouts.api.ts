@@ -162,6 +162,29 @@ export async function getPreviousSetsForExercise(
   return data ?? []
 }
 
+export async function deleteSession(sessionId: string): Promise<void> {
+  // Delete in dependency order in case ON DELETE CASCADE is not set on FKs
+  const { data: sessionExercises } = await supabase
+    .from('workout_session_exercises')
+    .select('id')
+    .eq('session_id', sessionId)
+
+  if (sessionExercises?.length) {
+    await supabase
+      .from('exercise_sets')
+      .delete()
+      .in('session_exercise_id', sessionExercises.map((se) => se.id))
+
+    await supabase
+      .from('workout_session_exercises')
+      .delete()
+      .eq('session_id', sessionId)
+  }
+
+  const { error } = await supabase.from('workout_sessions').delete().eq('id', sessionId)
+  if (error) throw error
+}
+
 export async function updateSessionCalories(sessionId: string, calories: number | null): Promise<void> {
   const { error } = await supabase
     .from('workout_sessions')
