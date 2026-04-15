@@ -31,6 +31,7 @@ export function WorkoutsPage() {
         calories_burned: s.calories_burned,
         body_weight_kg: profile?.body_weight_kg ?? null,
         sex: profile?.sex ?? null,
+        total_rest_seconds: s.total_rest_seconds,
       }),
     ),
   [sessions, profile?.body_weight_kg, profile?.sex])

@@ -6,6 +6,7 @@ export interface WorkoutSession {
   finished_at: string | null
   notes: string | null
   calories_burned: number | null
+  total_rest_seconds: number | null
 }
 
 export interface WorkoutSessionExercise {
@@ -36,4 +37,5 @@ export interface SessionHistoryItem {
   total_sets: number
   total_volume_kg: number
   calories_burned: number | null
+  total_rest_seconds: number | null
 }

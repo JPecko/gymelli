@@ -35,6 +35,11 @@
   color: var(--color-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.1em;
+  transition: color 0.3s;
+}
+
+.labelOvertime {
+  color: var(--color-gold);
 }
 
 // ── Circular progress ring ────────────────────────────────────────────────────
@@ -67,7 +72,11 @@
   stroke: var(--color-gold);
   stroke-width: 4;
   stroke-linecap: round;
-  transition: stroke-dashoffset 0.9s linear;
+  transition: stroke-dashoffset 0.9s linear, stroke 0.3s;
+}
+
+.fillOvertime {
+  stroke: var(--color-border); // ring empties out visually
 }
 
 .time {
@@ -77,4 +86,10 @@
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
   position: relative; // above svg
+  transition: color 0.3s;
+}
+
+.timeOvertime {
+  color: var(--color-text-muted);
+  font-size: var(--text-3xl);
 }

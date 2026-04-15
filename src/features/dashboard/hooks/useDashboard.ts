@@ -23,6 +23,7 @@ export function useDashboard(): DashboardData & { is_loading: boolean } {
       const sorted = [...raw.workout_session_exercises].sort(
         (a, b) => a.order_index - b.order_index,
       )
+      const allSets = sorted.flatMap((se) => se.exercise_sets)
       const lastSession: DashboardLastSession = {
         id: raw.id,
         started_at: raw.started_at,
@@ -32,7 +33,10 @@ export function useDashboard(): DashboardData & { is_loading: boolean } {
         duration_seconds: Math.floor(
           (new Date(raw.finished_at).getTime() - new Date(raw.started_at).getTime()) / 1000,
         ),
-        total_sets: sorted.reduce((acc, se) => acc + se.exercise_sets.length, 0),
+        total_sets: allSets.length,
+        total_volume_kg: allSets.reduce((acc, s) => acc + (s.weight_kg ?? 0) * (s.reps ?? 0), 0),
+        calories_burned: raw.calories_burned,
+        total_rest_seconds: raw.total_rest_seconds,
       }
 
       // ── This week's volume ────────────────────────────────────

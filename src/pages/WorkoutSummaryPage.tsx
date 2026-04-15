@@ -113,6 +113,7 @@ export function WorkoutSummaryPage() {
     calories_burned: calories,
     body_weight_kg: profile?.body_weight_kg ?? null,
     sex: profile?.sex ?? null,
+    total_rest_seconds: data?.session.total_rest_seconds ?? null,
   })
 
   async function handleCaloriesSave(value: number | null) {

@@ -3,6 +3,8 @@ export interface RawDashboardSession {
   started_at: string
   finished_at: string
   template_id: string | null
+  calories_burned: number | null
+  total_rest_seconds: number | null
   workout_session_exercises: Array<{
     order_index: number
     exercises: { name: string } | null
@@ -18,6 +20,9 @@ export interface DashboardLastSession {
   exercise_names: string[]
   duration_seconds: number
   total_sets: number
+  total_volume_kg: number
+  calories_burned: number | null
+  total_rest_seconds: number | null
 }
 
 export interface DashboardData {

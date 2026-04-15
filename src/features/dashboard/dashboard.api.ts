@@ -12,6 +12,8 @@ export async function getDashboardData(limitDays = 60): Promise<RawDashboardSess
       started_at,
       finished_at,
       template_id,
+      calories_burned,
+      total_rest_seconds,
       workout_session_exercises (
         order_index,
         exercises ( name ),

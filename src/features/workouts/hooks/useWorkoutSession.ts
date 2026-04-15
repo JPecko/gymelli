@@ -50,6 +50,7 @@ export function useWorkoutSession(
   const [isFinishing, setIsFinishing] = useState(false)
   const [restTimerActive, setRestTimerActive] = useState(false)
   const [restTimerDuration, setRestTimerDuration] = useState(90)
+  const [totalRestSeconds, setTotalRestSeconds] = useState(0)
 
   useEffect(() => {
     async function load() {
@@ -161,11 +162,12 @@ export function useWorkoutSession(
 
   const finishWorkout = useCallback(async () => {
     setIsFinishing(true)
-    await finishSession(session.id)
-  }, [session.id])
+    await finishSession(session.id, totalRestSeconds)
+  }, [session.id, totalRestSeconds])
 
-  const dismissRestTimer = useCallback(() => {
+  const dismissRestTimer = useCallback((elapsedSeconds: number) => {
     setRestTimerActive(false)
+    setTotalRestSeconds((prev) => prev + elapsedSeconds)
   }, [])
 
   return {

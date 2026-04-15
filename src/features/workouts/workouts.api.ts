@@ -20,6 +20,7 @@ export async function getSessionHistory(limit = 20): Promise<SessionHistoryItem[
       started_at,
       finished_at,
       calories_burned,
+      total_rest_seconds,
       workout_session_exercises (
         order_index,
         exercises ( name ),
@@ -53,6 +54,7 @@ export async function getSessionHistory(limit = 20): Promise<SessionHistoryItem[
       total_sets: allSets.length,
       total_volume_kg: allSets.reduce((acc, s) => acc + (s.weight_kg ?? 0) * (s.reps ?? 0), 0),
       calories_burned: (session as unknown as { calories_burned: number | null }).calories_burned,
+      total_rest_seconds: (session as unknown as { total_rest_seconds: number | null }).total_rest_seconds,
     }
   })
 }
@@ -82,10 +84,10 @@ export async function startSession(templateId: string | null): Promise<WorkoutSe
   return data
 }
 
-export async function finishSession(sessionId: string): Promise<void> {
+export async function finishSession(sessionId: string, totalRestSeconds: number): Promise<void> {
   const { error } = await supabase
     .from('workout_sessions')
-    .update({ finished_at: new Date().toISOString() })
+    .update({ finished_at: new Date().toISOString(), total_rest_seconds: totalRestSeconds })
     .eq('id', sessionId)
 
   if (error) throw error

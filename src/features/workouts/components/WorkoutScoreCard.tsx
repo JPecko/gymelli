@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Input } from '@/shared/components'
+import { Input, ScoreRing } from '@/shared/components'
 import type { WorkoutScore } from '../hooks/useWorkoutScore'
 import styles from './WorkoutScoreCard.module.scss'
 
@@ -29,20 +29,18 @@ export function WorkoutScoreCard({ score, calories, onCaloriesSave, showBodyWeig
       ]
     : [
         { label: 'Vol', value: score.volume_score },
-        { label: 'Eff', value: score.efficiency_score },
+        { label: 'Work', value: score.density_score },
         { label: 'Prog', value: score.progress_score },
       ]
 
   return (
     <div className={styles.card}>
-      <div className={styles.scoreRow}>
-        <div className={styles.scoreLeft}>
-          <span className={styles.scoreNumber}>{score.score}</span>
-          <span className={styles.scoreMax}>/100</span>
-        </div>
-        <span className={styles.scoreLabel} data-label={score.label}>{score.label}</span>
+      {/* ── Score ring ────────────────────────────────────────── */}
+      <div className={styles.ringWrap}>
+        <ScoreRing score={score.score} label={score.label} size={80} />
       </div>
 
+      {/* ── Sub-score breakdown ───────────────────────────────── */}
       <div className={styles.breakdown}>
         {breakdown.map(({ label, value }) => (
           <div key={label} className={styles.breakdownItem}>
@@ -52,18 +50,17 @@ export function WorkoutScoreCard({ score, calories, onCaloriesSave, showBodyWeig
         ))}
       </div>
 
-      <div className={styles.calories}>
-        <Input
-          label="Calories burned (kcal)"
-          id="calories"
-          type="number"
-          inputMode="numeric"
-          value={caloriesInput}
-          onChange={(e) => setCaloriesInput(e.target.value)}
-          onBlur={handleCaloriesBlur}
-          placeholder="From smartwatch (optional)"
-        />
-      </div>
+      {/* ── Calories input ───────────────────────────────────── */}
+      <Input
+        label="Calories burned (kcal)"
+        id="calories"
+        type="number"
+        inputMode="numeric"
+        value={caloriesInput}
+        onChange={(e) => setCaloriesInput(e.target.value)}
+        onBlur={handleCaloriesBlur}
+        placeholder="From smartwatch (optional)"
+      />
 
       {showBodyWeightNudge && (
         <button type="button" className={styles.nudge} onClick={() => navigate('/profile')}>

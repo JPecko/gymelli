@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { ScoreRing } from '@/shared/components'
 import type { SessionHistoryItem } from '../workouts.types'
 import type { WorkoutScore } from '../hooks/useWorkoutScore'
 import styles from './WorkoutSessionCard.module.scss'
@@ -6,6 +7,7 @@ import styles from './WorkoutSessionCard.module.scss'
 interface WorkoutSessionCardProps {
   session: SessionHistoryItem
   score?: WorkoutScore
+  scoreSize?: number
 }
 
 function formatDate(iso: string): string {
@@ -28,7 +30,7 @@ function formatExercises(names: string[]): string {
   return `${names.slice(0, 3).join(' · ')} +${names.length - 3}`
 }
 
-export function WorkoutSessionCard({ session, score }: WorkoutSessionCardProps) {
+export function WorkoutSessionCard({ session, score, scoreSize = 52 }: WorkoutSessionCardProps) {
   const navigate = useNavigate()
 
   return (
@@ -36,28 +38,29 @@ export function WorkoutSessionCard({ session, score }: WorkoutSessionCardProps) 
       className={styles.card}
       onClick={() => navigate(`/workouts/session/${session.id}/summary`)}
     >
-      <div className={styles.top}>
-        <span className={styles.date}>{formatDate(session.started_at)}</span>
-        <span className={styles.duration}>{formatDuration(session.duration_seconds)}</span>
-      </div>
+      <div className={styles.main}>
+        <div className={styles.top}>
+          <span className={styles.date}>{formatDate(session.started_at)}</span>
+          <span className={styles.duration}>{formatDuration(session.duration_seconds)}</span>
+        </div>
 
-      <p className={styles.exercises}>
-        {session.exercise_names.length > 0
-          ? formatExercises(session.exercise_names)
-          : 'No exercises logged'}
-      </p>
+        <p className={styles.exercises}>
+          {session.exercise_names.length > 0
+            ? formatExercises(session.exercise_names)
+            : 'No exercises logged'}
+        </p>
 
-      <div className={styles.bottom}>
         <p className={styles.meta}>
           {session.exercise_names.length} exercise{session.exercise_names.length !== 1 ? 's' : ''}
           {session.total_sets > 0 && ` · ${session.total_sets} sets`}
         </p>
-        {score != null && (
-          <span className={styles.score} data-label={score.label}>
-            {score.score} <span className={styles.scoreLabel}>{score.label}</span>
-          </span>
-        )}
       </div>
+
+      {score != null && (
+        <div className={styles.scoreCol}>
+          <ScoreRing score={score.score} label={score.label} size={scoreSize} />
+        </div>
+      )}
     </button>
   )
 }

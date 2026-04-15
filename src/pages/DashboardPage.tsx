@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDashboard } from '@/features/dashboard/hooks/useDashboard'
 import { getTemplatesWithExercises } from '@/features/templates/templates.api'
 import { TemplateCard } from '@/features/templates/components/TemplateCard'
 import { WorkoutSessionCard } from '@/features/workouts/components/WorkoutSessionCard'
+import { computeWorkoutScore } from '@/features/workouts/hooks/useWorkoutScore'
+import { useProfile } from '@/features/auth/hooks/useProfile'
 import { StatCard, Button } from '@/shared/components'
 import type { TemplateListItem } from '@/features/templates/templates.types'
 import type { SessionHistoryItem } from '@/features/workouts/workouts.types'
@@ -17,6 +19,7 @@ export function DashboardPage() {
   const navigate = useNavigate()
   const { streak, this_week_volume_kg, last_session, is_loading } = useDashboard()
   const [templates, setTemplates] = useState<TemplateListItem[]>([])
+  const { profile } = useProfile()
 
   useEffect(() => {
     getTemplatesWithExercises().then(setTemplates)
@@ -25,7 +28,6 @@ export function DashboardPage() {
   const suggestedTemplate =
     templates.find((t) => t.id === last_session?.template_id) ?? templates[0] ?? null
 
-  // Shape last_session into SessionHistoryItem for WorkoutSessionCard reuse
   const lastSessionItem: SessionHistoryItem | null = last_session
     ? {
         id: last_session.id,
@@ -34,10 +36,25 @@ export function DashboardPage() {
         exercise_names: last_session.exercise_names,
         duration_seconds: last_session.duration_seconds,
         total_sets: last_session.total_sets,
-        total_volume_kg: 0,      // not fetched in dashboard query; score not shown here
-        calories_burned: null,
+        total_volume_kg: last_session.total_volume_kg,
+        calories_burned: last_session.calories_burned,
+        total_rest_seconds: last_session.total_rest_seconds,
       }
     : null
+
+  const lastSessionScore = useMemo(() => {
+    if (!last_session) return undefined
+    return computeWorkoutScore({
+      total_volume_kg: last_session.total_volume_kg,
+      duration_seconds: last_session.duration_seconds,
+      exercise_count: last_session.exercise_names.length,
+      pr_count: 0,
+      calories_burned: last_session.calories_burned,
+      body_weight_kg: profile?.body_weight_kg ?? null,
+      sex: profile?.sex ?? null,
+      total_rest_seconds: last_session.total_rest_seconds,
+    })
+  }, [last_session, profile?.body_weight_kg, profile?.sex])
 
   return (
     <div className={styles.page}>
@@ -71,7 +88,7 @@ export function DashboardPage() {
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>Last Session</h2>
             {lastSessionItem ? (
-              <WorkoutSessionCard session={lastSessionItem} />
+              <WorkoutSessionCard session={lastSessionItem} score={lastSessionScore} scoreSize={64} />
             ) : (
               <p className={styles.empty}>No sessions yet. Start your first workout!</p>
             )}
