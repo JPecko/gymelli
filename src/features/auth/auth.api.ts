@@ -28,13 +28,15 @@ export async function signUp(email: string, password: string) {
   return { user: data.user, requiresConfirmation: !data.session }
 }
 
-export async function updateProfile(displayName: string): Promise<Profile> {
+export async function updateProfile(
+  updates: Partial<Pick<Profile, 'display_name' | 'body_weight_kg' | 'sex'>>,
+): Promise<Profile> {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
 
   const { data, error } = await supabase
     .from('profiles')
-    .update({ display_name: displayName })
+    .update(updates)
     .eq('id', user.id)
     .select()
     .single()

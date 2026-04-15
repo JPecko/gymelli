@@ -20,7 +20,7 @@ export function useProfile() {
     setError(null)
     setSaved(false)
     try {
-      const updated = await updateProfile(name.trim())
+      const updated = await updateProfile({ display_name: name.trim() })
       setProfile(updated)
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
@@ -31,5 +31,21 @@ export function useProfile() {
     }
   }
 
-  return { profile, is_loading, is_saving, error, saved, saveDisplayName }
+  async function saveBodyStats(body_weight_kg: number | null, sex: 'M' | 'F' | null) {
+    setIsSaving(true)
+    setError(null)
+    setSaved(false)
+    try {
+      const updated = await updateProfile({ body_weight_kg, sex })
+      setProfile(updated)
+      setSaved(true)
+      setTimeout(() => setSaved(false), 3000)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save.')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  return { profile, is_loading, is_saving, error, saved, saveDisplayName, saveBodyStats }
 }

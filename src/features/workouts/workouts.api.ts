@@ -156,6 +156,15 @@ export async function getPreviousSetsForExercise(
   return data ?? []
 }
 
+export async function updateSessionCalories(sessionId: string, calories: number | null): Promise<void> {
+  const { error } = await supabase
+    .from('workout_sessions')
+    .update({ calories_burned: calories })
+    .eq('id', sessionId)
+
+  if (error) throw error
+}
+
 export async function deleteSet(setId: string): Promise<void> {
   const { error } = await supabase.from('exercise_sets').delete().eq('id', setId)
   if (error) throw error

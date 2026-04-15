@@ -5,6 +5,7 @@ export interface WorkoutSession {
   started_at: string
   finished_at: string | null
   notes: string | null
+  calories_burned: number | null
 }
 
 export interface WorkoutSessionExercise {
