@@ -94,13 +94,15 @@ src/
   - `SwipeableItem` — swipe-left-to-delete wrapper (touch). Shows delete button on hover (desktop, `hover: none` media query excluded).
   - `StepperInput` — numeric stepper with −/+ buttons. Props: `value: number | null`, `onChange`, `step`, `min`, `disabled`, `inputMode`. Disabled state hides buttons and shows static value. Touch-friendly (44px min-height).
   - `StatCard` — metric display card. Props: `label`, `value`, `unit?`, `accent?` (gold highlight). Used in History and Dashboard.
+  - `ScoreRing` — SVG 270° arc ring. Props: `score: number`, `label: string`, `size?: number`, `showLabel?: boolean`. Fill colour driven by label (Poor/Fair → muted, Good → text-secondary, Great/Elite → gold). Score number uses `font-size: 1rem`.
+  - `ConfirmSheet` — bottom sheet for destructive confirmations. Props: `message`, `confirmLabel?`, `onConfirm`, `onCancel`. `z-index: 200` (above BottomNav). No bottom padding compensation needed.
 - **Auth-scoped components** live in `features/auth/components/` (not `shared/`):
   - `AuthCard` — full-screen centred shell with Gymelli logo. Used by LoginPage and SignUpPage.
 - **Always check `shared/hooks/` before creating a new hook.**
   Existing:
   - `useElapsedTime(startedAt)` → formatted elapsed string (e.g. `"4:32"`)
   - `useCountdown(totalSeconds, onComplete)` → `{ remaining, progress, display }`. Counts down to 0 then calls `onComplete`. `totalSeconds` fixed on mount.
-  - `useVersionCheck()` → `{ updateAvailable }`. Polls `app_config.app_version` every 5 min and on window focus.
+  - `useVersionCheck()` → `{ updateAvailable }`. Polls `/version.json` (static file generated at build time) every 5 min and on window focus. Compares against `APP_VERSION` (build-time constant).
   - `useSwipeGesture({ onSwipeLeft?, onSwipeRight?, threshold? })` → `{ onTouchStart, onTouchEnd }`. Fires only when gesture is primarily horizontal (`|dx| > |dy|`). Safe to use alongside `SwipeableItem` — `SwipeableItem` stops propagation on horizontal moves.
 
 **Import direction:** `features` → `shared` → never the reverse.
@@ -114,7 +116,7 @@ profiles
 exercises          → muscle_groups, equipment
 workout_templates  → workout_template_exercises (incl. default_sets, default_reps, rest_seconds)
 workout_sessions   → workout_session_exercises (incl. rest_seconds) → exercise_sets
-app_config         → key/value store (app_version for update checks)
+app_config         → key/value store (app_version — no longer used for update checks; version.json is used instead)
 ```
 
 App is mostly CRUD + derived metrics. No heavy backend logic required.
