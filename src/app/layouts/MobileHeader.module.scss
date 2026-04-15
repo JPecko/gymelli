@@ -25,11 +25,9 @@
     backdrop-filter: blur(18px);
   }
 
-  .bar {
-    display: grid;
-    grid-template-columns: 2.75rem 1fr 2.75rem;
-    align-items: center;
-    gap: var(--space-2);
+  // ── Shared bar visual base ────────────────────────────────────────────────
+
+  %barBase {
     min-height: var(--mobile-topbar-height);
     padding: var(--space-2) var(--page-padding-x);
     background:
@@ -41,6 +39,33 @@
     backdrop-filter: blur(18px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   }
+
+  // ── Detail mode: back · title · profile ───────────────────────────────────
+
+  .bar {
+    @extend %barBase;
+    display: grid;
+    grid-template-columns: 2.75rem 1fr 2.75rem;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  // ── Brand mode: wordmark · profile ────────────────────────────────────────
+
+  .brandBar {
+    @extend %barBase;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .wordmark {
+    height: 1.25rem; // 20px — compact for mobile header
+    width: auto;
+    display: block;
+  }
+
+  // ── Shared slot elements ──────────────────────────────────────────────────
 
   .iconButton,
   .spacer {

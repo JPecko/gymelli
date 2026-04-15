@@ -22,38 +22,6 @@
   --mobile-sticky-offset: 0px;
 }
 
-// ── Mobile Profile button (top-right, mobile only) ────────────────────────────
-
-.profileButton {
-  position: fixed;
-  top: var(--space-4);
-  right: var(--space-4);
-  z-index: 50;
-  width: 2.5rem;
-  height: 2.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-text-muted);
-  border-radius: var(--radius-full);
-  transition: color 150ms ease, background-color 150ms ease;
-
-  &:hover {
-    color: var(--color-text-primary);
-    background-color: var(--color-bg-elevated);
-  }
-}
-
-.profileButtonActive {
-  color: var(--color-gold);
-}
-
-@media (max-width: 767px) {
-  .profileButton {
-    display: none;
-  }
-}
-
 // Desktop: sidebar + content side by side
 @media (min-width: bp.$breakpoint-tablet-up) {
   .root {
@@ -73,9 +41,5 @@
     width: 100%;
     max-width: var(--content-max-width);
     padding: var(--space-8) var(--space-8);
-  }
-
-  .profileButton {
-    display: none; // SideNav handles Profile on desktop
   }
 }
