@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import clsx from 'clsx'
 import { useWorkoutSession } from '@/features/workouts/hooks/useWorkoutSession'
+import type { ExerciseDefaults } from '@/features/workouts/hooks/useWorkoutSession'
 import { getSessionById } from '@/features/workouts'
 import { useElapsedTime } from '@/shared/hooks/useElapsedTime'
 import { ExerciseBlock } from '@/features/workouts/components/ExerciseBlock'
@@ -13,7 +14,11 @@ import styles from './WorkoutSessionPage.module.scss'
 export function WorkoutSessionPage() {
   const { sessionId } = useParams<{ sessionId: string }>()
   const navigate = useNavigate()
+  const location = useLocation()
   const [session, setSession] = useState<WorkoutSession | null>(null)
+
+  const templateDefaults = (location.state as { templateDefaults?: Record<string, ExerciseDefaults> } | null)
+    ?.templateDefaults
 
   useEffect(() => {
     if (!sessionId) return
@@ -27,6 +32,7 @@ export function WorkoutSessionPage() {
   return (
     <SessionView
       session={session}
+      templateDefaults={templateDefaults}
       onCancel={() => navigate('/')}
       onFinish={() => navigate(`/workouts/session/${sessionId}/summary`)}
     />
@@ -37,11 +43,12 @@ export function WorkoutSessionPage() {
 
 interface SessionViewProps {
   session: WorkoutSession
+  templateDefaults?: Record<string, ExerciseDefaults>
   onCancel: () => void
   onFinish: () => void
 }
 
-function SessionView({ session, onCancel, onFinish }: SessionViewProps) {
+function SessionView({ session, templateDefaults, onCancel, onFinish }: SessionViewProps) {
   const {
     exercises,
     active_index,
@@ -56,7 +63,7 @@ function SessionView({ session, onCancel, onFinish }: SessionViewProps) {
     removeSet,
     finishWorkout,
     dismissRestTimer,
-  } = useWorkoutSession(session)
+  } = useWorkoutSession(session, templateDefaults)
 
   const elapsed = useElapsedTime(session.started_at)
 
@@ -78,7 +85,7 @@ function SessionView({ session, onCancel, onFinish }: SessionViewProps) {
         </IconButton>
 
         <div className={styles.headerCenter}>
-          <p className={styles.workoutTitle}>Workout</p>
+          <span className={styles.timer}>{elapsed}</span>
           {exercises.length > 0 && (
             <p className={styles.progress}>
               {active_index + 1} of {exercises.length}
@@ -86,7 +93,7 @@ function SessionView({ session, onCancel, onFinish }: SessionViewProps) {
           )}
         </div>
 
-        <span className={styles.timer}>{elapsed}</span>
+        <div className={styles.headerSpacer} aria-hidden="true" />
       </header>
 
       {/* ── Scrollable content ──────────────────────────────────── */}

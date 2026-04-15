@@ -35,21 +35,40 @@
 // ── Bottom row: default sets / reps / rest steppers ───────────────────────────
 
 .defaults {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+
+  @media (min-width: bp.$breakpoint-tablet-up) {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-3);
+  }
 }
 
 .field {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+
+  @media (min-width: bp.$breakpoint-tablet-up) {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: unset;
+    gap: var(--space-1);
+  }
 }
 
 .label {
+  min-width: 4rem;
   font-size: var(--text-xs);
   color: var(--color-text-muted);
   font-weight: var(--font-medium);
   text-transform: uppercase;
   letter-spacing: 0.06em;
+
+  @media (min-width: bp.$breakpoint-tablet-up) {
+    min-width: unset;
+  }
 }

@@ -42,12 +42,28 @@ export const router = createBrowserRouter([
         },
       },
       { path: 'exercises',     element: <ExercisesPage /> },
-      { path: 'exercises/:id', element: <ExerciseDetailPage /> },
+      {
+        path: 'exercises/:id',
+        element: <ExerciseDetailPage />,
+        handle: { mobileHeader: { title: 'Exercise', backTo: '/exercises' } },
+      },
       { path: 'templates',          element: <TemplatesPage /> },
-      { path: 'templates/new',      element: <TemplateEditorPage /> },
-      { path: 'templates/:id/edit', element: <TemplateEditorPage /> },
+      {
+        path: 'templates/new',
+        element: <TemplateEditorPage />,
+        handle: { mobileHeader: { title: 'New Template', backTo: '/templates' } },
+      },
+      {
+        path: 'templates/:id/edit',
+        element: <TemplateEditorPage />,
+        handle: { mobileHeader: { title: 'Edit Template', backTo: '/templates' } },
+      },
       { path: 'history',            element: <HistoryPage /> },
-      { path: 'profile',            element: <ProfilePage /> },
+      {
+        path: 'profile',
+        element: <ProfilePage />,
+        handle: { mobileHeader: { title: 'Profile', hideProfile: true } },
+      },
     ],
   },
   {

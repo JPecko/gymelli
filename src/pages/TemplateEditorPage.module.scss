@@ -24,6 +24,10 @@
   &:hover {
     color: var(--color-text-primary);
   }
+
+  @media (max-width: 767px) {
+    display: none; // MobileHeader handles back navigation on mobile
+  }
 }
 
 .title {
@@ -32,6 +36,10 @@
   font-weight: var(--font-semibold);
   color: var(--color-text-primary);
   text-align: center;
+
+  @media (max-width: 767px) {
+    display: none; // MobileHeader renders title on mobile
+  }
 }
 
 // ── Content ──────────────────────────────────────────────────────────────────

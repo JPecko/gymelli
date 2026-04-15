@@ -9,6 +9,8 @@ export async function getTemplatesWithExercises(): Promise<TemplateListItem[]> {
       workout_template_exercises (
         exercise_id,
         order_index,
+        default_sets,
+        default_reps,
         rest_seconds,
         exercises ( name )
       )

@@ -26,6 +26,10 @@
   &:hover {
     color: var(--color-text-primary);
   }
+
+  @media (max-width: 767px) {
+    display: none; // MobileHeader handles back navigation on mobile
+  }
 }
 
 // ── Image ────────────────────────────────────────────────────────────────────

@@ -19,6 +19,8 @@ export interface TemplateListItem extends WorkoutTemplate {
   workout_template_exercises: Array<{
     exercise_id: string
     order_index: number
+    default_sets: number | null
+    default_reps: number | null
     rest_seconds: number | null
     exercises: { name: string } | null
   }>

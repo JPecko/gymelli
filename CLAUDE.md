@@ -30,6 +30,14 @@ Theme: dark neutrals (90%) with gold accents (10%).
 - `AppLayout` — standard layout with bottom nav (mobile) and sidebar (desktop). Used for all main routes.
 - `SessionLayout` — minimal full-screen layout with no nav. Used for screens requiring full focus (e.g. active workout session). Route must be declared **outside** the `AppLayout` tree in the router.
 
+**MobileHeader** (`src/app/layouts/MobileHeader.tsx`) — always rendered inside AppLayout on mobile. Two modes:
+- **Brand mode** (no route config): Gymelli wordmark + profile icon. Shown on root/main pages.
+- **Detail mode** (route has `handle.mobileHeader`): back button + title + profile icon. Shown on sub-pages.
+
+Every sub-page route that requires back navigation **must** declare `handle.mobileHeader` in the router. Without it, the brand header is shown (no back button). Routes currently configured: `workouts/new`, `exercises/:id`, `templates/new`, `templates/:id/edit`, `profile`.
+
+The header is scroll-aware: in-flow → hidden (scroll down) → floating (scroll up). When floating, it is `position: fixed` and AppLayout sets `--mobile-sticky-offset: var(--mobile-topbar-total-height)` on the content div. Pages with `position: sticky` elements must use this variable (see Styling section).
+
 ### Feature Priority Order
 1. **Workout Session** (core — most critical screen) ✓
 2. Exercise Library ✓
@@ -48,7 +56,7 @@ Theme: dark neutrals (90%) with gold accents (10%).
 
 ### Navigation
 - **BottomNav (mobile):** Home(/) · Programs(/templates) · [FAB→/workouts/new] · Exercises(/exercises) · Progress(/history)
-  - Profile accessible via floating icon (top-right of AppLayout, mobile only)
+  - Profile accessible via MobileHeader profile icon (always visible on mobile, top-right of the header bar)
 - **SideNav (desktop):** Home · Programs · Exercises · Progress · Profile (in footer) + Start Workout button + version label
 - **NavIcons** (`src/app/layouts/NavIcons.tsx`) — shared SVG line icons for both navs
 - Nav height: 72px (`--nav-height: 4.5rem`)
@@ -104,7 +112,7 @@ src/
 ```
 profiles
 exercises          → muscle_groups, equipment
-workout_templates  → workout_template_exercises (incl. rest_seconds)
+workout_templates  → workout_template_exercises (incl. default_sets, default_reps, rest_seconds)
 workout_sessions   → workout_session_exercises (incl. rest_seconds) → exercise_sets
 app_config         → key/value store (app_version for update checks)
 ```
@@ -144,6 +152,13 @@ Keep in `px` only: border widths, outlines, border-radius, and breakpoints.
 **Turbopack constraint (critical):** Never use `:global {}` inside a CSS module class — this causes build errors. Third-party overrides must go in `globals.scss`, scoped with a wrapper class.
 
 **Semantic class names:** `.card`, `.title`, `.value` — not utility names.
+
+**Sticky elements below MobileHeader (mobile):** Any `position: sticky` element that must sit flush below the floating MobileHeader must use:
+```scss
+top: max(0px, calc(var(--mobile-sticky-offset, 0px) - {element-padding-top}));
+transition: top 220ms ease;
+```
+The `max(0px, ...)` prevents a negative `top` when the header is not floating. The subtraction absorbs the element's own padding-top so the floating header visually covers it. See `ExercisesPage.module.scss` (`.searchWrap`) and `ExercisePicker.module.scss` for reference implementations.
 
 ---
 

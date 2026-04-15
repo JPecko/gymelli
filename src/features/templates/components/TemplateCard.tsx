@@ -30,7 +30,10 @@ export function TemplateCard({ template }: TemplateCardProps) {
       await Promise.all(
         sorted.map((te, i) => addSessionExercise(session.id, te.exercise_id, i, te.rest_seconds)),
       )
-      navigate(`/workouts/session/${session.id}`)
+      const templateDefaults = Object.fromEntries(
+        sorted.map((te) => [te.exercise_id, { sets: te.default_sets, reps: te.default_reps }]),
+      )
+      navigate(`/workouts/session/${session.id}`, { state: { templateDefaults } })
     } catch {
       setIsStarting(false)
     }
