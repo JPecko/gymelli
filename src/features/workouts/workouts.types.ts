@@ -34,4 +34,6 @@ export interface SessionHistoryItem {
   exercise_names: string[]
   duration_seconds: number
   total_sets: number
+  total_volume_kg: number
+  calories_burned: number | null
 }

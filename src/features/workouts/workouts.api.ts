@@ -19,10 +19,11 @@ export async function getSessionHistory(limit = 20): Promise<SessionHistoryItem[
       id,
       started_at,
       finished_at,
+      calories_burned,
       workout_session_exercises (
         order_index,
         exercises ( name ),
-        exercise_sets ( id )
+        exercise_sets ( weight_kg, reps )
       )
     `)
     .not('finished_at', 'is', null)
@@ -35,10 +36,11 @@ export async function getSessionHistory(limit = 20): Promise<SessionHistoryItem[
     const sessionExercises = (session.workout_session_exercises ?? []) as unknown as Array<{
       order_index: number
       exercises: { name: string } | null
-      exercise_sets: Array<{ id: string }>
+      exercise_sets: Array<{ weight_kg: number | null; reps: number | null }>
     }>
 
     const sorted = [...sessionExercises].sort((a, b) => a.order_index - b.order_index)
+    const allSets = sorted.flatMap((se) => se.exercise_sets ?? [])
 
     return {
       id: session.id,
@@ -48,7 +50,9 @@ export async function getSessionHistory(limit = 20): Promise<SessionHistoryItem[
       duration_seconds: Math.floor(
         (new Date(session.finished_at as string).getTime() - new Date(session.started_at).getTime()) / 1000,
       ),
-      total_sets: sorted.reduce((acc, se) => acc + (se.exercise_sets?.length ?? 0), 0),
+      total_sets: allSets.length,
+      total_volume_kg: allSets.reduce((acc, s) => acc + (s.weight_kg ?? 0) * (s.reps ?? 0), 0),
+      calories_burned: (session as unknown as { calories_burned: number | null }).calories_burned,
     }
   })
 }

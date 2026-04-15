@@ -34,6 +34,8 @@ export function DashboardPage() {
         exercise_names: last_session.exercise_names,
         duration_seconds: last_session.duration_seconds,
         total_sets: last_session.total_sets,
+        total_volume_kg: 0,      // not fetched in dashboard query; score not shown here
+        calories_burned: null,
       }
     : null
 

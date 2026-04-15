@@ -1,9 +1,11 @@
 import { useNavigate } from 'react-router-dom'
 import type { SessionHistoryItem } from '../workouts.types'
+import type { WorkoutScore } from '../hooks/useWorkoutScore'
 import styles from './WorkoutSessionCard.module.scss'
 
 interface WorkoutSessionCardProps {
   session: SessionHistoryItem
+  score?: WorkoutScore
 }
 
 function formatDate(iso: string): string {
@@ -26,7 +28,7 @@ function formatExercises(names: string[]): string {
   return `${names.slice(0, 3).join(' · ')} +${names.length - 3}`
 }
 
-export function WorkoutSessionCard({ session }: WorkoutSessionCardProps) {
+export function WorkoutSessionCard({ session, score }: WorkoutSessionCardProps) {
   const navigate = useNavigate()
 
   return (
@@ -45,10 +47,17 @@ export function WorkoutSessionCard({ session }: WorkoutSessionCardProps) {
           : 'No exercises logged'}
       </p>
 
-      <p className={styles.meta}>
-        {session.exercise_names.length} exercise{session.exercise_names.length !== 1 ? 's' : ''}
-        {session.total_sets > 0 && ` · ${session.total_sets} sets`}
-      </p>
+      <div className={styles.bottom}>
+        <p className={styles.meta}>
+          {session.exercise_names.length} exercise{session.exercise_names.length !== 1 ? 's' : ''}
+          {session.total_sets > 0 && ` · ${session.total_sets} sets`}
+        </p>
+        {score != null && (
+          <span className={styles.score} data-label={score.label}>
+            {score.score} <span className={styles.scoreLabel}>{score.label}</span>
+          </span>
+        )}
+      </div>
     </button>
   )
 }
