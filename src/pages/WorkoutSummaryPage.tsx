@@ -5,7 +5,11 @@ import {
   getSessionExercises,
   getSetsForSessionExercise,
   getPreviousSetsForExercise,
+  updateSessionCalories,
 } from '@/features/workouts/workouts.api'
+import { useWorkoutScore } from '@/features/workouts/hooks/useWorkoutScore'
+import { WorkoutScoreCard } from '@/features/workouts/components/WorkoutScoreCard'
+import { useProfile } from '@/features/auth/hooks/useProfile'
 import { getExerciseById } from '@/features/exercises/exercises.api'
 import type { WorkoutSession, WorkoutSessionExercise, ExerciseSet } from '@/features/workouts/workouts.types'
 import type { Exercise } from '@/features/exercises/exercises.types'
@@ -53,6 +57,8 @@ export function WorkoutSummaryPage() {
   const { sessionId } = useParams<{ sessionId: string }>()
   const navigate = useNavigate()
   const [data, setData] = useState<SummaryData | null>(null)
+  const [calories, setCalories] = useState<number | null>(null)
+  const { profile } = useProfile()
 
   useEffect(() => {
     if (!sessionId) return
@@ -93,10 +99,26 @@ export function WorkoutSummaryPage() {
             )
           : 0,
       })
+      setCalories(session.calories_burned)
     }
 
     load()
   }, [sessionId])
+
+  const score = useWorkoutScore({
+    total_volume_kg: data?.total_volume_kg ?? 0,
+    duration_seconds: data?.duration_seconds ?? 0,
+    exercise_count: data?.exercises.length ?? 0,
+    pr_count: data?.exercises.filter((e) => e.is_pr).length ?? 0,
+    calories_burned: calories,
+    body_weight_kg: profile?.body_weight_kg ?? null,
+    sex: profile?.sex ?? null,
+  })
+
+  async function handleCaloriesSave(value: number | null) {
+    setCalories(value)
+    if (sessionId) await updateSessionCalories(sessionId, value)
+  }
 
   if (!data) {
     return <div className={styles.loading}>Loading summary...</div>
@@ -129,6 +151,14 @@ export function WorkoutSummaryPage() {
           <span className={styles.statLabel}>Sets</span>
         </div>
       </div>
+
+      {/* ── Score card ────────────────────────────────────────────── */}
+      <WorkoutScoreCard
+        score={score}
+        calories={calories}
+        onCaloriesSave={handleCaloriesSave}
+        showBodyWeightNudge={profile != null && profile.body_weight_kg == null}
+      />
 
       {/* ── Exercise list ─────────────────────────────────────────── */}
       <div className={styles.exercises}>
