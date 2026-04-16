@@ -29,7 +29,7 @@
 
   %barBase {
     min-height: var(--mobile-topbar-height);
-    padding: var(--space-2) 0;
+    padding: var(--space-2) var(--page-padding-x);
     background:
       linear-gradient(
         to bottom,
@@ -48,8 +48,6 @@
     grid-template-columns: 2.75rem 1fr 2.75rem;
     align-items: center;
     gap: var(--space-2);
-    padding-left: var(--page-padding-x);
-    padding-right: var(--page-padding-x);
   }
 
   // ── Brand mode: wordmark · profile ────────────────────────────────────────
@@ -59,8 +57,6 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    // padding-left: var(--page-padding-x);
-    // padding-right: var(--page-padding-x);
   }
 
   .wordmarkWrap {
