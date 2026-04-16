@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import clsx from 'clsx'
+import { APP_VERSION } from '@/shared/lib/version'
 import { BackIcon, ProfileIcon } from './NavIcons'
 import type { MobileHeaderConfig } from './mobileHeader.config'
 import styles from './MobileHeader.module.scss'
@@ -47,7 +48,10 @@ export function MobileHeader({ config, floating = false }: MobileHeaderProps) {
         </div>
       ) : (
         <div className={styles.brandBar}>
-          <img src="/gymelli-wordmark.svg" alt="Gymelli" className={styles.wordmark} />
+          <div className={styles.wordmarkWrap}>
+            <img src="/gymelli-gold-stacked-wormark.svg" alt="Gymelli" className={styles.wordmark} />
+            <span className={styles.version}>v{APP_VERSION}</span>
+          </div>
           <NavLink to="/profile" className={styles.iconButton} aria-label="Profile">
             <ProfileIcon />
           </NavLink>

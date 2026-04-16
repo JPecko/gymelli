@@ -1,14 +1,14 @@
 <svg width="900" height="260" viewBox="0 0 900 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <text x="280" y="140" font-family="Inter, Arial" font-size="72">
+    <tspan fill="#E5E7EB" font-weight="700">Gym</tspan>
+    <tspan dx="-38" fill="#FACC15" font-weight="800" font-style="italic">elli</tspan>
+  </text>
+  <text x="282" y="190" fill="#9CA3AF" font-family="Inter, Arial" font-size="24">Train • Track • Progress</text>
   <rect x="20" y="20" width="220" height="220" rx="60" fill="#0B0B0C"/>
 
   <rect x="70" y="110" width="40" height="48" rx="12" fill="#D4AF37"/>
   <rect x="150" y="110" width="40" height="48" rx="12" fill="#D4AF37"/>
   <rect x="110" y="124" width="40" height="20" rx="10" fill="#FACC15"/>
 
-  <text x="280" y="140" font-family="Inter, Arial" font-size="72">
-    <tspan fill="#E5E7EB" font-weight="700">Gym</tspan>
-    <tspan dx="-38" fill="#FACC15" font-weight="800" font-style="italic">elli</tspan>
-  </text>
 
-  <text x="282" y="190" fill="#9CA3AF" font-family="Inter, Arial" font-size="24">Train • Track • Progress</text>
 </svg>

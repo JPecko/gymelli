@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import clsx from 'clsx'
 import { APP_VERSION } from '@/shared/lib/version'
@@ -9,10 +10,17 @@ const navItems = [
   { to: '/templates', label: 'Programs',  Icon: ProgramsIcon,  end: false },
   { to: '/exercises', label: 'Exercises', Icon: ExercisesIcon, end: false },
   { to: '/history',   label: 'Progress',  Icon: ProgressIcon,  end: false },
+  { to: '/profile',   label: 'Profile',   Icon: ProfileIcon,   end: false },
 ]
 
 export function SideNav() {
   const navigate = useNavigate()
+  const navRef = useRef<HTMLElement>(null)
+  const [scrolled, setScrolled] = useState(false)
+
+  function handleScroll() {
+    setScrolled((navRef.current?.scrollTop ?? 0) > 0)
+  }
 
   return (
     <aside className={styles.sidebar}>
@@ -22,21 +30,24 @@ export function SideNav() {
           alt="Gymelli"
           className={styles.logoImage}
         />
+        <p className={styles.version}>v{APP_VERSION}</p>
       </div>
 
-      <nav className={styles.nav}>
-        {navItems.map(({ to, label, Icon, end }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={end}
-            className={({ isActive }) => clsx(styles.item, isActive && styles.active)}
-          >
-            <span className={styles.icon}><Icon /></span>
-            <span className={styles.label}>{label}</span>
-          </NavLink>
-        ))}
-      </nav>
+      <div className={clsx(styles.navWrap, scrolled && styles.scrolled)}>
+        <nav className={styles.nav} ref={navRef} onScroll={handleScroll}>
+          {navItems.map(({ to, label, Icon, end }) => (
+            <NavLink
+              key={to}
+              to={to}
+              end={end}
+              className={({ isActive }) => clsx(styles.item, isActive && styles.active)}
+            >
+              <span className={styles.icon}><Icon /></span>
+              <span className={styles.label}>{label}</span>
+            </NavLink>
+          ))}
+        </nav>
+      </div>
 
       <div className={styles.footer}>
         <button
@@ -46,16 +57,6 @@ export function SideNav() {
           <PlusIcon />
           Start Workout
         </button>
-
-        <NavLink
-          to="/profile"
-          className={({ isActive }) => clsx(styles.profileLink, isActive && styles.active)}
-        >
-          <span className={styles.icon}><ProfileIcon /></span>
-          <span className={styles.label}>Profile</span>
-        </NavLink>
-
-        <p className={styles.version}>v{APP_VERSION}</p>
       </div>
     </aside>
   )

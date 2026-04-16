@@ -1,0 +1,21 @@
+<svg width="423" viewBox="0 0 423 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- <rect width="512" height="300" rx="0" fill="#0B0B0C"/> -->
+
+  <text x="205" y="125" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="124">
+    <tspan fill="#E5E7EB" font-weight="700">Gym</tspan>
+    <tspan dx="-66" fill="#FACC15" font-weight="800" font-style="italic">elli</tspan>
+  </text>
+
+  <text
+    x="205"
+    y="180"
+    text-anchor="middle"
+    fill="#9CA3AF"
+    font-family="Inter, Arial, sans-serif"
+    font-size="28"
+    font-weight="600"
+    letter-spacing="1.8"
+  >
+    Train • Track • Progress
+  </text>
+</svg>
