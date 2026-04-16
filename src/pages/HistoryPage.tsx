@@ -15,7 +15,7 @@ export function HistoryPage() {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <h1 className={styles.title}>History</h1>
+        <h1 className={styles.title}>Progress</h1>
       </header>
 
       {is_loading ? (

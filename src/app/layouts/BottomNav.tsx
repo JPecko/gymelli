@@ -34,7 +34,7 @@ export function BottomNav() {
 
       <button
         className={styles.fab}
-        onClick={() => navigate('/workouts/new')}
+        onClick={() => navigate('/workouts')}
         aria-label="Start workout"
       >
         <PlusIcon />

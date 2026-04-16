@@ -51,12 +51,12 @@ export const router = createBrowserRouter([
       {
         path: 'templates/new',
         element: <TemplateEditorPage />,
-        handle: { mobileHeader: { title: 'New Template', backTo: '/templates' } },
+        handle: { mobileHeader: { title: 'New Program', backTo: '/templates' } },
       },
       {
         path: 'templates/:id/edit',
         element: <TemplateEditorPage />,
-        handle: { mobileHeader: { title: 'Edit Template', backTo: '/templates' } },
+        handle: { mobileHeader: { title: 'Edit Program', backTo: '/templates' } },
       },
       { path: 'history',            element: <HistoryPage /> },
       {

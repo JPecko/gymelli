@@ -41,7 +41,7 @@ export function SideNav() {
       <div className={styles.footer}>
         <button
           className={styles.startButton}
-          onClick={() => navigate('/workouts/new')}
+          onClick={() => navigate('/workouts')}
         >
           <PlusIcon />
           Start Workout

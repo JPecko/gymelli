@@ -21,7 +21,7 @@ export function TemplatesPage() {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <h1 className={styles.title}>Templates</h1>
+        <h1 className={styles.title}>Programs</h1>
         <Button variant="primary" size="sm" onClick={() => navigate('/templates/new')}>
           + New
         </Button>
