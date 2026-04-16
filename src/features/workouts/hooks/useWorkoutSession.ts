@@ -24,26 +24,21 @@ export interface SessionExerciseState {
   previous_sets: ExerciseSet[]
 }
 
-export interface ExerciseDefaults {
-  sets?: number | null
-  reps?: number | null
-}
-
-function buildInitialSets(previousSets: ExerciseSet[], defaults?: ExerciseDefaults): DraftSet[] {
+function buildInitialSets(
+  previousSets: ExerciseSet[],
+  se: WorkoutSessionExercise,
+): DraftSet[] {
   const hasPrevious = previousSets.length > 0
-  const count = hasPrevious ? previousSets.length : (defaults?.sets ?? 3)
+  const count = hasPrevious ? previousSets.length : (se.default_sets ?? 3)
   return Array.from({ length: count }, (_, i) => ({
     weight_kg: previousSets[i]?.weight_kg ?? null,
-    reps: previousSets[i]?.reps ?? (!hasPrevious ? (defaults?.reps ?? null) : null),
+    reps: previousSets[i]?.reps ?? (!hasPrevious ? (se.default_reps ?? null) : null),
     is_completed: false,
     logged_id: null,
   }))
 }
 
-export function useWorkoutSession(
-  session: WorkoutSession,
-  templateDefaults?: Record<string, ExerciseDefaults>,
-) {
+export function useWorkoutSession(session: WorkoutSession) {
   const [exercises, setExercises] = useState<SessionExerciseState[]>([])
   const [activeIndex, setActiveIndex] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
@@ -66,7 +61,7 @@ export function useWorkoutSession(
           return {
             session_exercise: se,
             exercise,
-            sets: buildInitialSets(previousSets, templateDefaults?.[se.exercise_id]),
+            sets: buildInitialSets(previousSets, se),
             previous_sets: previousSets,
           }
         }),

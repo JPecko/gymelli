@@ -16,6 +16,8 @@ export interface WorkoutSessionExercise {
   order_index: number
   is_completed: boolean
   rest_seconds: number | null
+  default_sets: number | null
+  default_reps: number | null
 }
 
 export interface ExerciseSet {

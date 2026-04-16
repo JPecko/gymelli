@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate, useLocation } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import clsx from 'clsx'
 import { useWorkoutSession } from '@/features/workouts/hooks/useWorkoutSession'
-import type { ExerciseDefaults } from '@/features/workouts/hooks/useWorkoutSession'
 import { getSessionById } from '@/features/workouts'
 import { useElapsedTime } from '@/shared/hooks/useElapsedTime'
 import { ExerciseBlock } from '@/features/workouts/components/ExerciseBlock'
@@ -14,11 +13,7 @@ import styles from './WorkoutSessionPage.module.scss'
 export function WorkoutSessionPage() {
   const { sessionId } = useParams<{ sessionId: string }>()
   const navigate = useNavigate()
-  const location = useLocation()
   const [session, setSession] = useState<WorkoutSession | null>(null)
-
-  const templateDefaults = (location.state as { templateDefaults?: Record<string, ExerciseDefaults> } | null)
-    ?.templateDefaults
 
   useEffect(() => {
     if (!sessionId) return
@@ -32,7 +27,6 @@ export function WorkoutSessionPage() {
   return (
     <SessionView
       session={session}
-      templateDefaults={templateDefaults}
       onCancel={() => navigate('/')}
       onFinish={() => navigate(`/workouts/session/${sessionId}/summary`)}
     />
@@ -43,12 +37,11 @@ export function WorkoutSessionPage() {
 
 interface SessionViewProps {
   session: WorkoutSession
-  templateDefaults?: Record<string, ExerciseDefaults>
   onCancel: () => void
   onFinish: () => void
 }
 
-function SessionView({ session, templateDefaults, onCancel, onFinish }: SessionViewProps) {
+function SessionView({ session, onCancel, onFinish }: SessionViewProps) {
   const {
     exercises,
     active_index,
@@ -63,7 +56,7 @@ function SessionView({ session, templateDefaults, onCancel, onFinish }: SessionV
     removeSet,
     finishWorkout,
     dismissRestTimer,
-  } = useWorkoutSession(session, templateDefaults)
+  } = useWorkoutSession(session)
 
   const elapsed = useElapsedTime(session.started_at)
 
