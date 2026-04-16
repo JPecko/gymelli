@@ -1,36 +1,41 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import clsx from 'clsx'
-import { HomeIcon, ProgramsIcon, ExercisesIcon, ProgressIcon, PlusIcon } from './NavIcons'
+import { HomeIcon, ProgramsIcon, ProgressIcon, ProfileIcon, PlusIcon } from './NavIcons'
 import styles from './BottomNav.module.scss'
 
-const navItems = [
-  { to: '/',          label: 'Home',      Icon: HomeIcon,      end: true },
-  { to: '/templates', label: 'Programs',  Icon: ProgramsIcon,  end: false },
-  { to: '/exercises', label: 'Exercises', Icon: ExercisesIcon, end: false },
-  { to: '/history',   label: 'Progress',  Icon: ProgressIcon,  end: false },
+const navLeft = [
+  { to: '/',          label: 'Home',     Icon: HomeIcon,     end: true  },
+  { to: '/templates', label: 'Programs', Icon: ProgramsIcon, end: false },
 ]
+const navRight = [
+  { to: '/history',  label: 'Progress', Icon: ProgressIcon, end: false },
+  { to: '/profile',  label: 'Profile',  Icon: ProfileIcon,  end: false },
+]
+
+function NavItem({ to, label, Icon, end }: { to: string; label: string; Icon: React.FC; end: boolean }) {
+  return (
+    <NavLink
+      to={to}
+      end={end}
+      className={({ isActive }) => clsx(styles.item, isActive && styles.active)}
+    >
+      {({ isActive }) => (
+        <>
+          <span className={styles.icon}><Icon /></span>
+          <span className={styles.label}>{label}</span>
+          {isActive && <span className={styles.dot} aria-hidden />}
+        </>
+      )}
+    </NavLink>
+  )
+}
 
 export function BottomNav() {
   const navigate = useNavigate()
 
   return (
     <nav className={styles.nav}>
-      {navItems.slice(0, 2).map(({ to, label, Icon, end }) => (
-        <NavLink
-          key={to}
-          to={to}
-          end={end}
-          className={({ isActive }) => clsx(styles.item, isActive && styles.active)}
-        >
-          {({ isActive }) => (
-            <>
-              <span className={styles.icon}><Icon /></span>
-              <span className={styles.label}>{label}</span>
-              {isActive && <span className={styles.dot} aria-hidden />}
-            </>
-          )}
-        </NavLink>
-      ))}
+      {navLeft.map((item) => <NavItem key={item.to} {...item} />)}
 
       <button
         className={styles.fab}
@@ -40,22 +45,7 @@ export function BottomNav() {
         <PlusIcon />
       </button>
 
-      {navItems.slice(2).map(({ to, label, Icon, end }) => (
-        <NavLink
-          key={to}
-          to={to}
-          end={end}
-          className={({ isActive }) => clsx(styles.item, isActive && styles.active)}
-        >
-          {({ isActive }) => (
-            <>
-              <span className={styles.icon}><Icon /></span>
-              <span className={styles.label}>{label}</span>
-              {isActive && <span className={styles.dot} aria-hidden />}
-            </>
-          )}
-        </NavLink>
-      ))}
+      {navRight.map((item) => <NavItem key={item.to} {...item} />)}
     </nav>
   )
 }

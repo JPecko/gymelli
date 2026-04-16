@@ -1,0 +1,16 @@
+// Responsive card grid — 1 col (mobile) → 2 col → 3 col (desktop).
+// Used for any visual card list across the app.
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: var(--space-3);
+
+  @media (min-width: #{bp.$breakpoint-mobile-grid-up}) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: #{bp.$breakpoint-laptop-up}) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

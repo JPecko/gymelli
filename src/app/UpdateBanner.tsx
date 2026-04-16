@@ -4,7 +4,7 @@ import styles from './UpdateBanner.module.scss'
 
 export function UpdateBanner() {
   const { updateAvailable } = useVersionCheck()
-  if (!updateAvailable) return null
+  if (!updateAvailable || import.meta.env.DEV) return null
 
   return (
     <div className={styles.banner} role="status">

@@ -29,26 +29,6 @@
   transition: top 220ms ease;
 }
 
-// ── Grid ─────────────────────────────────────────────────────────────────────
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  gap: var(--space-3);
-
-  @media (min-width: bp.$breakpoint-mobile-grid-up) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  @media (min-width: bp.$breakpoint-tablet-up) {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  @media (min-width: bp.$breakpoint-desktop-grid-up) {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
 // ── States ───────────────────────────────────────────────────────────────────
 
 .state {

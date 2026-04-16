@@ -1,14 +1,9 @@
-import { useState, useEffect } from 'react'
-import { getExercises, getMuscleGroups, getEquipment } from '@/features/exercises/exercises.api'
-import type { Exercise, MuscleGroup, Equipment } from '@/features/exercises/exercises.types'
-import { SearchField } from '@/shared/components'
-import { ExercisePickerItem } from './ExercisePickerItem'
+import { useState, useMemo } from 'react'
+import type { Exercise } from '@/features/exercises/exercises.types'
+import { SearchField, CardGrid } from '@/shared/components'
+import { useExercisesWithMeta } from '../hooks/useExercisesWithMeta'
+import { ExerciseCard } from './ExerciseCard'
 import styles from './ExercisePicker.module.scss'
-
-interface ExerciseWithMeta extends Exercise {
-  muscle_group_name: string
-  equipment_name: string | null
-}
 
 interface ExercisePickerProps {
   selectedIds: string[]
@@ -16,29 +11,9 @@ interface ExercisePickerProps {
 }
 
 export function ExercisePicker({ selectedIds, onToggle }: ExercisePickerProps) {
-  const [exercises, setExercises] = useState<ExerciseWithMeta[]>([])
-  const [muscleGroups, setMuscleGroups] = useState<MuscleGroup[]>([])
+  const { exercises, muscleGroups, isLoading } = useExercisesWithMeta()
   const [query, setQuery] = useState('')
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    Promise.all([getExercises(), getMuscleGroups(), getEquipment()]).then(
-      ([exs, mgs, equip]) => {
-        const equipMap = new Map<string, Equipment>(equip.map((e) => [e.id, e]))
-        const mgMap = new Map<string, MuscleGroup>(mgs.map((mg) => [mg.id, mg]))
-
-        setExercises(
-          exs.map((ex) => ({
-            ...ex,
-            muscle_group_name: mgMap.get(ex.muscle_group_id)?.name ?? '',
-            equipment_name: ex.equipment_id ? (equipMap.get(ex.equipment_id)?.name ?? null) : null,
-          })),
-        )
-        setMuscleGroups(mgs)
-        setIsLoading(false)
-      },
-    )
-  }, [])
+  const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds])
 
   const filtered = query
     ? exercises.filter((ex) => ex.name.toLowerCase().includes(query.toLowerCase()))
@@ -72,19 +47,22 @@ export function ExercisePicker({ selectedIds, onToggle }: ExercisePickerProps) {
         {grouped.map(({ muscleGroup, exercises: groupExs }) => (
           <div key={muscleGroup.id} className={styles.group}>
             <p className={styles.groupLabel}>{muscleGroup.name}</p>
-            {groupExs.map((ex) => {
-              const meta = [ex.muscle_group_name, ex.equipment_name].filter(Boolean).join(' · ')
-              return (
-                <ExercisePickerItem
-                  key={ex.id}
-                  name={ex.name}
-                  meta={meta}
-                  type={ex.type}
-                  selected={selectedIds.includes(ex.id)}
-                  onToggle={() => onToggle(ex)}
-                />
-              )
-            })}
+            <CardGrid>
+              {groupExs.map((ex) => {
+                const meta = [ex.muscle_group_name, ex.equipment_name].filter(Boolean).join(' · ')
+                return (
+                  <ExerciseCard
+                    key={ex.id}
+                    name={ex.name}
+                    meta={meta}
+                    muscleGroupName={ex.muscle_group_name}
+                    type={ex.type}
+                    selected={selectedSet.has(ex.id)}
+                    onToggle={() => onToggle(ex)}
+                  />
+                )
+              })}
+            </CardGrid>
           </div>
         ))}
       </div>

@@ -1,29 +1,46 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import type { Exercise } from '../exercises.types'
+import clsx from 'clsx'
 import styles from './ExerciseCard.module.scss'
 
-interface ExerciseCardProps {
-  exercise: Exercise
+type ExerciseCardProps = {
+  name: string
+  meta: string
   muscleGroupName: string
-  equipmentName: string | null
-}
+  type: 'compound' | 'isolation'
+} & (
+  | { exerciseId: string; selected?: never; onToggle?: never }
+  | { exerciseId?: never; selected: boolean; onToggle: () => void }
+)
 
 function toSlug(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/[^a-z0-9-]/g, '')
+  return name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
 }
 
-export function ExerciseCard({ exercise, muscleGroupName, equipmentName }: ExerciseCardProps) {
+export function ExerciseCard({
+  name,
+  meta,
+  muscleGroupName,
+  type,
+  exerciseId,
+  selected,
+  onToggle,
+}: ExerciseCardProps) {
   const navigate = useNavigate()
   const [imgFailed, setImgFailed] = useState(false)
-  const slug = toSlug(exercise.name)
-  const meta = [muscleGroupName, equipmentName].filter(Boolean).join(' · ')
+  const slug = toSlug(name)
+  const isPicker = onToggle !== undefined
+
+  function handleClick() {
+    if (isPicker) onToggle()
+    else navigate(`/exercises/${exerciseId}`)
+  }
 
   return (
-    <button className={styles.card} onClick={() => navigate(`/exercises/${exercise.id}`)}>
+    <button
+      className={clsx(styles.card, isPicker && selected && styles.selected)}
+      onClick={handleClick}
+    >
       <div className={styles.imageWrap}>
         {imgFailed ? (
           <div className={styles.placeholder}>
@@ -33,16 +50,21 @@ export function ExerciseCard({ exercise, muscleGroupName, equipmentName }: Exerc
           <img
             className={styles.image}
             src={`/images/exercises/${slug}.png`}
-            alt={exercise.name}
+            alt={name}
             onError={() => setImgFailed(true)}
           />
         )}
-        <span className={styles.badge}>{exercise.type}</span>
+        {isPicker && (
+          <span className={clsx(styles.checkOverlay, selected && styles.checkOverlaySelected)}>
+            ✓
+          </span>
+        )}
       </div>
 
       <div className={styles.info}>
-        <p className={styles.name}>{exercise.name}</p>
+        <p className={styles.name}>{name}</p>
         <p className={styles.meta}>{meta}</p>
+        <p className={styles.type}>{type}</p>
       </div>
     </button>
   )

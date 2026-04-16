@@ -1,37 +1,12 @@
-import { useState, useEffect } from 'react'
-import { getExercises, getMuscleGroups, getEquipment } from '@/features/exercises/exercises.api'
-import type { Exercise, MuscleGroup, Equipment } from '@/features/exercises/exercises.types'
+import { useState } from 'react'
 import { ExerciseCard } from '@/features/exercises/components/ExerciseCard'
-import { SearchField } from '@/shared/components'
+import { useExercisesWithMeta } from '@/features/exercises/hooks/useExercisesWithMeta'
+import { SearchField, CardGrid } from '@/shared/components'
 import styles from './ExercisesPage.module.scss'
 
-interface ExerciseWithMeta extends Exercise {
-  muscle_group_name: string
-  equipment_name: string | null
-}
-
 export function ExercisesPage() {
-  const [exercises, setExercises] = useState<ExerciseWithMeta[]>([])
+  const { exercises, isLoading } = useExercisesWithMeta()
   const [query, setQuery] = useState('')
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    Promise.all([getExercises(), getMuscleGroups(), getEquipment()]).then(
-      ([exs, mgs, equip]: [Exercise[], MuscleGroup[], Equipment[]]) => {
-        const mgMap = new Map(mgs.map((mg) => [mg.id, mg]))
-        const equipMap = new Map(equip.map((e) => [e.id, e]))
-
-        setExercises(
-          exs.map((ex) => ({
-            ...ex,
-            muscle_group_name: mgMap.get(ex.muscle_group_id)?.name ?? '',
-            equipment_name: ex.equipment_id ? (equipMap.get(ex.equipment_id)?.name ?? null) : null,
-          })),
-        )
-        setIsLoading(false)
-      },
-    )
-  }, [])
 
   const filtered = query
     ? exercises.filter((ex) => ex.name.toLowerCase().includes(query.toLowerCase()))
@@ -59,16 +34,21 @@ export function ExercisesPage() {
       )}
 
       {!isLoading && filtered.length > 0 && (
-        <div className={styles.grid}>
-          {filtered.map((ex) => (
-            <ExerciseCard
-              key={ex.id}
-              exercise={ex}
-              muscleGroupName={ex.muscle_group_name}
-              equipmentName={ex.equipment_name}
-            />
-          ))}
-        </div>
+        <CardGrid>
+          {filtered.map((ex) => {
+            const meta = [ex.muscle_group_name, ex.equipment_name].filter(Boolean).join(' · ')
+            return (
+              <ExerciseCard
+                key={ex.id}
+                exerciseId={ex.id}
+                name={ex.name}
+                meta={meta}
+                muscleGroupName={ex.muscle_group_name}
+                type={ex.type}
+              />
+            )
+          })}
+        </CardGrid>
       )}
     </div>
   )
