@@ -1,5 +1,4 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import clsx from 'clsx'
 import { APP_VERSION } from '@/shared/lib/version'
 import { BackIcon, ProfileIcon } from './NavIcons'
 import type { MobileHeaderConfig } from './mobileHeader.config'
@@ -7,10 +6,9 @@ import styles from './MobileHeader.module.scss'
 
 interface MobileHeaderProps {
   config?: MobileHeaderConfig
-  floating?: boolean
 }
 
-export function MobileHeader({ config, floating = false }: MobileHeaderProps) {
+export function MobileHeader({ config }: MobileHeaderProps) {
   const navigate = useNavigate()
 
   function handleBack() {
@@ -22,7 +20,7 @@ export function MobileHeader({ config, floating = false }: MobileHeaderProps) {
   }
 
   return (
-    <header className={clsx(styles.header, floating && styles.floating)}>
+    <header className={styles.header}>
       <div className={styles.safeArea} aria-hidden="true" />
 
       {config ? (
