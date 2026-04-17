@@ -31,7 +31,7 @@ Theme: dark neutrals (90%) with gold accents (10%).
 - `SessionLayout` — minimal full-screen layout with no nav. Used for screens requiring full focus (e.g. active workout session). Route must be declared **outside** the `AppLayout` tree in the router.
 
 **MobileHeader** (`src/app/layouts/MobileHeader.tsx`) — always rendered inside AppLayout on mobile. Two modes:
-- **Brand mode** (no route config): Gymelli wordmark + profile icon. Shown on root/main pages.
+- **Brand mode** (no route config): Gymelli stacked gold wordmark (`gymelli-gold-stacked-wormark.svg`) + version label inline + profile icon. Shown on root/main pages.
 - **Detail mode** (route has `handle.mobileHeader`): back button + title + profile icon. Shown on sub-pages.
 
 Every sub-page route that requires back navigation **must** declare `handle.mobileHeader` in the router. Without it, the brand header is shown (no back button). Routes currently configured: `workouts/new`, `exercises/:id`, `templates/new`, `templates/:id/edit`, `profile`.
@@ -57,7 +57,7 @@ The header is scroll-aware: in-flow → hidden (scroll down) → floating (scrol
 ### Navigation
 - **BottomNav (mobile):** Home(/) · Programs(/templates) · [FAB→/workouts/new] · Exercises(/exercises) · Progress(/history)
   - Profile accessible via MobileHeader profile icon (always visible on mobile, top-right of the header bar)
-- **SideNav (desktop):** Home · Programs · Exercises · Progress · Profile (in footer) + Start Workout button + version label
+- **SideNav (desktop):** Home · Programs · Exercises · Progress · Profile (all in scrollable nav list) + Start Workout button pinned in footer. Nav area has `overflow-y: auto` with top/bottom fade overlays; top fade only visible when scrolled past top (JS-driven `.scrolled` class). Version label sits below the wordmark in the logo area.
 - **NavIcons** (`src/app/layouts/NavIcons.tsx`) — shared SVG line icons for both navs
 - Nav height: 72px (`--nav-height: 4.5rem`)
 
@@ -104,6 +104,14 @@ src/
   - `useCountdown(totalSeconds, onComplete)` → `{ remaining, progress, display }`. Counts down to 0 then calls `onComplete`. `totalSeconds` fixed on mount.
   - `useVersionCheck()` → `{ updateAvailable }`. Polls `/version.json` (static file generated at build time) every 5 min and on window focus. Compares against `APP_VERSION` (build-time constant).
   - `useSwipeGesture({ onSwipeLeft?, onSwipeRight?, threshold? })` → `{ onTouchStart, onTouchEnd }`. Fires only when gesture is primarily horizontal (`|dx| > |dy|`). Safe to use alongside `SwipeableItem` — `SwipeableItem` stops propagation on horizontal moves.
+
+**Feature hooks — exercises (`features/exercises/hooks/`):** check before implementing any exercise-related logic.
+  - `useExercisesWithMeta()` → `{ exercises: ExerciseWithMeta[], muscleGroups: MuscleGroup[], equipment: Equipment[], isLoading }`. Single `Promise.all` for all three tables. If any exercise has no equipment, pre-pends `{ id: 'none', name: 'Bodyweight' }` to the equipment list. Exports `BODYWEIGHT_ID = 'none'` sentinel — use it when filtering bodyweight exercises.
+  - `useExerciseFilter(exercises)` → `{ filtered, query, setQuery, activeMuscleGroupId, setActiveMuscleGroupId, activeEquipmentId, setActiveEquipmentId }`. Text search across `name`, `muscle_group_name`, `equipment_name`, `type`. Chip filters for muscle group and equipment (handles `BODYWEIGHT_ID` → `equipment_id === null`). Used by both `ExercisesPage` and `ExercisePicker` — do not duplicate.
+
+**Feature components — exercises (`features/exercises/components/`):** check before implementing new exercise UI.
+  - `ExerciseFilters` — two rows of horizontal scrollable chips: Muscle Group + Equipment. Props: `muscleGroups?`, `activeMuscleGroupId?`, `onMuscleGroupChange?`, `equipment?`, `activeEquipmentId?`, `onEquipmentChange?`. Each row only renders if the array is non-empty and the change handler is provided. Used by `ExercisesPage` and `ExercisePicker`.
+  - `ExerciseCard` — unified card for library (nav variant: `exerciseId`) and picker (select variant: `selected`, `onToggle`).
 
 **Import direction:** `features` → `shared` → never the reverse.
 

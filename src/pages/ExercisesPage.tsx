@@ -1,16 +1,21 @@
-import { useState } from 'react'
-import { ExerciseCard } from '@/features/exercises/components/ExerciseCard'
 import { useExercisesWithMeta } from '@/features/exercises/hooks/useExercisesWithMeta'
+import { useExerciseFilter } from '@/features/exercises/hooks/useExerciseFilter'
+import { ExerciseCard } from '@/features/exercises/components/ExerciseCard'
+import { ExerciseFilters } from '@/features/exercises/components/ExerciseFilters'
 import { SearchField, CardGrid } from '@/shared/components'
 import styles from './ExercisesPage.module.scss'
 
 export function ExercisesPage() {
-  const { exercises, isLoading } = useExercisesWithMeta()
-  const [query, setQuery] = useState('')
-
-  const filtered = query
-    ? exercises.filter((ex) => ex.name.toLowerCase().includes(query.toLowerCase()))
-    : exercises
+  const { exercises, muscleGroups, equipment, isLoading } = useExercisesWithMeta()
+  const {
+    filtered,
+    query,
+    setQuery,
+    activeMuscleGroupId,
+    setActiveMuscleGroupId,
+    activeEquipmentId,
+    setActiveEquipmentId,
+  } = useExerciseFilter(exercises)
 
   return (
     <div className={styles.page}>
@@ -20,10 +25,18 @@ export function ExercisesPage() {
 
       <div className={styles.searchWrap}>
         <SearchField
-          placeholder="Search exercises..."
+          placeholder="Search by name, muscle, equipment..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           aria-label="Search exercises"
+        />
+        <ExerciseFilters
+          muscleGroups={muscleGroups}
+          activeMuscleGroupId={activeMuscleGroupId}
+          onMuscleGroupChange={setActiveMuscleGroupId}
+          equipment={equipment}
+          activeEquipmentId={activeEquipmentId}
+          onEquipmentChange={setActiveEquipmentId}
         />
       </div>
 

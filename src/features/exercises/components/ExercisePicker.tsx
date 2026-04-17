@@ -1,8 +1,10 @@
-import { useState, useMemo } from 'react'
+import { useMemo } from 'react'
 import type { Exercise } from '@/features/exercises/exercises.types'
 import { SearchField, CardGrid } from '@/shared/components'
 import { useExercisesWithMeta } from '../hooks/useExercisesWithMeta'
+import { useExerciseFilter } from '../hooks/useExerciseFilter'
 import { ExerciseCard } from './ExerciseCard'
+import { ExerciseFilters } from './ExerciseFilters'
 import styles from './ExercisePicker.module.scss'
 
 interface ExercisePickerProps {
@@ -11,13 +13,17 @@ interface ExercisePickerProps {
 }
 
 export function ExercisePicker({ selectedIds, onToggle }: ExercisePickerProps) {
-  const { exercises, muscleGroups, isLoading } = useExercisesWithMeta()
-  const [query, setQuery] = useState('')
+  const { exercises, muscleGroups, equipment, isLoading } = useExercisesWithMeta()
+  const {
+    filtered,
+    query,
+    setQuery,
+    activeMuscleGroupId,
+    setActiveMuscleGroupId,
+    activeEquipmentId,
+    setActiveEquipmentId,
+  } = useExerciseFilter(exercises)
   const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds])
-
-  const filtered = query
-    ? exercises.filter((ex) => ex.name.toLowerCase().includes(query.toLowerCase()))
-    : exercises
 
   const grouped = muscleGroups
     .map((mg) => ({
@@ -30,10 +36,18 @@ export function ExercisePicker({ selectedIds, onToggle }: ExercisePickerProps) {
     <div className={styles.picker}>
       <div className={styles.searchWrap}>
         <SearchField
-          placeholder="Search exercises..."
+          placeholder="Search by name, muscle, equipment..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           aria-label="Search exercises"
+        />
+        <ExerciseFilters
+          muscleGroups={muscleGroups}
+          activeMuscleGroupId={activeMuscleGroupId}
+          onMuscleGroupChange={setActiveMuscleGroupId}
+          equipment={equipment}
+          activeEquipmentId={activeEquipmentId}
+          onEquipmentChange={setActiveEquipmentId}
         />
       </div>
 
