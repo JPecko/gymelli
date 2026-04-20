@@ -4,6 +4,7 @@ import styles from './ConfirmSheet.module.scss'
 interface ConfirmSheetProps {
   message: string
   confirmLabel?: string
+  variant?: 'destructive' | 'primary'
   onConfirm: () => void
   onCancel: () => void
 }
@@ -11,6 +12,7 @@ interface ConfirmSheetProps {
 export function ConfirmSheet({
   message,
   confirmLabel = 'Delete',
+  variant = 'destructive',
   onConfirm,
   onCancel,
 }: ConfirmSheetProps) {
@@ -22,7 +24,10 @@ export function ConfirmSheet({
           <Button variant="ghost" size="lg" fullWidth onClick={onCancel}>
             Cancel
           </Button>
-          <button className={styles.confirmBtn} onClick={onConfirm}>
+          <button
+            className={variant === 'primary' ? styles.confirmBtnPrimary : styles.confirmBtn}
+            onClick={onConfirm}
+          >
             {confirmLabel}
           </button>
         </div>

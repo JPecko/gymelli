@@ -37,22 +37,41 @@
   gap: var(--space-3);
 }
 
-// Destructive confirm button — neutral at rest, red on press
-.confirmBtn {
+// Shared confirm button base
+.confirmBtn,
+.confirmBtnPrimary {
   width: 100%;
   padding: var(--space-4) var(--space-6);
-  border: 1px solid var(--color-error);
   border-radius: var(--radius-md);
   background: transparent;
-  color: var(--color-error);
   font-size: var(--text-base);
   font-weight: var(--font-semibold);
   cursor: pointer;
   transition: color 0.15s, border-color 0.15s, background-color 0.15s, transform 0.1s;
 
   &:active {
+    transform: scale(0.98);
+  }
+}
+
+// Destructive variant — red border, fills red on press
+.confirmBtn {
+  border: 1px solid var(--color-error);
+  color: var(--color-error);
+
+  &:active {
     background-color: var(--color-error);
     color: #fff;
-    transform: scale(0.98);
+  }
+}
+
+// Primary variant — gold border, fills gold on press
+.confirmBtnPrimary {
+  border: 1px solid var(--color-gold);
+  color: var(--color-gold);
+
+  &:active {
+    background-color: var(--color-gold);
+    color: var(--color-text-inverse);
   }
 }

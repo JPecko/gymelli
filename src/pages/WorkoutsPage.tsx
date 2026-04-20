@@ -1,41 +1,15 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getSessionHistory, deleteSession } from '@/features/workouts/workouts.api'
-import { computeWorkoutScore } from '@/features/workouts/hooks/useWorkoutScore'
+import { useWorkoutHistory } from '@/features/workouts/hooks/useWorkoutHistory'
 import { WorkoutSessionCard } from '@/features/workouts/components/WorkoutSessionCard'
-import { useProfile } from '@/features/auth/hooks/useProfile'
 import type { SessionHistoryItem } from '@/features/workouts/workouts.types'
 import { Button, SwipeableItem, ConfirmSheet } from '@/shared/components'
 import styles from './WorkoutsPage.module.scss'
 
 export function WorkoutsPage() {
   const navigate = useNavigate()
-  const [sessions, setSessions] = useState<SessionHistoryItem[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const { profile } = useProfile()
   const [pendingDelete, setPendingDelete] = useState<SessionHistoryItem | null>(null)
-
-  useEffect(() => {
-    getSessionHistory().then((data) => {
-      setSessions(data)
-      setIsLoading(false)
-    })
-  }, [])
-
-  const scores = useMemo(() =>
-    sessions.map((s) =>
-      computeWorkoutScore({
-        total_volume_kg: s.total_volume_kg,
-        duration_seconds: s.duration_seconds,
-        exercise_count: s.exercise_names.length,
-        pr_count: 0,  // PR history per-session requires expensive reconstruction; excluded here
-        calories_burned: s.calories_burned,
-        body_weight_kg: profile?.body_weight_kg ?? null,
-        sex: profile?.sex ?? null,
-        total_rest_seconds: s.total_rest_seconds,
-      }),
-    ),
-  [sessions, profile?.body_weight_kg, profile?.sex])
+  const { sessions, scores, isLoading, handleDelete } = useWorkoutHistory()
 
   return (
     <div className={styles.page}>
@@ -74,16 +48,8 @@ export function WorkoutsPage() {
           message="Delete this workout?"
           confirmLabel="Delete workout"
           onConfirm={() => {
-            const target = pendingDelete
+            handleDelete(pendingDelete)
             setPendingDelete(null)
-            setSessions((prev) => prev.filter((s) => s.id !== target.id))
-            deleteSession(target.id).catch(() => {
-              setSessions((prev) =>
-                [...prev, target].sort(
-                  (a, b) => new Date(b.started_at).getTime() - new Date(a.started_at).getTime(),
-                ),
-              )
-            })
           }}
           onCancel={() => setPendingDelete(null)}
         />

@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import clsx from 'clsx'
 import { useWorkoutSession } from '@/features/workouts/hooks/useWorkoutSession'
+import { useLiveWorkoutScore } from '@/features/workouts/hooks/useLiveWorkoutScore'
 import { getSessionById } from '@/features/workouts'
 import { useElapsedTime } from '@/shared/hooks/useElapsedTime'
+import { useProfile } from '@/features/auth/hooks/useProfile'
 import { ExerciseBlock } from '@/features/workouts/components/ExerciseBlock'
 import { RestTimer } from '@/features/workouts/components/RestTimer'
-import { Button, IconButton } from '@/shared/components'
+import { Button, IconButton, ConfirmSheet } from '@/shared/components'
 import type { WorkoutSession } from '@/features/workouts'
 import styles from './WorkoutSessionPage.module.scss'
 
@@ -42,6 +44,9 @@ interface SessionViewProps {
 }
 
 function SessionView({ session, onCancel, onFinish }: SessionViewProps) {
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false)
+  const [showFinishConfirm, setShowFinishConfirm] = useState(false)
+
   const {
     exercises,
     active_index,
@@ -49,6 +54,7 @@ function SessionView({ session, onCancel, onFinish }: SessionViewProps) {
     is_finishing,
     rest_timer_active,
     rest_timer_duration,
+    total_rest_seconds,
     goToExercise,
     updateDraftSet,
     confirmSet,
@@ -59,10 +65,23 @@ function SessionView({ session, onCancel, onFinish }: SessionViewProps) {
   } = useWorkoutSession(session)
 
   const elapsed = useElapsedTime(session.started_at)
+  const { profile } = useProfile()
+  const liveScore = useLiveWorkoutScore({
+    exercises,
+    started_at: session.started_at,
+    total_rest_seconds,
+    body_weight_kg: profile?.body_weight_kg ?? null,
+    sex: profile?.sex ?? null,
+  })
 
   async function handleFinish() {
     await finishWorkout()
     onFinish()
+  }
+
+  async function confirmFinish() {
+    setShowFinishConfirm(false)
+    await handleFinish()
   }
 
   const activeExercise = exercises[active_index]
@@ -73,7 +92,7 @@ function SessionView({ session, onCancel, onFinish }: SessionViewProps) {
     <div className={styles.page}>
       {/* ── Header ─────────────────────────────────────────────── */}
       <header className={styles.header}>
-        <IconButton size="sm" onClick={onCancel} aria-label="Cancel workout">
+        <IconButton size="sm" onClick={() => setShowCancelConfirm(true)} aria-label="Cancel workout">
           ✕
         </IconButton>
 
@@ -86,7 +105,16 @@ function SessionView({ session, onCancel, onFinish }: SessionViewProps) {
           )}
         </div>
 
-        <div className={styles.headerSpacer} aria-hidden="true" />
+        {liveScore ? (
+          <div className={styles.liveScore}>
+            <span className={styles.liveScoreValue} data-label={liveScore.label}>
+              {liveScore.score}
+            </span>
+            <span className={styles.liveScoreLabel}>{liveScore.label}</span>
+          </div>
+        ) : (
+          <div className={styles.headerSpacer} aria-hidden="true" />
+        )}
       </header>
 
       {/* ── Scrollable content ──────────────────────────────────── */}
@@ -147,13 +175,33 @@ function SessionView({ session, onCancel, onFinish }: SessionViewProps) {
 
       {/* ── Sticky footer ───────────────────────────────────────── */}
       <footer className={styles.footer}>
-        <Button variant="secondary" size="lg" fullWidth onClick={handleFinish} disabled={is_finishing}>
+        <Button variant="secondary" size="lg" fullWidth onClick={() => setShowFinishConfirm(true)} disabled={is_finishing}>
           {is_finishing ? 'Finishing...' : 'Finish Workout'}
         </Button>
       </footer>
 
       {rest_timer_active && (
         <RestTimer durationSeconds={rest_timer_duration} onDismiss={dismissRestTimer} />
+      )}
+
+      {showCancelConfirm && (
+        <ConfirmSheet
+          message="Abandon this workout? Progress will not be saved."
+          confirmLabel="Abandon"
+          variant="destructive"
+          onConfirm={onCancel}
+          onCancel={() => setShowCancelConfirm(false)}
+        />
+      )}
+
+      {showFinishConfirm && (
+        <ConfirmSheet
+          message="Finish workout and save results?"
+          confirmLabel="Finish Workout"
+          variant="primary"
+          onConfirm={confirmFinish}
+          onCancel={() => setShowFinishConfirm(false)}
+        />
       )}
     </div>
   )

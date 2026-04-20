@@ -172,6 +172,7 @@ export function useWorkoutSession(session: WorkoutSession) {
     is_finishing: isFinishing,
     rest_timer_active: restTimerActive,
     rest_timer_duration: restTimerDuration,
+    total_rest_seconds: totalRestSeconds,
     goToExercise: setActiveIndex,
     updateDraftSet,
     confirmSet,

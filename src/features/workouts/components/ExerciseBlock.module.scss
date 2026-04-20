@@ -7,6 +7,11 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
+
+  @media (max-width: 390px) {
+    padding: var(--space-3) var(--space-2);
+    gap: var(--space-3);
+  }
 }
 
 // ── Swipe hint chevrons — touch devices only ─────────────────────────────────
@@ -46,6 +51,10 @@
   line-height: var(--leading-tight);
   text-transform: uppercase;
   letter-spacing: 0.03em;
+
+  @media (max-width: 390px) {
+    font-size: var(--text-xl);
+  }
 }
 
 .type {
@@ -82,6 +91,12 @@
   color: var(--color-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.08em;
+
+  @media (max-width: 390px) {
+    grid-template-columns: 1.25rem 2.75rem 1fr 1fr 2.5rem;
+    gap: var(--space-1);
+    padding: 0 var(--space-1);
+  }
 }
 
 .setList {

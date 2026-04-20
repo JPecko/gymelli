@@ -47,6 +47,35 @@
   flex-shrink: 0;
 }
 
+.liveScore {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+  min-width: 2rem;
+  flex-shrink: 0;
+}
+
+.liveScoreValue {
+  font-size: var(--text-sm);
+  font-weight: var(--font-bold);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--color-text-muted);
+
+  &[data-label='Good'] { color: var(--color-text-secondary); }
+  &[data-label='Great'],
+  &[data-label='Elite'] { color: var(--color-gold); }
+}
+
+.liveScoreLabel {
+  font-size: 0.625rem;
+  color: var(--color-text-muted);
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
 // ── Scrollable content ─────────────────────────────────────────────────────
 
 .content {
@@ -57,6 +86,10 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+
+  @media (max-width: 390px) {
+    padding: var(--space-3);
+  }
 }
 
 .state {

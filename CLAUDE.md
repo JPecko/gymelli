@@ -95,7 +95,7 @@ src/
   - `StepperInput` — numeric stepper with −/+ buttons. Props: `value: number | null`, `onChange`, `step`, `min`, `disabled`, `inputMode`. Disabled state hides buttons and shows static value. Touch-friendly (44px min-height).
   - `StatCard` — metric display card. Props: `label`, `value`, `unit?`, `accent?` (gold highlight). Used in History and Dashboard.
   - `ScoreRing` — SVG 270° arc ring. Props: `score: number`, `label: string`, `size?: number`, `showLabel?: boolean`. Fill colour driven by label (Poor/Fair → muted, Good → text-secondary, Great/Elite → gold). Score number uses `font-size: 1rem`.
-  - `ConfirmSheet` — bottom sheet for destructive confirmations. Props: `message`, `confirmLabel?`, `onConfirm`, `onCancel`. `z-index: 200` (above BottomNav). No bottom padding compensation needed.
+  - `ConfirmSheet` — bottom sheet for confirmations. Props: `message`, `confirmLabel?`, `variant?: 'destructive' | 'primary'` (default `'destructive'`), `onConfirm`, `onCancel`. Destructive = red button; primary = gold button. `z-index: 200` (above BottomNav). No bottom padding compensation needed.
 - **Auth-scoped components** live in `features/auth/components/` (not `shared/`):
   - `AuthCard` — full-screen centred shell with Gymelli logo. Used by LoginPage and SignUpPage.
 - **Always check `shared/hooks/` before creating a new hook.**
@@ -104,6 +104,13 @@ src/
   - `useCountdown(totalSeconds, onComplete)` → `{ remaining, progress, display }`. Counts down to 0 then calls `onComplete`. `totalSeconds` fixed on mount.
   - `useVersionCheck()` → `{ updateAvailable }`. Polls `/version.json` (static file generated at build time) every 5 min and on window focus. Compares against `APP_VERSION` (build-time constant).
   - `useSwipeGesture({ onSwipeLeft?, onSwipeRight?, threshold? })` → `{ onTouchStart, onTouchEnd }`. Fires only when gesture is primarily horizontal (`|dx| > |dy|`). Safe to use alongside `SwipeableItem` — `SwipeableItem` stops propagation on horizontal moves.
+
+**Feature hooks — workouts (`features/workouts/hooks/`):** check before implementing any workout-related logic.
+  - `useWorkoutSession(session)` → `{ exercises, active_index, is_loading, is_finishing, rest_timer_active, rest_timer_duration, total_rest_seconds, goToExercise, updateDraftSet, confirmSet, addSet, removeSet, finishWorkout, dismissRestTimer }`. Core active-session state. `total_rest_seconds` accumulates via `dismissRestTimer(elapsed)`.
+  - `useLiveWorkoutScore({ exercises, started_at, total_rest_seconds, body_weight_kg, sex })` → `WorkoutScore | null`. Returns `null` until the first set is confirmed. Updates on every confirmed set + every 10s (for density). Used in `WorkoutSessionPage` header (right slot, replaces spacer once score is available).
+  - `useWorkoutSummary(sessionId)` → `{ data: SummaryData | null, calories, score, profile, handleCaloriesSave }`. Loads session + exercises + sets + previous sets + PR detection. Types `SummarySet`, `SummaryExercise`, `SummaryData` are exported from this file.
+  - `useWorkoutHistory()` → `{ sessions, scores, isLoading, handleDelete }`. Loads session history, computes scores via `computeWorkoutScore` (with profile). `handleDelete(session)` is optimistic with rollback on error.
+  - `useWorkoutScore(input)` / `computeWorkoutScore(input)` → `WorkoutScore`. `computeWorkoutScore` is a pure function — safe in `useMemo` loops. Labels: Poor <40, Fair 40–54, Good 55–69, Great 70–84, Elite 85+.
 
 **Feature hooks — exercises (`features/exercises/hooks/`):** check before implementing any exercise-related logic.
   - `useExercisesWithMeta()` → `{ exercises: ExerciseWithMeta[], muscleGroups: MuscleGroup[], equipment: Equipment[], isLoading }`. Single `Promise.all` for all three tables. If any exercise has no equipment, pre-pends `{ id: 'none', name: 'Bodyweight' }` to the equipment list. Exports `BODYWEIGHT_ID = 'none'` sentinel — use it when filtering bodyweight exercises.
