@@ -11,6 +11,7 @@ import { WorkoutSetupPage } from '@/pages/WorkoutSetupPage'
 import { WorkoutSessionPage } from '@/pages/WorkoutSessionPage'
 import { ExercisesPage } from '@/pages/ExercisesPage'
 import { ExerciseDetailPage } from '@/pages/ExerciseDetailPage'
+import { ExerciseEditorPage } from '@/pages/ExerciseEditorPage'
 import { TemplatesPage } from '@/pages/TemplatesPage'
 import { TemplateEditorPage } from '@/pages/TemplateEditorPage'
 import { HistoryPage } from '@/pages/HistoryPage'
@@ -41,11 +42,21 @@ export const router = createBrowserRouter([
           },
         },
       },
-      { path: 'exercises',     element: <ExercisesPage /> },
+      { path: 'exercises', element: <ExercisesPage /> },
+      {
+        path: 'exercises/new',
+        element: <ExerciseEditorPage />,
+        handle: { mobileHeader: { title: 'New Exercise', backTo: '/exercises' } },
+      },
       {
         path: 'exercises/:id',
         element: <ExerciseDetailPage />,
         handle: { mobileHeader: { title: 'Exercise', backTo: '/exercises' } },
+      },
+      {
+        path: 'exercises/:id/edit',
+        element: <ExerciseEditorPage />,
+        handle: { mobileHeader: { title: 'Edit Exercise', backTo: null } },
       },
       { path: 'templates',          element: <TemplatesPage /> },
       {

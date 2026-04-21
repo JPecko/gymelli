@@ -27,6 +27,8 @@ export interface ExerciseSet {
   weight_kg: number | null
   reps: number | null
   rpe: number | null
+  duration_seconds: number | null
+  distance_km: number | null
   logged_at: string
 }
 

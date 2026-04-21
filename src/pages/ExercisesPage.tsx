@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import { useExercisesWithMeta } from '@/features/exercises/hooks/useExercisesWithMeta'
 import { useExerciseFilter } from '@/features/exercises/hooks/useExerciseFilter'
 import { ExerciseCard } from '@/features/exercises/components/ExerciseCard'
@@ -6,6 +7,7 @@ import { SearchField, CardGrid } from '@/shared/components'
 import styles from './ExercisesPage.module.scss'
 
 export function ExercisesPage() {
+  const navigate = useNavigate()
   const { exercises, muscleGroups, equipment, isLoading } = useExercisesWithMeta()
   const {
     filtered,
@@ -21,6 +23,7 @@ export function ExercisesPage() {
     <div className={styles.page}>
       <header className={styles.header}>
         <h1 className={styles.title}>Exercises</h1>
+        <button className={styles.newBtn} onClick={() => navigate('/exercises/new')}>+ New</button>
       </header>
 
       <div className={styles.searchWrap}>

@@ -8,6 +8,9 @@
 // ── Header ───────────────────────────────────────────────────────────────────
 
 .header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding-top: var(--space-4);
 }
 
@@ -15,6 +18,14 @@
   font-size: var(--text-xl);
   font-weight: var(--font-bold);
   color: var(--color-text-primary);
+}
+
+.newBtn {
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--color-gold);
+  transition: color 0.15s;
+  &:hover { color: var(--color-gold-light); }
 }
 
 // ── Search ───────────────────────────────────────────────────────────────────

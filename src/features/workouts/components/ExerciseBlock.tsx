@@ -2,27 +2,48 @@ import { Button, SwipeableItem } from '@/shared/components'
 import { useSwipeGesture } from '@/shared/hooks/useSwipeGesture'
 import { SetRow } from './SetRow'
 import type { SessionExerciseState } from '../hooks/useWorkoutSession'
+import type { TrackingType } from '@/features/exercises/exercises.types'
 import styles from './ExerciseBlock.module.scss'
 
 interface ExerciseBlockProps {
   state: SessionExerciseState
   onConfirmSet: (setIdx: number) => void
-  onUpdateSet: (setIdx: number, field: 'weight_kg' | 'reps', value: number | null) => void
+  onUpdateSet: (setIdx: number, field: Parameters<typeof SetRow>[0]['onUpdate'] extends (f: infer F, v: number | null) => void ? F : never, value: number | null) => void
   onAddSet: () => void
   onRemoveSet: (setIdx: number) => void
   onSwipeLeft?: () => void
   onSwipeRight?: () => void
 }
 
+const COL1_LABEL: Record<TrackingType, string> = {
+  weight_reps: 'KG',
+  reps_only:   '—',
+  duration:    '—',
+  distance:    'KM',
+}
+
+const COL2_LABEL: Record<TrackingType, string> = {
+  weight_reps: 'REPS',
+  reps_only:   'REPS',
+  duration:    'SEC',
+  distance:    '—',
+}
+
 export function ExerciseBlock({
   state, onConfirmSet, onUpdateSet, onAddSet, onRemoveSet, onSwipeLeft, onSwipeRight,
 }: ExerciseBlockProps) {
   const { exercise, sets, previous_sets } = state
+  const tracking = exercise.tracking_type
   const swipeHandlers = useSwipeGesture({ onSwipeLeft, onSwipeRight })
 
   const prevSummary = previous_sets
     .slice(0, 5)
-    .map((s) => `${s.weight_kg ?? '—'}×${s.reps ?? '—'}`)
+    .map((s) => {
+      if (tracking === 'weight_reps') return `${s.weight_kg ?? '—'}×${s.reps ?? '—'}`
+      if (tracking === 'reps_only')   return `${s.reps ?? '—'}`
+      if (tracking === 'duration')    return s.duration_seconds != null ? `${s.duration_seconds}s` : '—'
+      return s.distance_km != null ? `${s.distance_km}km` : '—'
+    })
     .join('  ·  ')
 
   return (
@@ -45,8 +66,8 @@ export function ExerciseBlock({
         <div className={styles.tableHeader}>
           <span>#</span>
           <span>PREV</span>
-          <span>KG</span>
-          <span>REPS</span>
+          <span>{COL1_LABEL[tracking]}</span>
+          <span>{COL2_LABEL[tracking]}</span>
           <span />
         </div>
         <div className={styles.setList}>
@@ -56,6 +77,7 @@ export function ExerciseBlock({
                 index={i}
                 set={set}
                 previousSet={previous_sets[i]}
+                trackingType={tracking}
                 onConfirm={() => onConfirmSet(i)}
                 onUpdate={(field, value) => onUpdateSet(i, field, value)}
               />

@@ -1,22 +1,12 @@
-import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getTemplatesWithExercises } from '@/features/templates/templates.api'
+import { useTemplatesList } from '@/features/templates/hooks/useTemplatesList'
 import { TemplateCard } from '@/features/templates/components/TemplateCard'
-import type { TemplateListItem } from '@/features/templates/templates.types'
 import { Button } from '@/shared/components'
 import styles from './TemplatesPage.module.scss'
 
 export function TemplatesPage() {
   const navigate = useNavigate()
-  const [templates, setTemplates] = useState<TemplateListItem[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    getTemplatesWithExercises().then((data) => {
-      setTemplates(data)
-      setIsLoading(false)
-    })
-  }, [])
+  const { templates, isLoading } = useTemplatesList()
 
   return (
     <div className={styles.page}>

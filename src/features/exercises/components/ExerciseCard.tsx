@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import clsx from 'clsx'
+import { toSlug } from '../exercises.utils'
 import styles from './ExerciseCard.module.scss'
 
 type ExerciseCardProps = {
@@ -12,10 +13,6 @@ type ExerciseCardProps = {
   | { exerciseId: string; selected?: never; onToggle?: never }
   | { exerciseId?: never; selected: boolean; onToggle: () => void }
 )
-
-function toSlug(name: string): string {
-  return name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
-}
 
 export function ExerciseCard({
   name,

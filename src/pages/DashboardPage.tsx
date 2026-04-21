@@ -1,29 +1,21 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDashboard } from '@/features/dashboard/hooks/useDashboard'
-import { getTemplatesWithExercises } from '@/features/templates/templates.api'
+import { useTemplatesList } from '@/features/templates/hooks/useTemplatesList'
 import { TemplateCard } from '@/features/templates/components/TemplateCard'
 import { WorkoutSessionCard } from '@/features/workouts/components/WorkoutSessionCard'
 import { computeWorkoutScore } from '@/features/workouts/hooks/useWorkoutScore'
 import { useProfile } from '@/features/auth/hooks/useProfile'
 import { StatCard, Button } from '@/shared/components'
-import type { TemplateListItem } from '@/features/templates/templates.types'
+import { formatVolumeCompact } from '@/shared/lib/formatters'
 import type { SessionHistoryItem } from '@/features/workouts/workouts.types'
 import styles from './DashboardPage.module.scss'
-
-function formatVolume(kg: number): string {
-  return kg >= 1000 ? `${(kg / 1000).toFixed(1)}k` : `${kg}`
-}
 
 export function DashboardPage() {
   const navigate = useNavigate()
   const { streak, this_week_volume_kg, last_session, is_loading } = useDashboard()
-  const [templates, setTemplates] = useState<TemplateListItem[]>([])
+  const { templates } = useTemplatesList()
   const { profile } = useProfile()
-
-  useEffect(() => {
-    getTemplatesWithExercises().then(setTemplates)
-  }, [])
 
   const suggestedTemplate =
     templates.find((t) => t.id === last_session?.template_id) ?? templates[0] ?? null
@@ -69,7 +61,7 @@ export function DashboardPage() {
           {/* ── Stats ───────────────────────────────────────── */}
           <div className={styles.stats}>
             <StatCard label="Streak" value={streak} unit="d" accent={streak > 0} />
-            <StatCard label="This week" value={formatVolume(this_week_volume_kg)} unit="kg" />
+            <StatCard label="This week" value={formatVolumeCompact(this_week_volume_kg)} unit="kg" />
           </div>
 
           {/* ── Quick start ─────────────────────────────────── */}

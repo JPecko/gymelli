@@ -1,12 +1,9 @@
 import type { PersonalRecord } from '../history.types'
+import { formatDateShort } from '@/shared/lib/formatters'
 import styles from './PRItem.module.scss'
 
 interface PRItemProps {
   pr: PersonalRecord
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
 }
 
 export function PRItem({ pr }: PRItemProps) {
@@ -16,7 +13,7 @@ export function PRItem({ pr }: PRItemProps) {
     <div className={styles.row}>
       <span className={styles.name}>{pr.exercise_name}</span>
       <span className={styles.set}>{setLabel}</span>
-      <span className={styles.date}>{formatDate(pr.set_date)}</span>
+      <span className={styles.date}>{formatDateShort(pr.set_date)}</span>
     </div>
   )
 }

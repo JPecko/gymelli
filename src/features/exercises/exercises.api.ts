@@ -1,5 +1,88 @@
 import { supabase } from '@/shared/lib/supabase'
-import type { Exercise, MuscleGroup, Equipment, ExerciseHistorySession } from './exercises.types'
+import type { Exercise, MuscleGroup, Equipment, ExerciseHistorySession, ExerciseGoal, TrackingType } from './exercises.types'
+
+export interface ExercisePayload {
+  name: string
+  muscle_group_id: string
+  equipment_id: string | null
+  type: 'compound' | 'isolation'
+  tracking_type: TrackingType
+  instructions: string | null
+  image_url?: string | null
+}
+
+export async function createExercise(payload: ExercisePayload): Promise<Exercise> {
+  const { data, error } = await supabase
+    .from('exercises')
+    .insert(payload)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+export async function updateExercise(id: string, payload: Partial<ExercisePayload>): Promise<Exercise> {
+  const { data, error } = await supabase
+    .from('exercises')
+    .update(payload)
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+export async function uploadExerciseImage(file: File): Promise<string> {
+  const ext = file.name.split('.').pop() ?? 'png'
+  const path = `${crypto.randomUUID()}.${ext}`
+
+  const { error } = await supabase.storage
+    .from('exercise-images')
+    .upload(path, file, { upsert: true })
+
+  if (error) throw error
+
+  const { data } = supabase.storage.from('exercise-images').getPublicUrl(path)
+  return data.publicUrl
+}
+
+export async function getExerciseGoal(exerciseId: string): Promise<ExerciseGoal | null> {
+  const { data } = await supabase
+    .from('exercise_goals')
+    .select('*')
+    .eq('exercise_id', exerciseId)
+    .maybeSingle()
+
+  return data ?? null
+}
+
+export async function upsertExerciseGoal(
+  exerciseId: string,
+  goal: Omit<ExerciseGoal, 'id' | 'user_id' | 'exercise_id' | 'created_at'>,
+): Promise<ExerciseGoal> {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+
+  const { data, error } = await supabase
+    .from('exercise_goals')
+    .upsert({ ...goal, user_id: user.id, exercise_id: exerciseId }, { onConflict: 'user_id,exercise_id' })
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+export async function deleteExerciseGoal(exerciseId: string): Promise<void> {
+  const { error } = await supabase
+    .from('exercise_goals')
+    .delete()
+    .eq('exercise_id', exerciseId)
+
+  if (error) throw error
+}
 
 export async function getExercises(): Promise<Exercise[]> {
   const { data, error } = await supabase
@@ -49,9 +132,17 @@ export async function getEquipment(): Promise<Equipment[]> {
   return data
 }
 
+export interface ExercisePR {
+  weight_kg: number | null
+  reps: number | null
+  duration_seconds: number | null
+  distance_km: number | null
+}
+
 export async function getExercisePR(
   exerciseId: string,
-): Promise<{ weight_kg: number; reps: number | null } | null> {
+  trackingType: TrackingType = 'weight_reps',
+): Promise<ExercisePR | null> {
   const { data: ses } = await supabase
     .from('workout_session_exercises')
     .select('id')
@@ -59,16 +150,54 @@ export async function getExercisePR(
 
   if (!ses?.length) return null
 
+  const seIds = ses.map((se) => se.id)
+
+  if (trackingType === 'weight_reps') {
+    const { data } = await supabase
+      .from('exercise_sets')
+      .select('weight_kg, reps, duration_seconds, distance_km')
+      .in('session_exercise_id', seIds)
+      .not('weight_kg', 'is', null)
+      .order('weight_kg', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    return data ?? null
+  }
+
+  if (trackingType === 'reps_only') {
+    const { data } = await supabase
+      .from('exercise_sets')
+      .select('weight_kg, reps, duration_seconds, distance_km')
+      .in('session_exercise_id', seIds)
+      .not('reps', 'is', null)
+      .order('reps', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    return data ?? null
+  }
+
+  if (trackingType === 'duration') {
+    const { data } = await supabase
+      .from('exercise_sets')
+      .select('weight_kg, reps, duration_seconds, distance_km')
+      .in('session_exercise_id', seIds)
+      .not('duration_seconds', 'is', null)
+      .order('duration_seconds', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    return data ?? null
+  }
+
+  // distance
   const { data } = await supabase
     .from('exercise_sets')
-    .select('weight_kg, reps')
-    .in('session_exercise_id', ses.map((se) => se.id))
-    .not('weight_kg', 'is', null)
-    .order('weight_kg', { ascending: false })
+    .select('weight_kg, reps, duration_seconds, distance_km')
+    .in('session_exercise_id', seIds)
+    .not('distance_km', 'is', null)
+    .order('distance_km', { ascending: false })
     .limit(1)
-    .single()
-
-  return (data as { weight_kg: number; reps: number | null } | null) ?? null
+    .maybeSingle()
+  return data ?? null
 }
 
 export async function getExerciseHistory(exerciseId: string): Promise<ExerciseHistorySession[]> {
@@ -97,7 +226,7 @@ export async function getExerciseHistory(exerciseId: string): Promise<ExerciseHi
 
   const { data: sets } = await supabase
     .from('exercise_sets')
-    .select('id, session_exercise_id, set_number, weight_kg, reps')
+    .select('id, session_exercise_id, set_number, weight_kg, reps, duration_seconds, distance_km')
     .in('session_exercise_id', relevantSEs.map((se) => se.id))
     .order('set_number')
 

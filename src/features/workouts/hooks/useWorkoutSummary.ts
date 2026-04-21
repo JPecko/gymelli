@@ -10,13 +10,15 @@ import { useWorkoutScore, type WorkoutScore } from './useWorkoutScore'
 import { useProfile } from '@/features/auth/hooks/useProfile'
 import { getExerciseById } from '@/features/exercises/exercises.api'
 import type { WorkoutSession, WorkoutSessionExercise, ExerciseSet } from '../workouts.types'
-import type { Exercise } from '@/features/exercises/exercises.types'
+import type { Exercise, TrackingType } from '@/features/exercises/exercises.types'
 import type { Profile } from '@/features/auth/auth.types'
 
 export interface SummarySet {
   set_number: number
   weight_kg: number | null
   reps: number | null
+  duration_seconds: number | null
+  distance_km: number | null
 }
 
 export interface SummaryExercise {
@@ -33,8 +35,11 @@ export interface SummaryData {
   duration_seconds: number
 }
 
-function maxWeight(sets: Array<{ weight_kg: number | null }>): number {
-  return Math.max(0, ...sets.map((s) => s.weight_kg ?? 0))
+function maxValue(sets: ExerciseSet[], tracking: TrackingType): number {
+  if (tracking === 'weight_reps') return Math.max(0, ...sets.map((s) => s.weight_kg ?? 0))
+  if (tracking === 'reps_only')   return Math.max(0, ...sets.map((s) => s.reps ?? 0))
+  if (tracking === 'duration')    return Math.max(0, ...sets.map((s) => s.duration_seconds ?? 0))
+  return Math.max(0, ...sets.map((s) => s.distance_km ?? 0))
 }
 
 export function useWorkoutSummary(sessionId: string | undefined): {
@@ -64,10 +69,17 @@ export function useWorkoutSummary(sessionId: string | undefined): {
               getPreviousSetsForExercise(se.exercise_id, sessionId!),
             ])
 
+          const tracking = exercise.tracking_type
           return {
             exercise,
-            sets: sets.map((s) => ({ set_number: s.set_number, weight_kg: s.weight_kg, reps: s.reps })),
-            is_pr: maxWeight(sets) > 0 && maxWeight(sets) > maxWeight(previousSets),
+            sets: sets.map((s) => ({
+              set_number: s.set_number,
+              weight_kg: s.weight_kg,
+              reps: s.reps,
+              duration_seconds: s.duration_seconds,
+              distance_km: s.distance_km,
+            })),
+            is_pr: maxValue(sets, tracking) > 0 && maxValue(sets, tracking) > maxValue(previousSets, tracking),
           }
         }),
       )

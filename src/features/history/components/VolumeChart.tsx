@@ -1,12 +1,9 @@
 import type { VolumeWeek } from '../history.types'
+import { formatVolumeCompact } from '@/shared/lib/formatters'
 import styles from './VolumeChart.module.scss'
 
 interface VolumeChartProps {
   weeks: VolumeWeek[]
-}
-
-function formatVolume(kg: number): string {
-  return kg >= 1000 ? `${(kg / 1000).toFixed(1)}k` : `${kg}`
 }
 
 export function VolumeChart({ weeks }: VolumeChartProps) {
@@ -28,7 +25,7 @@ export function VolumeChart({ weeks }: VolumeChartProps) {
           <div key={week.week_start} className={styles.column}>
             <div className={styles.barWrap}>
               {week.volume_kg > 0 && (
-                <span className={styles.barValue}>{formatVolume(week.volume_kg)}</span>
+                <span className={styles.barValue}>{formatVolumeCompact(week.volume_kg)}</span>
               )}
               {/* inline style is intentional — dynamic computed value */}
               <div

@@ -2,11 +2,8 @@ import { useHistoryStats } from '@/features/history/hooks/useHistoryStats'
 import { VolumeChart } from '@/features/history/components/VolumeChart'
 import { PRItem } from '@/features/history/components/PRItem'
 import { StatCard } from '@/shared/components'
+import { formatVolumeCompact } from '@/shared/lib/formatters'
 import styles from './HistoryPage.module.scss'
-
-function formatVolume(kg: number): string {
-  return kg >= 1000 ? `${(kg / 1000).toFixed(1)}k` : `${kg}`
-}
 
 export function HistoryPage() {
   const { total_sessions, total_volume_kg, current_streak, weekly_volume, personal_records, is_loading } =
@@ -25,7 +22,7 @@ export function HistoryPage() {
           {/* ── Summary stats ───────────────────────────────── */}
           <div className={styles.stats}>
             <StatCard label="Sessions" value={total_sessions} />
-            <StatCard label="Volume" value={formatVolume(total_volume_kg)} unit="kg" accent />
+            <StatCard label="Volume" value={formatVolumeCompact(total_volume_kg)} unit="kg" accent />
             <StatCard label="Streak" value={current_streak} unit="d" />
           </div>
 

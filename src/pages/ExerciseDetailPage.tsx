@@ -1,107 +1,69 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import {
-  getExerciseById,
-  getMuscleGroups,
-  getEquipment,
-  getExerciseHistory,
-  getExercisePR,
-} from '@/features/exercises/exercises.api'
-import type { Exercise, MuscleGroup, Equipment, ExerciseHistorySession } from '@/features/exercises/exercises.types'
-import { deleteSessionExercise } from '@/features/workouts/workouts.api'
-import { SwipeableItem, Badge, SetsCard, StatCard } from '@/shared/components'
+import { useExerciseDetail } from '@/features/exercises/hooks/useExerciseDetail'
+import { useExerciseGoal } from '@/features/exercises/hooks/useExerciseGoal'
+import { GoalCard } from '@/features/exercises/components/GoalCard'
+import { GoalForm } from '@/features/exercises/components/GoalForm'
 import { WeightProgressChart } from '@/features/exercises/components/WeightProgressChart'
+import { toSlug } from '@/features/exercises/exercises.utils'
+import { formatDate, formatDateShort, formatSetDuration } from '@/shared/lib/formatters'
+import type { TrackingType } from '@/features/exercises/exercises.types'
+import { SwipeableItem, Badge, SetsCard, StatCard } from '@/shared/components'
 import styles from './ExerciseDetailPage.module.scss'
 
-function toSlug(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/[^a-z0-9-]/g, '')
+function prLabel(pr: NonNullable<ReturnType<typeof useExerciseDetail>['state']>['pr'], t: TrackingType): string {
+  if (!pr) return '—'
+  if (t === 'weight_reps') return pr.weight_kg != null ? `${pr.weight_kg} kg` : '—'
+  if (t === 'reps_only')   return pr.reps != null ? `${pr.reps} reps` : '—'
+  if (t === 'duration')    return pr.duration_seconds != null ? formatSetDuration(pr.duration_seconds) : '—'
+  return pr.distance_km != null ? `${pr.distance_km} km` : '—'
 }
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('en-GB', {
-    day: 'numeric', month: 'short', year: 'numeric',
-  })
-}
-
-function formatShortDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
-}
-
-interface PageState {
-  exercise: Exercise
-  muscleGroupName: string
-  equipmentName: string | null
-  history: ExerciseHistorySession[]
-  pr: { weight_kg: number; reps: number | null } | null
+function trackingTypeReps(
+  s: { weight_kg: number | null; reps: number | null; duration_seconds: number | null; distance_km: number | null },
+  tracking: TrackingType,
+): number | null {
+  if (tracking === 'reps_only') return s.reps
+  if (tracking === 'duration')  return s.duration_seconds
+  if (tracking === 'distance')  return s.distance_km != null ? Math.round(s.distance_km * 100) / 100 : null
+  return s.reps
 }
 
 export function ExerciseDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const [state, setState] = useState<PageState | null>(null)
   const [imgFailed, setImgFailed] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
+  const [showGoalEdit, setShowGoalEdit] = useState(false)
 
-  useEffect(() => {
-    if (!id) return
+  const { state, isLoading, handleDeleteSession } = useExerciseDetail(id)
+  const { goal, isSaving: isSavingGoal, saveGoal, removeGoal } = useExerciseGoal(
+    id ?? '',
+    state?.exercise.tracking_type ?? 'weight_reps',
+  )
 
-    Promise.all([
-      getExerciseById(id),
-      getMuscleGroups(),
-      getEquipment(),
-      getExerciseHistory(id),
-      getExercisePR(id),
-    ]).then(([exercise, muscleGroups, equipment, history, pr]: [Exercise, MuscleGroup[], Equipment[], ExerciseHistorySession[], { weight_kg: number; reps: number | null } | null]) => {
-      const mgMap = new Map(muscleGroups.map((mg) => [mg.id, mg]))
-      const equipMap = new Map(equipment.map((e) => [e.id, e]))
-
-      setState({
-        exercise,
-        muscleGroupName: mgMap.get(exercise.muscle_group_id)?.name ?? '',
-        equipmentName: exercise.equipment_id ? (equipMap.get(exercise.equipment_id)?.name ?? null) : null,
-        history,
-        pr,
-      })
-      setIsLoading(false)
-    })
-  }, [id])
-
-  function handleDeleteSession(sessionExerciseId: string) {
-    setState((prev) =>
-      prev
-        ? { ...prev, history: prev.history.filter((s) => s.session_exercise_id !== sessionExerciseId) }
-        : prev,
-    )
-    deleteSessionExercise(sessionExerciseId).catch(() => {
-      if (id) getExerciseHistory(id).then((history) => setState((prev) => prev ? { ...prev, history } : prev))
-    })
-  }
-
-  if (isLoading || !state) {
-    return <div className={styles.loading}>Loading...</div>
-  }
+  if (isLoading || !state) return <div className={styles.loading}>Loading...</div>
 
   const { exercise, muscleGroupName, equipmentName, history, pr } = state
+  const tracking = exercise.tracking_type
   const slug = toSlug(exercise.name)
   const meta = [muscleGroupName, equipmentName].filter(Boolean).join(' · ')
 
-  const chartPoints = [...history]
-    .reverse()
-    .map((s) => ({
-      label: formatShortDate(s.started_at),
-      weight_kg: Math.max(...s.sets.map((set) => set.weight_kg ?? 0), 0),
-    }))
-    .filter((p) => p.weight_kg > 0)
+  const chartPoints = [...history].reverse().map((s) => {
+    const value =
+      tracking === 'weight_reps' ? Math.max(...s.sets.map((set) => set.weight_kg ?? 0), 0)
+      : tracking === 'reps_only' ? Math.max(...s.sets.map((set) => set.reps ?? 0), 0)
+      : tracking === 'duration'  ? Math.max(...s.sets.map((set) => set.duration_seconds ?? 0), 0)
+      : Math.max(...s.sets.map((set) => set.distance_km ?? 0), 0)
+    return { label: formatDateShort(s.started_at), weight_kg: value }
+  }).filter((p) => p.weight_kg > 0)
 
   return (
     <div className={styles.page}>
-      {/* ── Back ──────────────────────────────────────────────── */}
-      <button className={styles.backBtn} onClick={() => navigate('/exercises')}>
-        ← Exercises
-      </button>
+      {/* ── Desktop back + edit ───────────────────────────────── */}
+      <div className={styles.topBar}>
+        <button className={styles.backBtn} onClick={() => navigate('/exercises')}>← Exercises</button>
+        <button className={styles.editBtn} onClick={() => navigate(`/exercises/${id}/edit`)}>Edit</button>
+      </div>
 
       {/* ── Image ─────────────────────────────────────────────── */}
       <div className={styles.imageWrap}>
@@ -112,7 +74,7 @@ export function ExerciseDetailPage() {
         ) : (
           <img
             className={styles.image}
-            src={`/images/exercises/${slug}.png`}
+            src={exercise.image_url ?? `/images/exercises/${slug}.png`}
             alt={exercise.name}
             onError={() => setImgFailed(true)}
           />
@@ -128,6 +90,11 @@ export function ExerciseDetailPage() {
         <p className={styles.meta}>{meta}</p>
       </div>
 
+      {/* ── Edit button (mobile) ───────────────────────────────── */}
+      <button className={styles.editBtnMobile} onClick={() => navigate(`/exercises/${id}/edit`)}>
+        Edit exercise
+      </button>
+
       {/* ── Instructions ──────────────────────────────────────── */}
       {exercise.instructions && (
         <section className={styles.section}>
@@ -140,9 +107,37 @@ export function ExerciseDetailPage() {
       {history.length > 0 && (
         <div className={styles.stats}>
           <StatCard label="Sessions" value={history.length} />
-          {pr && <StatCard label="Best weight" value={pr.weight_kg} unit="kg" accent />}
+          {pr && <StatCard label="Best" value={prLabel(pr, tracking)} accent />}
         </div>
       )}
+
+      {/* ── Goal ──────────────────────────────────────────────── */}
+      <section className={styles.section}>
+        <div className={styles.sectionHeader}>
+          <h2 className={styles.sectionTitle}>Goal</h2>
+          <button className={styles.goalEditLink} onClick={() => setShowGoalEdit((v) => !v)}>
+            {goal ? 'Edit' : '+ Set goal'}
+          </button>
+        </div>
+
+        {goal && !showGoalEdit && (
+          <GoalCard goal={goal} tracking={tracking} onEdit={() => setShowGoalEdit(true)} onRemove={removeGoal} />
+        )}
+
+        {showGoalEdit && (
+          <GoalForm
+            goal={goal}
+            tracking={tracking}
+            isSaving={isSavingGoal}
+            onSave={async (values) => { await saveGoal(values); setShowGoalEdit(false) }}
+            onCancel={() => setShowGoalEdit(false)}
+          />
+        )}
+
+        {!goal && !showGoalEdit && (
+          <p className={styles.empty}>No goal set yet.</p>
+        )}
+      </section>
 
       {/* ── Progress ──────────────────────────────────────────── */}
       {chartPoints.length > 1 && (
@@ -155,7 +150,6 @@ export function ExerciseDetailPage() {
       {/* ── History ───────────────────────────────────────────── */}
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>History</h2>
-
         {history.length === 0 ? (
           <p className={styles.empty}>No sessions logged yet.</p>
         ) : (
@@ -168,7 +162,11 @@ export function ExerciseDetailPage() {
               >
                 <SetsCard
                   header={<p className={styles.sessionDate}>{formatDate(session.started_at)}</p>}
-                  sets={session.sets}
+                  sets={session.sets.map((s) => ({
+                    set_number: s.set_number,
+                    weight_kg: s.weight_kg,
+                    reps: trackingTypeReps(s, tracking),
+                  }))}
                 />
               </SwipeableItem>
             ))}

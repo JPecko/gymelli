@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import clsx from 'clsx'
+import { useSession } from '@/features/workouts/hooks/useSession'
 import { useWorkoutSession } from '@/features/workouts/hooks/useWorkoutSession'
 import { useLiveWorkoutScore } from '@/features/workouts/hooks/useLiveWorkoutScore'
-import { getSessionById } from '@/features/workouts'
 import { useElapsedTime } from '@/shared/hooks/useElapsedTime'
 import { useProfile } from '@/features/auth/hooks/useProfile'
 import { ExerciseBlock } from '@/features/workouts/components/ExerciseBlock'
@@ -15,12 +15,7 @@ import styles from './WorkoutSessionPage.module.scss'
 export function WorkoutSessionPage() {
   const { sessionId } = useParams<{ sessionId: string }>()
   const navigate = useNavigate()
-  const [session, setSession] = useState<WorkoutSession | null>(null)
-
-  useEffect(() => {
-    if (!sessionId) return
-    getSessionById(sessionId).then(setSession)
-  }, [sessionId])
+  const session = useSession(sessionId)
 
   if (!session) {
     return <div className={styles.loading}>Loading session...</div>

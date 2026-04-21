@@ -13,6 +13,8 @@ import type { WorkoutSession, WorkoutSessionExercise, ExerciseSet } from '../wor
 export interface DraftSet {
   weight_kg: number | null
   reps: number | null
+  duration_seconds: number | null
+  distance_km: number | null
   is_completed: boolean
   logged_id: string | null
 }
@@ -33,6 +35,8 @@ function buildInitialSets(
   return Array.from({ length: count }, (_, i) => ({
     weight_kg: previousSets[i]?.weight_kg ?? null,
     reps: previousSets[i]?.reps ?? (!hasPrevious ? (se.default_reps ?? null) : null),
+    duration_seconds: previousSets[i]?.duration_seconds ?? null,
+    distance_km: previousSets[i]?.distance_km ?? null,
     is_completed: false,
     logged_id: null,
   }))
@@ -75,7 +79,7 @@ export function useWorkoutSession(session: WorkoutSession) {
   }, [session.id])
 
   const updateDraftSet = useCallback(
-    (exIdx: number, setIdx: number, field: 'weight_kg' | 'reps', value: number | null) => {
+    (exIdx: number, setIdx: number, field: 'weight_kg' | 'reps' | 'duration_seconds' | 'distance_km', value: number | null) => {
       setExercises((prev) =>
         prev.map((ex, i) =>
           i !== exIdx
@@ -109,6 +113,8 @@ export function useWorkoutSession(session: WorkoutSession) {
           set_number: setIdx + 1,
           weight_kg: set.weight_kg,
           reps: set.reps,
+          duration_seconds: set.duration_seconds,
+          distance_km: set.distance_km,
           rpe: null,
         })
         setExercises((prev) =>
@@ -136,7 +142,7 @@ export function useWorkoutSession(session: WorkoutSession) {
       prev.map((ex, i) => {
         if (i !== exIdx) return ex
         const last = ex.sets.at(-1)
-        const newSet: DraftSet = { weight_kg: last?.weight_kg ?? null, reps: last?.reps ?? null, is_completed: false, logged_id: null }
+        const newSet: DraftSet = { weight_kg: last?.weight_kg ?? null, reps: last?.reps ?? null, duration_seconds: last?.duration_seconds ?? null, distance_km: last?.distance_km ?? null, is_completed: false, logged_id: null }
         return { ...ex, sets: [...ex.sets, newSet] }
       }),
     )

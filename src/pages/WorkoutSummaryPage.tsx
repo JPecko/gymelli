@@ -1,20 +1,18 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { deleteSession } from '@/features/workouts/workouts.api'
-import { useWorkoutSummary } from '@/features/workouts/hooks/useWorkoutSummary'
+import { useWorkoutSummary, type SummarySet } from '@/features/workouts/hooks/useWorkoutSummary'
 import { WorkoutScoreCard } from '@/features/workouts/components/WorkoutScoreCard'
 import { Button, Badge, SetsCard, ConfirmSheet } from '@/shared/components'
+import { formatDuration, formatVolumeFull } from '@/shared/lib/formatters'
+import type { TrackingType } from '@/features/exercises/exercises.types'
 import styles from './WorkoutSummaryPage.module.scss'
 
-function formatDuration(seconds: number): string {
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m`
-  const h = Math.floor(seconds / 3600)
-  const m = Math.floor((seconds % 3600) / 60)
-  return m > 0 ? `${h}h ${m}m` : `${h}h`
-}
-
-function formatVolume(kg: number): string {
-  return kg >= 1000 ? `${(kg / 1000).toFixed(1)}t` : `${Math.round(kg).toLocaleString()} kg`
+function toDisplaySet(s: SummarySet, tracking: TrackingType) {
+  if (tracking === 'reps_only') return { set_number: s.set_number, weight_kg: null, reps: s.reps }
+  if (tracking === 'duration')  return { set_number: s.set_number, weight_kg: null, reps: s.duration_seconds }
+  if (tracking === 'distance')  return { set_number: s.set_number, weight_kg: s.distance_km, reps: null }
+  return { set_number: s.set_number, weight_kg: s.weight_kg, reps: s.reps }
 }
 
 export function WorkoutSummaryPage() {
@@ -44,7 +42,7 @@ export function WorkoutSummaryPage() {
         </div>
         <div className={styles.statDivider} />
         <div className={styles.stat}>
-          <span className={styles.statValue}>{formatVolume(total_volume_kg)}</span>
+          <span className={styles.statValue}>{formatVolumeFull(total_volume_kg)}</span>
           <span className={styles.statLabel}>Volume</span>
         </div>
         <div className={styles.statDivider} />
@@ -73,7 +71,7 @@ export function WorkoutSummaryPage() {
                 {is_pr && <Badge variant="gold">PR</Badge>}
               </>
             }
-            sets={sets}
+            sets={sets.map((s) => toDisplaySet(s, exercise.tracking_type))}
           />
         ))}
       </div>

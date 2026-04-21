@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import clsx from 'clsx'
-import { HomeIcon, ProgramsIcon, ProgressIcon, ProfileIcon, PlusIcon } from './NavIcons'
+import { HomeIcon, ProgramsIcon, ProgressIcon, MoreIcon, PlusIcon } from './NavIcons'
+import { MoreSheet } from './MoreSheet'
 import styles from './BottomNav.module.scss'
 
 const navLeft = [
@@ -8,8 +10,7 @@ const navLeft = [
   { to: '/templates', label: 'Programs', Icon: ProgramsIcon, end: false },
 ]
 const navRight = [
-  { to: '/history',  label: 'Progress', Icon: ProgressIcon, end: false },
-  { to: '/profile',  label: 'Profile',  Icon: ProfileIcon,  end: false },
+  { to: '/history', label: 'Progress', Icon: ProgressIcon, end: false },
 ]
 
 function NavItem({ to, label, Icon, end }: { to: string; label: string; Icon: React.FC; end: boolean }) {
@@ -32,20 +33,34 @@ function NavItem({ to, label, Icon, end }: { to: string; label: string; Icon: Re
 
 export function BottomNav() {
   const navigate = useNavigate()
+  const [showMore, setShowMore] = useState(false)
 
   return (
-    <nav className={styles.nav}>
-      {navLeft.map((item) => <NavItem key={item.to} {...item} />)}
+    <>
+      <nav className={styles.nav}>
+        {navLeft.map((item) => <NavItem key={item.to} {...item} />)}
 
-      <button
-        className={styles.fab}
-        onClick={() => navigate('/workouts')}
-        aria-label="Start workout"
-      >
-        <PlusIcon />
-      </button>
+        <button
+          className={styles.fab}
+          onClick={() => navigate('/workouts')}
+          aria-label="Start workout"
+        >
+          <PlusIcon />
+        </button>
 
-      {navRight.map((item) => <NavItem key={item.to} {...item} />)}
-    </nav>
+        {navRight.map((item) => <NavItem key={item.to} {...item} />)}
+
+        <button
+          className={clsx(styles.item, showMore && styles.active)}
+          onClick={() => setShowMore((v) => !v)}
+          aria-label="More"
+        >
+          <span className={styles.icon}><MoreIcon /></span>
+          <span className={styles.label}>More</span>
+        </button>
+      </nav>
+
+      {showMore && <MoreSheet onClose={() => setShowMore(false)} />}
+    </>
   )
 }

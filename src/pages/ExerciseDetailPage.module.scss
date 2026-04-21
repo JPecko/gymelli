@@ -14,22 +14,40 @@
   font-size: var(--text-sm);
 }
 
-// ── Back button ──────────────────────────────────────────────────────────────
+// ── Top bar (desktop: back + edit) ───────────────────────────────────────────
+
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--space-4);
+
+  @media (max-width: 767px) { display: none; }
+}
 
 .backBtn {
-  align-self: flex-start;
-  padding-top: var(--space-4);
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
   transition: color 0.15s;
+  &:hover { color: var(--color-text-primary); }
+}
 
-  &:hover {
-    color: var(--color-text-primary);
-  }
+.editBtn {
+  font-size: var(--text-sm);
+  color: var(--color-gold);
+  transition: color 0.15s;
+  &:hover { color: var(--color-gold-light); }
+}
 
-  @media (max-width: 767px) {
-    display: none; // MobileHeader handles back navigation on mobile
-  }
+// Mobile edit button — shown below header
+.editBtnMobile {
+  font-size: var(--text-sm);
+  color: var(--color-gold);
+  align-self: flex-start;
+  transition: color 0.15s;
+  &:hover { color: var(--color-gold-light); }
+
+  @media (min-width: 768px) { display: none; }
 }
 
 // ── Image ────────────────────────────────────────────────────────────────────
@@ -98,11 +116,25 @@
   gap: var(--space-3);
 }
 
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .sectionTitle {
   font-size: var(--text-base);
   font-weight: var(--font-semibold);
   color: var(--color-text-primary);
 }
+
+.goalEditLink {
+  font-size: var(--text-sm);
+  color: var(--color-gold);
+  transition: color 0.15s;
+  &:hover { color: var(--color-gold-light); }
+}
+
 
 .instructions {
   font-size: var(--text-sm);
