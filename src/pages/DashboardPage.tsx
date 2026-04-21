@@ -31,6 +31,7 @@ export function DashboardPage() {
         total_volume_kg: last_session.total_volume_kg,
         calories_burned: last_session.calories_burned,
         total_rest_seconds: last_session.total_rest_seconds,
+        pr_count: last_session.pr_count,
       }
     : null
 
@@ -40,7 +41,7 @@ export function DashboardPage() {
       total_volume_kg: last_session.total_volume_kg,
       duration_seconds: last_session.duration_seconds,
       exercise_count: last_session.exercise_names.length,
-      pr_count: 0,
+      pr_count: last_session.pr_count,
       calories_burned: last_session.calories_burned,
       body_weight_kg: profile?.body_weight_kg ?? null,
       sex: profile?.sex ?? null,

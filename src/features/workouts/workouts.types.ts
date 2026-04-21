@@ -7,6 +7,7 @@ export interface WorkoutSession {
   notes: string | null
   calories_burned: number | null
   total_rest_seconds: number | null
+  pr_count: number
 }
 
 export interface WorkoutSessionExercise {
@@ -42,4 +43,5 @@ export interface SessionHistoryItem {
   total_volume_kg: number
   calories_burned: number | null
   total_rest_seconds: number | null
+  pr_count: number
 }

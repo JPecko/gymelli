@@ -5,6 +5,7 @@ import {
   getSetsForSessionExercise,
   getPreviousSetsForExercise,
   updateSessionCalories,
+  updateSessionPRCount,
 } from '../workouts.api'
 import { useWorkoutScore, type WorkoutScore } from './useWorkoutScore'
 import { useProfile } from '@/features/auth/hooks/useProfile'
@@ -85,6 +86,8 @@ export function useWorkoutSummary(sessionId: string | undefined): {
       )
 
       const allSets = exercises.flatMap((e) => e.sets)
+      const prCount = exercises.filter((e) => e.is_pr).length
+      updateSessionPRCount(sessionId!, prCount).catch(() => {})
 
       setData({
         session,

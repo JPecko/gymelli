@@ -23,7 +23,7 @@ export function useWorkoutHistory() {
           total_volume_kg: s.total_volume_kg,
           duration_seconds: s.duration_seconds,
           exercise_count: s.exercise_names.length,
-          pr_count: 0,
+          pr_count: s.pr_count,
           calories_burned: s.calories_burned,
           body_weight_kg: profile?.body_weight_kg ?? null,
           sex: profile?.sex ?? null,

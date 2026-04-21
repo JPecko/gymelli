@@ -5,6 +5,7 @@ export interface RawDashboardSession {
   template_id: string | null
   calories_burned: number | null
   total_rest_seconds: number | null
+  pr_count: number
   workout_session_exercises: Array<{
     order_index: number
     exercises: { name: string } | null
@@ -23,6 +24,7 @@ export interface DashboardLastSession {
   total_volume_kg: number
   calories_burned: number | null
   total_rest_seconds: number | null
+  pr_count: number
 }
 
 export interface DashboardData {

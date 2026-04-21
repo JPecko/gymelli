@@ -29,6 +29,7 @@ export function useDashboard(): DashboardData & { is_loading: boolean } {
         started_at: raw.started_at,
         finished_at: raw.finished_at,
         template_id: raw.template_id,
+        pr_count: raw.pr_count ?? 0,
         exercise_names: sorted.map((se) => se.exercises?.name ?? '').filter(Boolean),
         duration_seconds: Math.floor(
           (new Date(raw.finished_at).getTime() - new Date(raw.started_at).getTime()) / 1000,
