@@ -34,7 +34,7 @@ Theme: dark neutrals (90%) with gold accents (10%).
 - **Brand mode** (no route config): Gymelli stacked gold wordmark (`gymelli-gold-stacked-wormark.svg`) + version label inline + profile icon. Shown on root/main pages.
 - **Detail mode** (route has `handle.mobileHeader`): back button + title + profile icon. Shown on sub-pages.
 
-Every sub-page route that requires back navigation **must** declare `handle.mobileHeader` in the router. Without it, the brand header is shown (no back button). Routes currently configured: `workouts/new`, `exercises/:id`, `templates/new`, `templates/:id/edit`, `profile`.
+Every sub-page route that requires back navigation **must** declare `handle.mobileHeader` in the router. Without it, the brand header is shown (no back button). Routes currently configured: `workouts/new`, `exercises/new`, `exercises/:id`, `exercises/:id/edit`, `templates/new`, `templates/:id/edit`, `profile`.
 
 The header is scroll-aware: in-flow → hidden (scroll down) → floating (scroll up). When floating, it is `position: fixed` and AppLayout sets `--mobile-sticky-offset: var(--mobile-topbar-total-height)` on the content div. Pages with `position: sticky` elements must use this variable (see Styling section).
 
@@ -55,10 +55,10 @@ The header is scroll-aware: in-flow → hidden (scroll down) → floating (scrol
 - **Profile** — display name, email (read-only), sign out
 
 ### Navigation
-- **BottomNav (mobile):** Home(/) · Programs(/templates) · [FAB→/workouts/new] · Exercises(/exercises) · Progress(/history)
-  - Profile accessible via MobileHeader profile icon (always visible on mobile, top-right of the header bar)
+- **BottomNav (mobile):** Home(/) · Programs(/templates) · [FAB→/workouts/new] · Progress(/history) · ☰ More
+  - **More sheet** (`src/app/layouts/MoreSheet.tsx`) — bottom sheet that slides up above the nav bar. Currently: Exercises, Profile. Add new items to the `items` array in `MoreSheet.tsx`. `z-index: 111` (above nav).
 - **SideNav (desktop):** Home · Programs · Exercises · Progress · Profile (all in scrollable nav list) + Start Workout button pinned in footer. Nav area has `overflow-y: auto` with top/bottom fade overlays; top fade only visible when scrolled past top (JS-driven `.scrolled` class). Version label sits below the wordmark in the logo area.
-- **NavIcons** (`src/app/layouts/NavIcons.tsx`) — shared SVG line icons for both navs
+- **NavIcons** (`src/app/layouts/NavIcons.tsx`) — shared SVG line icons for both navs. Icons: HomeIcon, ProgramsIcon, ExercisesIcon, ProgressIcon, ProfileIcon, MoreIcon, PlusIcon, BackIcon.
 - Nav height: 72px (`--nav-height: 4.5rem`)
 
 ---
@@ -106,19 +106,29 @@ src/
   - `useSwipeGesture({ onSwipeLeft?, onSwipeRight?, threshold? })` → `{ onTouchStart, onTouchEnd }`. Fires only when gesture is primarily horizontal (`|dx| > |dy|`). Safe to use alongside `SwipeableItem` — `SwipeableItem` stops propagation on horizontal moves.
 
 **Feature hooks — workouts (`features/workouts/hooks/`):** check before implementing any workout-related logic.
-  - `useWorkoutSession(session)` → `{ exercises, active_index, is_loading, is_finishing, rest_timer_active, rest_timer_duration, total_rest_seconds, goToExercise, updateDraftSet, confirmSet, addSet, removeSet, finishWorkout, dismissRestTimer }`. Core active-session state. `total_rest_seconds` accumulates via `dismissRestTimer(elapsed)`.
+  - `useSession(sessionId)` → `WorkoutSession | null`. Loads a session by ID. Used by `WorkoutSessionPage` before rendering the session view.
+  - `useWorkoutSession(session)` → `{ exercises, active_index, is_loading, is_finishing, rest_timer_active, rest_timer_duration, total_rest_seconds, goToExercise, updateDraftSet, confirmSet, addSet, removeSet, finishWorkout, dismissRestTimer }`. Core active-session state. `total_rest_seconds` accumulates via `dismissRestTimer(elapsed)`. `updateDraftSet` accepts `'weight_kg' | 'reps' | 'duration_seconds' | 'distance_km'`.
   - `useLiveWorkoutScore({ exercises, started_at, total_rest_seconds, body_weight_kg, sex })` → `WorkoutScore | null`. Returns `null` until the first set is confirmed. Updates on every confirmed set + every 10s (for density). Used in `WorkoutSessionPage` header (right slot, replaces spacer once score is available).
-  - `useWorkoutSummary(sessionId)` → `{ data: SummaryData | null, calories, score, profile, handleCaloriesSave }`. Loads session + exercises + sets + previous sets + PR detection. Types `SummarySet`, `SummaryExercise`, `SummaryData` are exported from this file.
-  - `useWorkoutHistory()` → `{ sessions, scores, isLoading, handleDelete }`. Loads session history, computes scores via `computeWorkoutScore` (with profile). `handleDelete(session)` is optimistic with rollback on error.
+  - `useWorkoutSummary(sessionId)` → `{ data: SummaryData | null, calories, score, profile, handleCaloriesSave }`. Loads session + exercises + sets + previous sets + PR detection. Also persists `pr_count` to DB on load so scores are consistent across all views. Types `SummarySet`, `SummaryExercise`, `SummaryData` are exported from this file.
+  - `useWorkoutHistory()` → `{ sessions, scores, isLoading, handleDelete }`. Loads session history, computes scores via `computeWorkoutScore` using stored `pr_count`. `handleDelete(session)` is optimistic with rollback on error.
   - `useWorkoutScore(input)` / `computeWorkoutScore(input)` → `WorkoutScore`. `computeWorkoutScore` is a pure function — safe in `useMemo` loops. Labels: Poor <40, Fair 40–54, Good 55–69, Great 70–84, Elite 85+.
 
 **Feature hooks — exercises (`features/exercises/hooks/`):** check before implementing any exercise-related logic.
   - `useExercisesWithMeta()` → `{ exercises: ExerciseWithMeta[], muscleGroups: MuscleGroup[], equipment: Equipment[], isLoading }`. Single `Promise.all` for all three tables. If any exercise has no equipment, pre-pends `{ id: 'none', name: 'Bodyweight' }` to the equipment list. Exports `BODYWEIGHT_ID = 'none'` sentinel — use it when filtering bodyweight exercises.
   - `useExerciseFilter(exercises)` → `{ filtered, query, setQuery, activeMuscleGroupId, setActiveMuscleGroupId, activeEquipmentId, setActiveEquipmentId }`. Text search across `name`, `muscle_group_name`, `equipment_name`, `type`. Chip filters for muscle group and equipment (handles `BODYWEIGHT_ID` → `equipment_id === null`). Used by both `ExercisesPage` and `ExercisePicker` — do not duplicate.
+  - `useExerciseDetail(id)` → `{ state: ExerciseDetailState | null, isLoading, handleDeleteSession }`. Loads exercise + muscle groups + equipment + history in parallel, then fetches tracking-type-aware PR. Used by `ExerciseDetailPage`.
+  - `useExerciseGoal(exerciseId, trackingType)` → `{ goal: ExerciseGoal | null, isLoading, isSaving, saveGoal, removeGoal }`. Manages per-exercise goals with upsert on conflict. Used by `ExerciseDetailPage`.
+  - `useExerciseEditor(id?)` → `{ fields..., pendingImage, imagePreview, existingImageUrl, muscleGroups, equipment, isLoading, isSaving, error, save() }`. Manages create/edit form state + image upload to Supabase Storage. Returns saved exercise ID from `save()`. Used by `ExerciseEditorPage`.
+
+**Feature hooks — templates (`features/templates/hooks/`):** check before implementing any template-related logic.
+  - `useTemplateEditor(templateId?)` — create/edit template state.
+  - `useTemplatesList()` → `{ templates: TemplateListItem[], isLoading }`. Used by `TemplatesPage` and `DashboardPage`.
 
 **Feature components — exercises (`features/exercises/components/`):** check before implementing new exercise UI.
   - `ExerciseFilters` — two rows of horizontal scrollable chips: Muscle Group + Equipment. Props: `muscleGroups?`, `activeMuscleGroupId?`, `onMuscleGroupChange?`, `equipment?`, `activeEquipmentId?`, `onEquipmentChange?`. Each row only renders if the array is non-empty and the change handler is provided. Used by `ExercisesPage` and `ExercisePicker`.
   - `ExerciseCard` — unified card for library (nav variant: `exerciseId`) and picker (select variant: `selected`, `onToggle`).
+  - `GoalCard` — displays a saved `ExerciseGoal` with edit/remove actions. Props: `goal`, `tracking`, `onEdit`, `onRemove`.
+  - `GoalForm` — form to create/edit an `ExerciseGoal`. Fields rendered conditionally per `tracking` type. Props: `goal`, `tracking`, `isSaving`, `onSave`, `onCancel`.
 
 **Import direction:** `features` → `shared` → never the reverse.
 
@@ -129,10 +139,18 @@ src/
 ```
 profiles
 exercises          → muscle_groups, equipment
+                     + tracking_type: 'weight_reps'|'reps_only'|'duration'|'distance' (default 'weight_reps')
+                     + image_url: text (nullable; slug fallback used if null)
+exercise_goals     → exercises, profiles  (unique per user+exercise; upsert on conflict)
 workout_templates  → workout_template_exercises (incl. default_sets, default_reps, rest_seconds)
 workout_sessions   → workout_session_exercises (incl. rest_seconds) → exercise_sets
+                     + pr_count: integer (persisted by useWorkoutSummary; used for consistent scoring)
+exercise_sets      + duration_seconds: integer (nullable)
+                   + distance_km: numeric(6,3) (nullable)
 app_config         → key/value store (app_version — no longer used for update checks; version.json is used instead)
 ```
+
+**Storage:** `exercise-images` public Supabase Storage bucket — used by `useExerciseEditor` for user-uploaded exercise images. Public URL stored in `exercises.image_url`.
 
 App is mostly CRUD + derived metrics. No heavy backend logic required.
 Optimistic UI is strongly encouraged for workout logging (speed-first).
@@ -245,9 +263,18 @@ Static images live in `public/images/exercises/`. Filename = exercise name slugi
 "Overhead Press" → overhead-press.png
 ```
 
-Slug derivation: `name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')`
+**`toSlug` lives in `src/features/exercises/exercises.utils.ts`** — always import from there, never redefine inline.
 
-Reference in components: `src={'/images/exercises/${slug}.png'}`. Always provide an `onError` fallback (placeholder div with muscle group name). Do not store the slug in the database — derive it from `exercise.name` at render time.
+Image resolution order: `exercise.image_url` (user-uploaded, from Supabase Storage) → `/images/exercises/${toSlug(name)}.png` (static fallback). Always provide an `onError` handler that shows a placeholder div with the muscle group name. Do not store the slug in the database — derive from `exercise.name` at render time.
+
+**Shared formatters** live in `src/shared/lib/formatters.ts` — always import from there, never redefine inline:
+- `formatDate(iso)` — "12 Apr 2024"
+- `formatDateShort(iso)` — "12 Apr" (chart labels, compact dates)
+- `formatDateCard(iso)` — "Mon, 12 Apr" (session cards)
+- `formatDuration(seconds)` — "45m", "1h 30m" (workout-level)
+- `formatSetDuration(seconds)` — "30s", "1m 30s" (set-level durations)
+- `formatVolumeCompact(kg)` — "1.2k", "450" (stat chips, no unit)
+- `formatVolumeFull(kg)` — "1.2t", "450 kg" (summary page)
 
 ---
 
