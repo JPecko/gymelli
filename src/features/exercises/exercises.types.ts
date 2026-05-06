@@ -9,6 +9,7 @@ export interface Exercise {
   tracking_type: TrackingType
   instructions: string | null
   image_url: string | null
+  effective_bw_factor: number | null
 }
 
 export interface ExerciseGoal {

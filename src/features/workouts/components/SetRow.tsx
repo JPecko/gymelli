@@ -10,7 +10,9 @@ interface SetRowProps {
   set: DraftSet
   previousSet: ExerciseSet | undefined
   trackingType: TrackingType
+  onStart: () => void
   onConfirm: () => void
+  onDelete: () => void
   onUpdate: (field: keyof Pick<DraftSet, 'weight_kg' | 'reps' | 'duration_seconds' | 'distance_km'>, value: number | null) => void
 }
 
@@ -22,68 +24,90 @@ function prevLabel(prev: ExerciseSet | undefined, tracking: TrackingType): strin
   return prev.distance_km != null ? `${prev.distance_km}km` : '—'
 }
 
-export function SetRow({ index, set, previousSet, trackingType, onConfirm, onUpdate }: SetRowProps) {
+export function SetRow({ index, set, previousSet, trackingType, onStart, onConfirm, onDelete, onUpdate }: SetRowProps) {
   const isWeightReps = trackingType === 'weight_reps'
   const isRepsOnly   = trackingType === 'reps_only'
   const isDuration   = trackingType === 'duration'
   const isDistance   = trackingType === 'distance'
 
+  const showWeightCol = isWeightReps || isRepsOnly || isDistance
+  const isActive    = set.is_active && !set.is_completed
+  const isCompleted = set.is_completed
+
+  let actionBtn: React.ReactNode
+  if (isCompleted) {
+    actionBtn = (
+      <IconButton size="sm" done disabled aria-label={`Set ${index + 1} done`}>✓</IconButton>
+    )
+  } else if (isActive) {
+    actionBtn = (
+      <IconButton size="sm" className={styles.doneBtn} onClick={onConfirm} aria-label={`Complete set ${index + 1}`}>✓</IconButton>
+    )
+  } else {
+    actionBtn = (
+      <IconButton size="sm" className={styles.startBtn} onClick={onStart} aria-label={`Start set ${index + 1}`}>▷</IconButton>
+    )
+  }
+
   return (
-    <div className={clsx(styles.row, set.is_completed && styles.completed)} data-tracking={trackingType}>
-      <span className={styles.index}>{index + 1}</span>
+    <div className={clsx(styles.row, isActive && styles.active, isCompleted && styles.completed)} data-tracking={trackingType}>
 
-      <span className={styles.prev}>{prevLabel(previousSet, trackingType)}</span>
+      {/* # + prev stacked */}
+      <div className={styles.indexCell}>
+        <span className={clsx(styles.index, isCompleted && styles.indexDone, isActive && styles.indexActive)}>
+          {index + 1}
+        </span>
+        <span className={styles.prev}>{prevLabel(previousSet, trackingType)}</span>
+      </div>
 
-      {(isWeightReps || isDistance) && (
+      {showWeightCol ? (
         <StepperInput
-          value={isWeightReps ? set.weight_kg : set.distance_km}
-          onChange={(v) => onUpdate(isWeightReps ? 'weight_kg' : 'distance_km', v)}
-          step={isWeightReps ? 2.5 : 0.5}
+          value={isDistance ? set.distance_km : set.weight_kg}
+          onChange={(v) => onUpdate(isDistance ? 'distance_km' : 'weight_kg', v)}
+          step={isRepsOnly ? 1 : isWeightReps ? 2.5 : 0.5}
           min={0}
-          disabled={set.is_completed}
+          disabled={isCompleted}
           inputMode="decimal"
-          aria-label={`Set ${index + 1} ${isWeightReps ? 'weight' : 'distance'}`}
+          aria-label={`Set ${index + 1} ${isDistance ? 'distance' : 'weight'}`}
         />
+      ) : (
+        <div className={styles.empty} />
       )}
 
-      {isRepsOnly && <div className={styles.empty} />}
-
-      {isDuration && <div className={styles.empty} />}
-
-      {(isWeightReps || isRepsOnly) && (
+      {(isWeightReps || isRepsOnly) ? (
         <StepperInput
-          value={isWeightReps ? set.reps : set.reps}
+          value={set.reps}
           onChange={(v) => onUpdate('reps', v)}
           step={1}
           min={0}
-          disabled={set.is_completed}
+          disabled={isCompleted}
           inputMode="numeric"
           aria-label={`Set ${index + 1} reps`}
         />
-      )}
-
-      {isDuration && (
+      ) : isDuration ? (
         <StepperInput
           value={set.duration_seconds}
           onChange={(v) => onUpdate('duration_seconds', v)}
           step={5}
           min={0}
-          disabled={set.is_completed}
+          disabled={isCompleted}
           inputMode="numeric"
           aria-label={`Set ${index + 1} duration`}
         />
+      ) : (
+        <div className={styles.empty} />
       )}
 
-      {isDistance && <div className={styles.empty} />}
+      {actionBtn}
 
-      <IconButton
-        done={set.is_completed}
-        onClick={onConfirm}
-        disabled={set.is_completed}
-        aria-label={`Complete set ${index + 1}`}
+      <button
+        className={styles.deleteBtn}
+        onClick={onDelete}
+        aria-label={`Remove set ${index + 1}`}
+        tabIndex={-1}
       >
-        ✓
-      </IconButton>
+        ×
+      </button>
     </div>
   )
 }

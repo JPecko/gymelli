@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import {
   getSessionById,
   getSessionExercises,
@@ -106,8 +106,26 @@ export function useWorkoutSummary(sessionId: string | undefined): {
     load()
   }, [sessionId])
 
+  const adjusted_volume_kg = useMemo(() => {
+    if (!data) return 0
+    const bwKg = profile?.body_weight_kg ?? null
+    return data.exercises.reduce((total, ex) => {
+      const bwFactor = ex.exercise.effective_bw_factor ?? 0.6
+      return total + ex.sets.reduce((acc, s) => {
+        if (s.weight_kg != null && s.reps != null) {
+          return acc + s.weight_kg * s.reps
+        }
+        // fallback: old reps_only sets logged before weight was tracked
+        if (ex.exercise.tracking_type === 'reps_only' && bwKg) {
+          return acc + (s.reps ?? 0) * bwKg * bwFactor
+        }
+        return acc
+      }, 0)
+    }, 0)
+  }, [data, profile])
+
   const score = useWorkoutScore({
-    total_volume_kg: data?.total_volume_kg ?? 0,
+    total_volume_kg: adjusted_volume_kg,
     duration_seconds: data?.duration_seconds ?? 0,
     exercise_count: data?.exercises.length ?? 0,
     pr_count: data?.exercises.filter((e) => e.is_pr).length ?? 0,

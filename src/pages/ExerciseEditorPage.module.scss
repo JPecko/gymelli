@@ -208,11 +208,17 @@
   padding: var(--space-4);
   padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
   background: linear-gradient(to top, var(--color-bg-base) 70%, transparent);
+  display: flex;
+  justify-content: center;
+
+  > * {
+    flex: 1;
+    max-width: var(--btn-max-width);
+  }
 
   @media (min-width: 769px) {
     position: static;
     padding: 0;
     background: none;
-    max-width: 24rem;
   }
 }

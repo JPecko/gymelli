@@ -6,24 +6,37 @@
   padding: var(--space-4);
   background-color: var(--color-bg-surface);
   border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-border);
   border-radius: var(--radius-lg);
   text-align: left;
-  transition: border-color 0.15s, transform 0.15s;
+  transition: border-color 0.2s, transform 0.15s;
+
+  &[data-score='Great'],
+  &[data-score='Elite'] {
+    border-left-color: var(--color-gold-dim);
+  }
 
   &:hover {
-    border-color: var(--color-gold-dim);
+    border-color: var(--color-border);
+    border-left-color: var(--color-gold-dim);
     transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
   }
 
-  &:active {
-    transform: translateY(0);
-  }
+  &:active { transform: translateY(0); }
 
-  // No hover highlight on touch — avoids gold border flash during swipe
   @media (hover: none) {
     &:hover, &:active {
-      border-color: var(--color-border);
+      border-left-color: var(--color-border);
       transform: none;
+      box-shadow: none;
+    }
+
+    &[data-score='Great']:hover,
+    &[data-score='Elite']:hover,
+    &[data-score='Great']:active,
+    &[data-score='Elite']:active {
+      border-left-color: var(--color-gold-dim);
     }
   }
 }
@@ -42,6 +55,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--space-2);
 }
 
 .date {
@@ -54,6 +68,7 @@
   font-size: var(--text-sm);
   font-weight: var(--font-medium);
   color: var(--color-gold);
+  font-variant-numeric: tabular-nums;
 }
 
 .exercises {
@@ -65,8 +80,22 @@
 }
 
 .meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
   font-size: var(--text-xs);
   color: var(--color-text-muted);
+
+  span + span {
+    position: relative;
+    padding-left: var(--space-3);
+
+    &::before {
+      content: '·';
+      position: absolute;
+      left: 0;
+    }
+  }
 }
 
 // ── Right: score ring ──────────────────────────────────────────────────────

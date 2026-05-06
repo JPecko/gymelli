@@ -6,8 +6,7 @@ import {
   getTemplateExercises,
   createTemplate,
   updateTemplate,
-  addTemplateExercise,
-  removeTemplateExercise,
+  syncTemplateExercises,
 } from '../templates.api'
 
 export interface DraftExercise {
@@ -86,26 +85,19 @@ export function useTemplateEditor(templateId?: string) {
     setIsSaving(true)
     try {
       let savedId: string
-
       if (templateId) {
         await updateTemplate(templateId, name)
-        const existing = await getTemplateExercises(templateId)
-        await Promise.all(existing.map((te) => removeTemplateExercise(te.id)))
         savedId = templateId
       } else {
-        const template = await createTemplate(name)
-        savedId = template.id
+        savedId = (await createTemplate(name)).id
       }
 
-      await Promise.all(
-        draftExercises.map((ex, i) =>
-          addTemplateExercise(savedId, ex.exercise.id, i, {
-            default_sets: ex.default_sets,
-            default_reps: ex.default_reps,
-            rest_seconds: ex.rest_seconds,
-          }),
-        ),
-      )
+      await syncTemplateExercises(savedId, draftExercises.map((ex) => ({
+        exercise_id: ex.exercise.id,
+        default_sets: ex.default_sets,
+        default_reps: ex.default_reps,
+        rest_seconds: ex.rest_seconds,
+      })))
 
       return savedId
     } finally {

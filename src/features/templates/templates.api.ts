@@ -118,3 +118,24 @@ export async function removeTemplateExercise(id: string): Promise<void> {
   const { error } = await supabase.from('workout_template_exercises').delete().eq('id', id)
   if (error) throw error
 }
+
+export interface TemplateExerciseDraft {
+  exercise_id: string
+  default_sets: number
+  default_reps: number
+  rest_seconds: number
+}
+
+export async function syncTemplateExercises(templateId: string, exercises: TemplateExerciseDraft[]): Promise<void> {
+  const existing = await getTemplateExercises(templateId)
+  await Promise.all(existing.map((te) => removeTemplateExercise(te.id)))
+  await Promise.all(
+    exercises.map((ex, i) =>
+      addTemplateExercise(templateId, ex.exercise_id, i, {
+        default_sets: ex.default_sets,
+        default_reps: ex.default_reps,
+        rest_seconds: ex.rest_seconds,
+      }),
+    ),
+  )
+}

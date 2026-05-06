@@ -104,3 +104,9 @@
   color: var(--color-bg-primary);
   font-weight: var(--font-semibold);
 }
+
+// ── Button container ───────────────────────────────────────────────────────────
+
+.btnWrap {
+  max-width: var(--btn-max-width);
+}

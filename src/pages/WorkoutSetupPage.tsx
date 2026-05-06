@@ -1,15 +1,13 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { startSession, addSessionExercise } from '@/features/workouts'
+import { useStartWorkoutSession } from '@/features/workouts/hooks/useStartWorkoutSession'
 import { ExercisePicker } from '@/features/exercises/components/ExercisePicker'
 import type { Exercise } from '@/features/exercises/exercises.types'
-import { Button } from '@/shared/components'
+import { Button, BottomBar } from '@/shared/components'
 import styles from './WorkoutSetupPage.module.scss'
 
 export function WorkoutSetupPage() {
-  const navigate = useNavigate()
   const [selected, setSelected] = useState<Exercise[]>([])
-  const [loading, setLoading] = useState(false)
+  const { start, isStarting } = useStartWorkoutSession()
 
   function handleToggle(exercise: Exercise) {
     setSelected((prev) =>
@@ -19,23 +17,7 @@ export function WorkoutSetupPage() {
     )
   }
 
-  async function handleStart() {
-    if (selected.length === 0 || loading) return
-    setLoading(true)
-    try {
-      const session = await startSession(null)
-      await Promise.all(selected.map((ex, i) => addSessionExercise(session.id, ex.id, i)))
-      navigate(`/workouts/session/${session.id}`)
-    } catch {
-      setLoading(false)
-    }
-  }
-
-  const ctaLabel = loading
-    ? 'Starting...'
-    : selected.length > 0
-      ? `Start (${selected.length})`
-      : 'Start'
+  const ctaLabel = isStarting ? 'Starting...' : selected.length > 0 ? `Start (${selected.length})` : 'Start'
 
   return (
     <div className={styles.page}>
@@ -62,19 +44,17 @@ export function WorkoutSetupPage() {
         />
       </div>
 
-      <div className={styles.bottomBar}>
-        <div className={styles.bottomBarInner}>
-          <Button
-            variant="primary"
-            size="lg"
-            fullWidth
-            onClick={handleStart}
-            disabled={selected.length === 0 || loading}
-          >
-            {ctaLabel}
-          </Button>
-        </div>
-      </div>
+      <BottomBar>
+        <Button
+          variant="primary"
+          size="lg"
+          fullWidth
+          onClick={() => start(null, selected.map((ex) => ({ exercise_id: ex.id })))}
+          disabled={selected.length === 0 || isStarting}
+        >
+          {ctaLabel}
+        </Button>
+      </BottomBar>
     </div>
   )
 }

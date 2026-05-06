@@ -2,13 +2,14 @@ import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useExerciseDetail } from '@/features/exercises/hooks/useExerciseDetail'
 import { useExerciseGoal } from '@/features/exercises/hooks/useExerciseGoal'
+import { useEffectiveBwFactor } from '@/features/exercises/hooks/useEffectiveBwFactor'
 import { GoalCard } from '@/features/exercises/components/GoalCard'
 import { GoalForm } from '@/features/exercises/components/GoalForm'
 import { WeightProgressChart } from '@/features/exercises/components/WeightProgressChart'
 import { toSlug } from '@/features/exercises/exercises.utils'
 import { formatDate, formatDateShort, formatSetDuration } from '@/shared/lib/formatters'
 import type { TrackingType } from '@/features/exercises/exercises.types'
-import { SwipeableItem, Badge, SetsCard, StatCard } from '@/shared/components'
+import { SwipeableItem, Badge, SetsCard, StatCard, StepperInput } from '@/shared/components'
 import styles from './ExerciseDetailPage.module.scss'
 
 function prLabel(pr: NonNullable<ReturnType<typeof useExerciseDetail>['state']>['pr'], t: TrackingType): string {
@@ -39,6 +40,10 @@ export function ExerciseDetailPage() {
   const { goal, isSaving: isSavingGoal, saveGoal, removeGoal } = useExerciseGoal(
     id ?? '',
     state?.exercise.tracking_type ?? 'weight_reps',
+  )
+  const { factor: bwFactor, setAndSave: setBwFactor } = useEffectiveBwFactor(
+    id ?? '',
+    state?.exercise.effective_bw_factor ?? null,
   )
 
   if (isLoading || !state) return <div className={styles.loading}>Loading...</div>
@@ -138,6 +143,31 @@ export function ExerciseDetailPage() {
           <p className={styles.empty}>No goal set yet.</p>
         )}
       </section>
+
+      {/* ── Score (reps_only only) ────────────────────────────── */}
+      {tracking === 'reps_only' && (
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>Score</h2>
+          <div className={styles.scoreCard}>
+            <div className={styles.scoreRow}>
+              <div className={styles.scoreLabel}>
+                <span>Effective body weight</span>
+                <span className={styles.scoreHint}>% used to estimate volume for scoring</span>
+              </div>
+              <div className={styles.scoreStepper}>
+                <StepperInput
+                  value={Math.round((bwFactor ?? 0) * 100)}
+                  onChange={(v) => setBwFactor(Math.min(100, Math.max(0, v ?? 0)) / 100)}
+                  step={5}
+                  min={0}
+                  aria-label="Effective body weight percentage"
+                />
+                <span className={styles.scoreUnit}>%</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── Progress ──────────────────────────────────────────── */}
       {chartPoints.length > 1 && (

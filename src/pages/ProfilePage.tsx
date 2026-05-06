@@ -56,14 +56,16 @@ export function ProfilePage() {
         />
         {error && <p className={styles.error}>{error}</p>}
         {saved && <p className={styles.success}>Saved!</p>}
-        <Button
-          variant="primary"
-          fullWidth
-          disabled={is_saving || name.trim() === (profile?.display_name ?? '')}
-          onClick={() => saveDisplayName(name)}
-        >
-          {is_saving ? 'Saving...' : 'Save changes'}
-        </Button>
+        <div className={styles.btnWrap}>
+          <Button
+            variant="primary"
+            fullWidth
+            disabled={is_saving || name.trim() === (profile?.display_name ?? '')}
+            onClick={() => saveDisplayName(name)}
+          >
+            {is_saving ? 'Saving...' : 'Save changes'}
+          </Button>
+        </div>
       </section>
 
       <div className={styles.divider} />
@@ -102,25 +104,29 @@ export function ProfilePage() {
           </div>
         </div>
 
-        <Button
-          variant="primary"
-          fullWidth
-          disabled={is_saving || !bodyStatsChanged}
-          onClick={() => {
-            const kg = bodyWeight.trim() !== '' ? parseFloat(bodyWeight) : null
-            saveBodyStats(kg, sex)
-          }}
-        >
-          {is_saving ? 'Saving...' : 'Save body stats'}
-        </Button>
+        <div className={styles.btnWrap}>
+          <Button
+            variant="primary"
+            fullWidth
+            disabled={is_saving || !bodyStatsChanged}
+            onClick={() => {
+              const kg = bodyWeight.trim() !== '' ? parseFloat(bodyWeight) : null
+              saveBodyStats(kg, sex)
+            }}
+          >
+            {is_saving ? 'Saving...' : 'Save body stats'}
+          </Button>
+        </div>
       </section>
 
       <div className={styles.divider} />
 
       <section className={styles.section}>
-        <Button variant="ghost" fullWidth onClick={handleSignOut}>
-          Sign out
-        </Button>
+        <div className={styles.btnWrap}>
+          <Button variant="ghost" fullWidth onClick={handleSignOut}>
+            Sign out
+          </Button>
+        </div>
       </section>
     </div>
   )

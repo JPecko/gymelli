@@ -41,45 +41,10 @@
   flex: 1;
 }
 
-// ── Bottom bar — fixed on both mobile and desktop ─────────────────────────────
-
-.bottomBar {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: var(--nav-height);
-  z-index: 40;
-  padding: var(--space-3) var(--page-padding-x) calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
-  background:
-    linear-gradient(
-      to top,
-      rgba(13, 13, 13, 0.98) 0%,
-      rgba(13, 13, 13, 0.94) 70%,
-      rgba(13, 13, 13, 0) 100%
-    );
-  backdrop-filter: blur(14px);
-}
-
-.bottomBarInner {
-  width: 100%;
-}
-
 // ── Desktop overrides ─────────────────────────────────────────────────────────
 
 @media (min-width: #{bp.$breakpoint-tablet-up}) {
   .page {
     padding-bottom: 6rem;
-  }
-
-  // Shift bar right of sidebar; inner aligns to content column
-  .bottomBar {
-    left: var(--sidebar-width);
-    bottom: 0;
-    padding: var(--space-4) var(--space-8) var(--space-6);
-  }
-
-  .bottomBarInner {
-    max-width: var(--content-max-width);
-    margin: 0 auto;
   }
 }

@@ -35,6 +35,9 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+  width: 100%;
+  max-width: var(--btn-max-width);
+  margin: 0 auto;
 }
 
 // Shared confirm button base

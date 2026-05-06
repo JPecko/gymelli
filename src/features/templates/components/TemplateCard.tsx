@@ -1,6 +1,5 @@
-import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { startSession, addSessionExercise } from '@/features/workouts'
+import { useStartWorkoutSession } from '@/features/workouts/hooks/useStartWorkoutSession'
 import { Button } from '@/shared/components'
 import type { TemplateListItem } from '../templates.types'
 import styles from './TemplateCard.module.scss'
@@ -11,7 +10,7 @@ interface TemplateCardProps {
 
 export function TemplateCard({ template }: TemplateCardProps) {
   const navigate = useNavigate()
-  const [isStarting, setIsStarting] = useState(false)
+  const { start, isStarting } = useStartWorkoutSession()
 
   const sorted = [...template.workout_template_exercises].sort(
     (a, b) => a.order_index - b.order_index,
@@ -21,21 +20,14 @@ export function TemplateCard({ template }: TemplateCardProps) {
     exerciseNames.slice(0, 3).join(', ') +
     (exerciseNames.length > 3 ? ` +${exerciseNames.length - 3}` : '')
 
-  async function handleStart(e: React.MouseEvent) {
+  function handleStart(e: React.MouseEvent) {
     e.stopPropagation()
-    if (isStarting) return
-    setIsStarting(true)
-    try {
-      const session = await startSession(template.id)
-      await Promise.all(
-        sorted.map((te, i) =>
-          addSessionExercise(session.id, te.exercise_id, i, te.rest_seconds, te.default_sets, te.default_reps),
-        ),
-      )
-      navigate(`/workouts/session/${session.id}`)
-    } catch {
-      setIsStarting(false)
-    }
+    start(template.id, sorted.map((te) => ({
+      exercise_id: te.exercise_id,
+      rest_seconds: te.rest_seconds,
+      default_sets: te.default_sets,
+      default_reps: te.default_reps,
+    })))
   }
 
   return (

@@ -43,7 +43,7 @@
 }
 
 .headerSpacer {
-  width: 2rem; // matches IconButton sm — keeps timer centred
+  width: 2rem;
   flex-shrink: 0;
 }
 
@@ -99,6 +99,24 @@
   padding: var(--space-8) 0;
 }
 
+// ── Exercise slide animations ──────────────────────────────────────────────
+
+@keyframes slideFromRight {
+  from { transform: translateX(2.5rem); opacity: 0; }
+  to   { transform: translateX(0);      opacity: 1; }
+}
+
+@keyframes slideFromLeft {
+  from { transform: translateX(-2.5rem); opacity: 0; }
+  to   { transform: translateX(0);       opacity: 1; }
+}
+
+// Navigating forward (left swipe) — new exercise enters from the right
+.slideLeft  { animation: slideFromRight 0.22s ease-out; }
+
+// Navigating backward (right swipe) — new exercise enters from the left
+.slideRight { animation: slideFromLeft 0.22s ease-out; }
+
 // ── Exercise switcher ──────────────────────────────────────────────────────
 
 .switcher {
@@ -151,12 +169,73 @@
   transform: scale(1.4);
 }
 
+// ── Add Exercise button ────────────────────────────────────────────────────
+
+.addExerciseBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 2.75rem;
+  background: none;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+
+  &:hover {
+    border-color: var(--color-gold-dim);
+    color: var(--color-gold);
+  }
+}
+
 // ── Footer ─────────────────────────────────────────────────────────────────
 
 .footer {
   flex-shrink: 0;
   padding: var(--space-4);
   border-top: 1px solid var(--color-border-subtle);
+  display: flex;
+  justify-content: center;
+
+  > * {
+    flex: 1;
+    max-width: var(--btn-max-width);
+  }
+}
+
+// ── Exercise picker overlay ────────────────────────────────────────────────
+
+.pickerOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  background: var(--color-bg-app);
+  display: flex;
+  flex-direction: column;
+}
+
+.pickerHeader {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.pickerTitle {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+}
+
+.pickerBody {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 // ── Loading state (before session fetches) ─────────────────────────────────

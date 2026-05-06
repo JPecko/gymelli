@@ -109,8 +109,14 @@
 .footer {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: var(--space-3);
   padding-bottom: var(--space-6);
+
+  > * {
+    width: 100%;
+    max-width: var(--btn-max-width);
+  }
 }
 
 .deleteBtn {

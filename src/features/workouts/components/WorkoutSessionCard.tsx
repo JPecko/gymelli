@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { ScoreRing } from '@/shared/components'
-import { formatDateCard, formatDuration } from '@/shared/lib/formatters'
+import { formatDateCard, formatDuration, formatVolumeCompact } from '@/shared/lib/formatters'
 import type { SessionHistoryItem } from '../workouts.types'
 import type { WorkoutScore } from '../hooks/useWorkoutScore'
 import styles from './WorkoutSessionCard.module.scss'
@@ -22,6 +22,7 @@ export function WorkoutSessionCard({ session, score, scoreSize = 52 }: WorkoutSe
   return (
     <button
       className={styles.card}
+      data-score={score?.label}
       onClick={() => navigate(`/workouts/session/${session.id}/summary`)}
     >
       <div className={styles.main}>
@@ -36,10 +37,13 @@ export function WorkoutSessionCard({ session, score, scoreSize = 52 }: WorkoutSe
             : 'No exercises logged'}
         </p>
 
-        <p className={styles.meta}>
-          {session.exercise_names.length} exercise{session.exercise_names.length !== 1 ? 's' : ''}
-          {session.total_sets > 0 && ` · ${session.total_sets} sets`}
-        </p>
+        <div className={styles.meta}>
+          <span>{session.exercise_names.length} exercise{session.exercise_names.length !== 1 ? 's' : ''}</span>
+          {session.total_sets > 0 && <span>{session.total_sets} sets</span>}
+          {session.total_volume_kg > 0 && (
+            <span>{formatVolumeCompact(session.total_volume_kg)} kg</span>
+          )}
+        </div>
       </div>
 
       {score != null && (

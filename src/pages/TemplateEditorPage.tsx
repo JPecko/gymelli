@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTemplateEditor } from '@/features/templates/hooks/useTemplateEditor'
+import { useStartWorkoutSession } from '@/features/workouts/hooks/useStartWorkoutSession'
 import { deleteTemplate } from '@/features/templates/templates.api'
 import { TemplateExerciseRow } from '@/features/templates/components/TemplateExerciseRow'
 import { ExercisePicker } from '@/features/exercises/components/ExercisePicker'
 import type { Exercise } from '@/features/exercises/exercises.types'
-import { Button, Input } from '@/shared/components'
+import { Button, Input, BottomBar } from '@/shared/components'
 import styles from './TemplateEditorPage.module.scss'
 
 export function TemplateEditorPage() {
@@ -13,6 +14,7 @@ export function TemplateEditorPage() {
   const navigate = useNavigate()
   const [showPicker, setShowPicker] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const { start, isStarting } = useStartWorkoutSession()
 
   const {
     name,
@@ -32,6 +34,16 @@ export function TemplateEditorPage() {
     if (!name.trim() || isSaving) return
     await save()
     navigate('/templates')
+  }
+
+  function handleStart() {
+    if (!id) return
+    start(id, draftExercises.map((draft) => ({
+      exercise_id: draft.exercise.id,
+      rest_seconds: draft.rest_seconds,
+      default_sets: draft.default_sets,
+      default_reps: draft.default_reps,
+    })))
   }
 
   async function handleDelete() {
@@ -124,6 +136,20 @@ export function TemplateEditorPage() {
           </button>
         )}
       </div>
+
+      {id && (
+        <BottomBar>
+          <Button
+            variant="secondary"
+            size="lg"
+            fullWidth
+            onClick={handleStart}
+            disabled={draftExercises.length === 0 || isStarting}
+          >
+            {isStarting ? 'Starting…' : 'Start Workout'}
+          </Button>
+        </BottomBar>
+      )}
     </div>
   )
 }

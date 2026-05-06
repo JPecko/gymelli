@@ -22,6 +22,15 @@ export async function createExercise(payload: ExercisePayload): Promise<Exercise
   return data
 }
 
+export async function updateEffectiveBwFactor(id: string, factor: number | null): Promise<void> {
+  const { error } = await supabase
+    .from('exercises')
+    .update({ effective_bw_factor: factor })
+    .eq('id', id)
+
+  if (error) throw error
+}
+
 export async function updateExercise(id: string, payload: Partial<ExercisePayload>): Promise<Exercise> {
   const { data, error } = await supabase
     .from('exercises')

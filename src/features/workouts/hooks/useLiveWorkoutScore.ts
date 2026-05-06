@@ -38,15 +38,27 @@ export function useLiveWorkoutScore({
       if (confirmed.length === 0) continue
       has_confirmed = true
 
+      const tracking = ex.exercise.tracking_type
+
       for (const s of confirmed) {
         if (s.weight_kg != null && s.reps != null) {
           total_volume_kg += s.weight_kg * s.reps
         }
       }
 
-      const max_this = Math.max(0, ...confirmed.map((s) => s.weight_kg ?? 0))
-      const max_prev = Math.max(0, ...ex.previous_sets.map((s) => s.weight_kg ?? 0))
-      if (max_this > max_prev && max_this > 0) pr_count++
+      const maxThis =
+        tracking === 'reps_only'   ? Math.max(0, ...confirmed.map((s) => s.reps ?? 0))
+        : tracking === 'duration'  ? Math.max(0, ...confirmed.map((s) => s.duration_seconds ?? 0))
+        : tracking === 'distance'  ? Math.max(0, ...confirmed.map((s) => s.distance_km ?? 0))
+        : Math.max(0, ...confirmed.map((s) => s.weight_kg ?? 0))
+
+      const maxPrev =
+        tracking === 'reps_only'   ? Math.max(0, ...ex.previous_sets.map((s) => s.reps ?? 0))
+        : tracking === 'duration'  ? Math.max(0, ...ex.previous_sets.map((s) => s.duration_seconds ?? 0))
+        : tracking === 'distance'  ? Math.max(0, ...ex.previous_sets.map((s) => s.distance_km ?? 0))
+        : Math.max(0, ...ex.previous_sets.map((s) => s.weight_kg ?? 0))
+
+      if (maxThis > maxPrev && maxThis > 0) pr_count++
     }
 
     if (!has_confirmed) return null

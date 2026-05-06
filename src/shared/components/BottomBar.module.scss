@@ -1,0 +1,28 @@
+.bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: var(--nav-height);
+  z-index: 40;
+  padding: var(--space-3) var(--page-padding-x) calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
+  background:
+    linear-gradient(
+      to top,
+      rgba(13, 13, 13, 0.98) 0%,
+      rgba(13, 13, 13, 0.94) 70%,
+      rgba(13, 13, 13, 0) 100%
+    );
+  backdrop-filter: blur(14px);
+
+  @media (min-width: #{bp.$breakpoint-tablet-up}) {
+    left: var(--sidebar-width);
+    bottom: 0;
+    padding: var(--space-4) var(--space-8) var(--space-6);
+  }
+}
+
+.inner {
+  width: 100%;
+  max-width: var(--btn-max-width);
+  margin: 0 auto;
+}

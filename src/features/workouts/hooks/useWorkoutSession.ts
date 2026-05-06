@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import type { Exercise } from '@/features/exercises/exercises.types'
 import { getExerciseById } from '@/features/exercises/exercises.api'
 import {
@@ -7,6 +7,7 @@ import {
   deleteSet,
   getPreviousSetsForExercise,
   finishSession,
+  addSessionExercise,
 } from '../workouts.api'
 import type { WorkoutSession, WorkoutSessionExercise, ExerciseSet } from '../workouts.types'
 
@@ -15,6 +16,7 @@ export interface DraftSet {
   reps: number | null
   duration_seconds: number | null
   distance_km: number | null
+  is_active: boolean
   is_completed: boolean
   logged_id: string | null
 }
@@ -26,23 +28,46 @@ export interface SessionExerciseState {
   previous_sets: ExerciseSet[]
 }
 
+// ─── Pure helpers ────────────────────────────────────────────────────────────
+
+function bwDefault(exercise: Exercise, body_weight_kg: number | null): number | null {
+  if (exercise.tracking_type !== 'reps_only' || !body_weight_kg) return null
+  return Math.round(body_weight_kg * (exercise.effective_bw_factor ?? 0.6) * 10) / 10
+}
+
 function buildInitialSets(
   previousSets: ExerciseSet[],
   se: WorkoutSessionExercise,
+  exercise: Exercise,
+  body_weight_kg: number | null,
 ): DraftSet[] {
   const hasPrevious = previousSets.length > 0
-  const count = hasPrevious ? previousSets.length : (se.default_sets ?? 3)
+  const count = hasPrevious ? previousSets.length : (se.default_sets ?? 1)
+  const defaultKg = bwDefault(exercise, body_weight_kg)
   return Array.from({ length: count }, (_, i) => ({
-    weight_kg: previousSets[i]?.weight_kg ?? null,
+    weight_kg: previousSets[i]?.weight_kg ?? defaultKg,
     reps: previousSets[i]?.reps ?? (!hasPrevious ? (se.default_reps ?? null) : null),
     duration_seconds: previousSets[i]?.duration_seconds ?? null,
     distance_km: previousSets[i]?.distance_km ?? null,
+    is_active: false,
     is_completed: false,
     logged_id: null,
   }))
 }
 
-export function useWorkoutSession(session: WorkoutSession) {
+// Returns a state updater that patches a single DraftSet within exercises state.
+function patchSet(exIdx: number, setIdx: number, patch: Partial<DraftSet>) {
+  return (prev: SessionExerciseState[]): SessionExerciseState[] =>
+    prev.map((ex, i) =>
+      i !== exIdx
+        ? ex
+        : { ...ex, sets: ex.sets.map((s, j) => (j !== setIdx ? s : { ...s, ...patch })) },
+    )
+}
+
+// ─── Hook ─────────────────────────────────────────────────────────────────────
+
+export function useWorkoutSession(session: WorkoutSession, body_weight_kg: number | null = null) {
   const [exercises, setExercises] = useState<SessionExerciseState[]>([])
   const [activeIndex, setActiveIndex] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
@@ -50,12 +75,12 @@ export function useWorkoutSession(session: WorkoutSession) {
   const [restTimerActive, setRestTimerActive] = useState(false)
   const [restTimerDuration, setRestTimerDuration] = useState(90)
   const [totalRestSeconds, setTotalRestSeconds] = useState(0)
+  const bwFilled = useRef(false)
 
   useEffect(() => {
     async function load() {
       setIsLoading(true)
       const sessionExercises = await getSessionExercises(session.id)
-
       const states = await Promise.all(
         sessionExercises.map(async (se) => {
           const [exercise, previousSets] = await Promise.all([
@@ -65,31 +90,46 @@ export function useWorkoutSession(session: WorkoutSession) {
           return {
             session_exercise: se,
             exercise,
-            sets: buildInitialSets(previousSets, se),
+            sets: buildInitialSets(previousSets, se, exercise, body_weight_kg),
             previous_sets: previousSets,
           }
         }),
       )
-
       setExercises(states)
+      if (body_weight_kg) bwFilled.current = true
       setIsLoading(false)
     }
-
     load()
   }, [session.id])
 
+  // Late-fill: body weight loaded after exercises (profile async)
+  useEffect(() => {
+    if (!body_weight_kg || exercises.length === 0 || bwFilled.current) return
+    bwFilled.current = true
+    setExercises((prev) =>
+      prev.map((ex) => {
+        const defaultKg = bwDefault(ex.exercise, body_weight_kg)
+        if (!defaultKg) return ex
+        return {
+          ...ex,
+          sets: ex.sets.map((s) =>
+            s.weight_kg !== null ? s : { ...s, weight_kg: defaultKg },
+          ),
+        }
+      }),
+    )
+  }, [body_weight_kg, exercises.length])
+
   const updateDraftSet = useCallback(
     (exIdx: number, setIdx: number, field: 'weight_kg' | 'reps' | 'duration_seconds' | 'distance_km', value: number | null) => {
-      setExercises((prev) =>
-        prev.map((ex, i) =>
-          i !== exIdx
-            ? ex
-            : { ...ex, sets: ex.sets.map((s, j) => (j !== setIdx ? s : { ...s, [field]: value })) },
-        ),
-      )
+      setExercises(patchSet(exIdx, setIdx, { [field]: value }))
     },
     [],
   )
+
+  const startSet = useCallback((exIdx: number, setIdx: number) => {
+    setExercises(patchSet(exIdx, setIdx, { is_active: true }))
+  }, [])
 
   const confirmSet = useCallback(
     async (exIdx: number, setIdx: number) => {
@@ -97,13 +137,7 @@ export function useWorkoutSession(session: WorkoutSession) {
       const set = ex.sets[setIdx]
       if (set.is_completed) return
 
-      setExercises((prev) =>
-        prev.map((e, i) =>
-          i !== exIdx
-            ? e
-            : { ...e, sets: e.sets.map((s, j) => (j !== setIdx ? s : { ...s, is_completed: true })) },
-        ),
-      )
+      setExercises(patchSet(exIdx, setIdx, { is_completed: true, is_active: false }))
       setRestTimerDuration(ex.session_exercise.rest_seconds ?? 90)
       setRestTimerActive(true)
 
@@ -117,21 +151,9 @@ export function useWorkoutSession(session: WorkoutSession) {
           distance_km: set.distance_km,
           rpe: null,
         })
-        setExercises((prev) =>
-          prev.map((e, i) =>
-            i !== exIdx
-              ? e
-              : { ...e, sets: e.sets.map((s, j) => (j !== setIdx ? s : { ...s, logged_id: logged.id })) },
-          ),
-        )
+        setExercises(patchSet(exIdx, setIdx, { logged_id: logged.id }))
       } catch {
-        setExercises((prev) =>
-          prev.map((e, i) =>
-            i !== exIdx
-              ? e
-              : { ...e, sets: e.sets.map((s, j) => (j !== setIdx ? s : { ...s, is_completed: false })) },
-          ),
-        )
+        setExercises(patchSet(exIdx, setIdx, { is_completed: false, is_active: true }))
       }
     },
     [exercises],
@@ -142,7 +164,15 @@ export function useWorkoutSession(session: WorkoutSession) {
       prev.map((ex, i) => {
         if (i !== exIdx) return ex
         const last = ex.sets.at(-1)
-        const newSet: DraftSet = { weight_kg: last?.weight_kg ?? null, reps: last?.reps ?? null, duration_seconds: last?.duration_seconds ?? null, distance_km: last?.distance_km ?? null, is_completed: false, logged_id: null }
+        const newSet: DraftSet = {
+          weight_kg: last?.weight_kg ?? null,
+          reps: last?.reps ?? null,
+          duration_seconds: last?.duration_seconds ?? null,
+          distance_km: last?.distance_km ?? null,
+          is_active: false,
+          is_completed: false,
+          logged_id: null,
+        }
         return { ...ex, sets: [...ex.sets, newSet] }
       }),
     )
@@ -159,6 +189,26 @@ export function useWorkoutSession(session: WorkoutSession) {
       )
     },
     [exercises],
+  )
+
+  const addExercise = useCallback(
+    async (exerciseId: string) => {
+      const orderIndex = exercises.length
+      const [se, exercise, previousSets] = await Promise.all([
+        addSessionExercise(session.id, exerciseId, orderIndex),
+        getExerciseById(exerciseId),
+        getPreviousSetsForExercise(exerciseId, session.id),
+      ])
+      const newState: SessionExerciseState = {
+        session_exercise: se,
+        exercise,
+        sets: buildInitialSets(previousSets, se, exercise, body_weight_kg),
+        previous_sets: previousSets,
+      }
+      setExercises((prev) => [...prev, newState])
+      setActiveIndex(orderIndex)
+    },
+    [exercises.length, session.id, body_weight_kg],
   )
 
   const finishWorkout = useCallback(async () => {
@@ -181,9 +231,11 @@ export function useWorkoutSession(session: WorkoutSession) {
     total_rest_seconds: totalRestSeconds,
     goToExercise: setActiveIndex,
     updateDraftSet,
+    startSet,
     confirmSet,
     addSet,
     removeSet,
+    addExercise,
     finishWorkout,
     dismissRestTimer,
   }

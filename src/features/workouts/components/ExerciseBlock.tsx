@@ -1,5 +1,5 @@
-import { Button, SwipeableItem } from '@/shared/components'
-import { useSwipeGesture } from '@/shared/hooks/useSwipeGesture'
+import { useState } from 'react'
+import { Button, ConfirmSheet } from '@/shared/components'
 import { SetRow } from './SetRow'
 import type { SessionExerciseState } from '../hooks/useWorkoutSession'
 import type { TrackingType } from '@/features/exercises/exercises.types'
@@ -7,17 +7,18 @@ import styles from './ExerciseBlock.module.scss'
 
 interface ExerciseBlockProps {
   state: SessionExerciseState
+  showPrevChevron?: boolean
+  showNextChevron?: boolean
+  onStartSet: (setIdx: number) => void
   onConfirmSet: (setIdx: number) => void
   onUpdateSet: (setIdx: number, field: Parameters<typeof SetRow>[0]['onUpdate'] extends (f: infer F, v: number | null) => void ? F : never, value: number | null) => void
   onAddSet: () => void
   onRemoveSet: (setIdx: number) => void
-  onSwipeLeft?: () => void
-  onSwipeRight?: () => void
 }
 
 const COL1_LABEL: Record<TrackingType, string> = {
   weight_reps: 'KG',
-  reps_only:   '—',
+  reps_only:   'KG',
   duration:    '—',
   distance:    'KM',
 }
@@ -30,11 +31,11 @@ const COL2_LABEL: Record<TrackingType, string> = {
 }
 
 export function ExerciseBlock({
-  state, onConfirmSet, onUpdateSet, onAddSet, onRemoveSet, onSwipeLeft, onSwipeRight,
+  state, showPrevChevron, showNextChevron, onStartSet, onConfirmSet, onUpdateSet, onAddSet, onRemoveSet,
 }: ExerciseBlockProps) {
   const { exercise, sets, previous_sets } = state
   const tracking = exercise.tracking_type
-  const swipeHandlers = useSwipeGesture({ onSwipeLeft, onSwipeRight })
+  const [pendingDeleteSetIdx, setPendingDeleteSetIdx] = useState<number | null>(null)
 
   const prevSummary = previous_sets
     .slice(0, 5)
@@ -46,13 +47,21 @@ export function ExerciseBlock({
     })
     .join('  ·  ')
 
+  const completedCount = sets.filter((s) => s.is_completed).length
+  const totalSets = sets.length
+
   return (
-    <div className={styles.block} {...swipeHandlers}>
-      {onSwipeRight && <span className={styles.chevronLeft} aria-hidden>‹</span>}
-      {onSwipeLeft  && <span className={styles.chevronRight} aria-hidden>›</span>}
+    <div className={styles.block}>
+      {showPrevChevron && <span className={styles.chevronLeft} aria-hidden>‹</span>}
+      {showNextChevron && <span className={styles.chevronRight} aria-hidden>›</span>}
 
       <div className={styles.header}>
-        <h2 className={styles.name}>{exercise.name}</h2>
+        <div className={styles.headerTop}>
+          <h2 className={styles.name}>{exercise.name}</h2>
+          {completedCount > 0 && (
+            <span className={styles.progress}>{completedCount}/{totalSets}</span>
+          )}
+        </div>
         <p className={styles.type}>{exercise.type}</p>
         {prevSummary && (
           <p className={styles.prevSummary}>
@@ -60,28 +69,32 @@ export function ExerciseBlock({
             {prevSummary}
           </p>
         )}
+        {tracking === 'reps_only' && (
+          <p className={styles.bwHint}>Weight = effective body weight for volume scoring</p>
+        )}
       </div>
 
       <div className={styles.setTable}>
         <div className={styles.tableHeader}>
           <span>#</span>
-          <span>PREV</span>
           <span>{COL1_LABEL[tracking]}</span>
           <span>{COL2_LABEL[tracking]}</span>
+          <span />
           <span />
         </div>
         <div className={styles.setList}>
           {sets.map((set, i) => (
-            <SwipeableItem key={i} onDelete={() => onRemoveSet(i)} deleteLabel={`Remove set ${i + 1}`}>
-              <SetRow
-                index={i}
-                set={set}
-                previousSet={previous_sets[i]}
-                trackingType={tracking}
-                onConfirm={() => onConfirmSet(i)}
-                onUpdate={(field, value) => onUpdateSet(i, field, value)}
-              />
-            </SwipeableItem>
+            <SetRow
+              key={i}
+              index={i}
+              set={set}
+              previousSet={previous_sets[i]}
+              trackingType={tracking}
+              onStart={() => onStartSet(i)}
+              onConfirm={() => onConfirmSet(i)}
+              onDelete={() => setPendingDeleteSetIdx(i)}
+              onUpdate={(field, value) => onUpdateSet(i, field, value)}
+            />
           ))}
         </div>
       </div>
@@ -89,6 +102,19 @@ export function ExerciseBlock({
       <Button variant="ghost" fullWidth className={styles.addSet} onClick={onAddSet}>
         + Add Set
       </Button>
+
+      {pendingDeleteSetIdx !== null && (
+        <ConfirmSheet
+          message={`Remove set ${pendingDeleteSetIdx + 1}?`}
+          confirmLabel="Remove"
+          variant="destructive"
+          onConfirm={() => {
+            onRemoveSet(pendingDeleteSetIdx)
+            setPendingDeleteSetIdx(null)
+          }}
+          onCancel={() => setPendingDeleteSetIdx(null)}
+        />
+      )}
     </div>
   )
 }
