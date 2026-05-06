@@ -102,6 +102,10 @@ function SessionView({ session, onCancel, onFinish }: SessionViewProps) {
         {is_loading && <p className={styles.state}>Loading exercises...</p>}
         {!is_loading && exercises.length === 0 && <p className={styles.state}>No exercises in this session.</p>}
 
+        {exercises.length > 1 && (
+          <ExerciseSwitcher exerciseCount={exercises.length} activeIndex={active_index} onNavigate={navigateTo} />
+        )}
+
         {activeExercise && (
           <div key={active_index} className={clsx(slideDir === 'left' && styles.slideLeft, slideDir === 'right' && styles.slideRight)}>
             <ExerciseBlock
@@ -115,10 +119,6 @@ function SessionView({ session, onCancel, onFinish }: SessionViewProps) {
               onRemoveSet={(i) => removeSet(active_index, i)}
             />
           </div>
-        )}
-
-        {exercises.length > 1 && (
-          <ExerciseSwitcher exerciseCount={exercises.length} activeIndex={active_index} onNavigate={navigateTo} />
         )}
 
         <button className={styles.addExerciseBtn} onClick={() => setShowExercisePicker(true)}>

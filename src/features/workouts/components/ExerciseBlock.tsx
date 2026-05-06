@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Button, ConfirmSheet } from '@/shared/components'
+import { toSlug } from '@/features/exercises/exercises.utils'
 import { SetRow } from './SetRow'
 import type { SessionExerciseState } from '../hooks/useWorkoutSession'
 import type { TrackingType } from '@/features/exercises/exercises.types'
@@ -36,6 +37,7 @@ export function ExerciseBlock({
   const { exercise, sets, previous_sets } = state
   const tracking = exercise.tracking_type
   const [pendingDeleteSetIdx, setPendingDeleteSetIdx] = useState<number | null>(null)
+  const [imgFailed, setImgFailed] = useState(false)
 
   const prevSummary = previous_sets
     .slice(0, 5)
@@ -73,6 +75,19 @@ export function ExerciseBlock({
           <p className={styles.bwHint}>Weight = effective body weight for volume scoring</p>
         )}
       </div>
+
+      {imgFailed ? (
+        <div className={styles.imgPlaceholder} aria-hidden="true">
+          {exercise.name[0]}
+        </div>
+      ) : (
+        <img
+          className={styles.img}
+          src={exercise.image_url ?? `/images/exercises/${toSlug(exercise.name)}.png`}
+          alt={`${exercise.name} demonstration`}
+          onError={() => setImgFailed(true)}
+        />
+      )}
 
       <div className={styles.setTable}>
         <div className={styles.tableHeader}>

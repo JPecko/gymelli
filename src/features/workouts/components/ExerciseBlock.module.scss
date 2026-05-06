@@ -65,6 +65,34 @@
   gap: var(--space-3);
 }
 
+// ── Exercise image (full-width, between header and sets) ─────────────────────
+
+.img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+.imgPlaceholder {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg-elevated, var(--color-bg-surface));
+  border: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-4xl, 2.25rem);
+  font-weight: var(--font-bold);
+  color: var(--color-text-muted);
+  opacity: 0.3;
+  text-transform: uppercase;
+
+}
+
 .name {
   font-size: var(--text-xl);
   font-weight: var(--font-bold);
