@@ -6,7 +6,9 @@
       "Bash(npx tsc:*)",
       "Bash(claude-whoami:*)",
       "Bash(grep -v \"^$\")",
-      "Bash(awk *)"
+      "Bash(awk *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
     ]
   }
 }
