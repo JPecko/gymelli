@@ -70,19 +70,26 @@
 
 // ── Action buttons ────────────────────────────────────────────────────────────
 
-.startBtn {
-  opacity: 0.5;
+.playBtn {
+  opacity: 0.45;
   font-size: 0.875rem !important;
+  transition: opacity 0.15s, border-color 0.15s, color 0.15s !important;
 
-  &:hover, &:focus-visible {
+  &:hover:not(:disabled) {
     opacity: 1;
   }
 }
 
-.doneBtn {
-  background-color: var(--color-gold-subtle) !important;
-  color: var(--color-gold) !important;
+.playBtnActive {
+  opacity: 1 !important;
   border-color: var(--color-gold-dim) !important;
+  color: var(--color-gold) !important;
+  animation: playPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes playPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.55; }
 }
 
 // ── Delete button ─────────────────────────────────────────────────────────────
@@ -98,11 +105,12 @@
   cursor: pointer;
   color: var(--color-text-muted);
   opacity: 0.35;
-  font-size: var(--text-lg);
   border-radius: var(--radius-sm);
   transition: opacity 0.15s;
   padding: 0;
   flex-shrink: 0;
+
+  svg { width: 0.875rem; height: 0.875rem; }
 
   &:hover, &:focus-visible {
     opacity: 0.8;

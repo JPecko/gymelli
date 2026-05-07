@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect, useCallback } from 'react'
 import clsx from 'clsx'
+import { TrashIcon } from './icons'
 import styles from './SwipeableItem.module.scss'
 
 interface SwipeableItemProps {
@@ -105,7 +106,7 @@ export function SwipeableItem({ children, onDelete, deleteLabel = 'Delete' }: Sw
           onClick={handleDelete}
           aria-label={deleteLabel}
         >
-          ✕
+          <TrashIcon />
         </button>
       </div>
     </div>

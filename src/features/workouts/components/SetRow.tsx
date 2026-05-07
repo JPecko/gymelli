@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import clsx from 'clsx'
-import { IconButton, StepperInput } from '@/shared/components'
+import { IconButton, StepperInput, TrashIcon } from '@/shared/components'
+import { ActiveSetOverlay } from './ActiveSetOverlay'
 import type { DraftSet } from '../hooks/useWorkoutSession'
 import type { ExerciseSet } from '../workouts.types'
 import type { TrackingType } from '@/features/exercises/exercises.types'
@@ -34,18 +36,28 @@ export function SetRow({ index, set, previousSet, trackingType, onStart, onConfi
   const isActive    = set.is_active && !set.is_completed
   const isCompleted = set.is_completed
 
+  const [showOverlay, setShowOverlay] = useState(false)
+
+  function handlePlayClick() {
+    if (!isActive) onStart()
+    setShowOverlay(true)
+  }
+
   let actionBtn: React.ReactNode
   if (isCompleted) {
     actionBtn = (
       <IconButton size="sm" done disabled aria-label={`Set ${index + 1} done`}>✓</IconButton>
     )
-  } else if (isActive) {
-    actionBtn = (
-      <IconButton size="sm" className={styles.doneBtn} onClick={onConfirm} aria-label={`Complete set ${index + 1}`}>✓</IconButton>
-    )
   } else {
     actionBtn = (
-      <IconButton size="sm" className={styles.startBtn} onClick={onStart} aria-label={`Start set ${index + 1}`}>▷</IconButton>
+      <IconButton
+        size="sm"
+        className={clsx(styles.playBtn, isActive && styles.playBtnActive)}
+        onClick={handlePlayClick}
+        aria-label={isActive ? `Open active set ${index + 1}` : `Start set ${index + 1}`}
+      >
+        ▷
+      </IconButton>
     )
   }
 
@@ -106,8 +118,18 @@ export function SetRow({ index, set, previousSet, trackingType, onStart, onConfi
         aria-label={`Remove set ${index + 1}`}
         tabIndex={-1}
       >
-        ×
+        <TrashIcon />
       </button>
+
+      {showOverlay && !isCompleted && (
+        <ActiveSetOverlay
+          set={set}
+          setIndex={index + 1}
+          trackingType={trackingType}
+          onConfirm={() => { onConfirm(); setShowOverlay(false) }}
+          onDismiss={() => setShowOverlay(false)}
+        />
+      )}
     </div>
   )
 }

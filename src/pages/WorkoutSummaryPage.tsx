@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { deleteSession } from '@/features/workouts/workouts.api'
 import { useWorkoutSummary, type SummarySet } from '@/features/workouts/hooks/useWorkoutSummary'
+import { useStartWorkoutSession } from '@/features/workouts/hooks/useStartWorkoutSession'
 import { WorkoutScoreCard } from '@/features/workouts/components/WorkoutScoreCard'
 import { Button, Badge, SetsCard, ConfirmSheet } from '@/shared/components'
 import { formatDuration, formatVolumeFull } from '@/shared/lib/formatters'
@@ -21,10 +22,18 @@ export function WorkoutSummaryPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   const { data, calories, score, profile, handleCaloriesSave } = useWorkoutSummary(sessionId)
+  const { start, isStarting } = useStartWorkoutSession()
 
   if (!data) return <div className={styles.loading}>Loading summary...</div>
 
-  const { exercises, total_volume_kg, total_sets, duration_seconds } = data
+  const { session, exercises, total_volume_kg, total_sets, duration_seconds } = data
+
+  function handleRepeat() {
+    start(
+      session.template_id,
+      exercises.map((e) => ({ exercise_id: e.exercise.id })),
+    )
+  }
 
   return (
     <div className={styles.page}>
@@ -80,6 +89,9 @@ export function WorkoutSummaryPage() {
       <footer className={styles.footer}>
         <Button variant="primary" size="lg" fullWidth onClick={() => navigate('/')}>
           Done
+        </Button>
+        <Button variant="secondary" size="lg" fullWidth onClick={handleRepeat} disabled={isStarting}>
+          {isStarting ? 'Starting…' : 'Repeat Workout'}
         </Button>
         <button className={styles.deleteBtn} onClick={() => setShowDeleteConfirm(true)}>
           Delete workout

@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react'
 import clsx from 'clsx'
 import { Button } from '@/shared/components'
+import { useElapsedSeconds } from '@/shared/hooks/useElapsedSeconds'
 import styles from './RestTimer.module.scss'
 
 const DEFAULT_DURATION = 90
@@ -17,15 +17,7 @@ function formatTime(seconds: number): string {
 }
 
 export function RestTimer({ durationSeconds = DEFAULT_DURATION, onDismiss }: RestTimerProps) {
-  const [elapsed, setElapsed] = useState(0)
-  const startRef = useRef(Date.now())
-
-  useEffect(() => {
-    const id = setInterval(() => {
-      setElapsed(Math.floor((Date.now() - startRef.current) / 1000))
-    }, 1000)
-    return () => clearInterval(id)
-  }, [])
+  const elapsed = useElapsedSeconds()
 
   const isOvertime = elapsed >= durationSeconds
   const countdown = Math.max(0, durationSeconds - elapsed)

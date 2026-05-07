@@ -10,7 +10,7 @@ import { useProfile } from '@/features/auth/hooks/useProfile'
 import { ExerciseBlock } from '@/features/workouts/components/ExerciseBlock'
 import { RestTimer } from '@/features/workouts/components/RestTimer'
 import { ExercisePicker } from '@/features/exercises/components/ExercisePicker'
-import { Button, IconButton, ConfirmSheet } from '@/shared/components'
+import { Button, IconButton, ConfirmSheet, CloseIcon } from '@/shared/components'
 import type { WorkoutSession } from '@/features/workouts'
 import type { Exercise } from '@/features/exercises/exercises.types'
 import styles from './WorkoutSessionPage.module.scss'
@@ -81,7 +81,7 @@ function SessionView({ session, onCancel, onFinish }: SessionViewProps) {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <IconButton size="sm" onClick={() => setShowCancelConfirm(true)} aria-label="Cancel workout">✕</IconButton>
+        <IconButton size="sm" onClick={() => setShowCancelConfirm(true)} aria-label="Cancel workout"><CloseIcon /></IconButton>
         <div className={styles.headerCenter}>
           <span className={styles.timer}>{elapsed}</span>
           {exercises.length > 0 && (
@@ -211,7 +211,7 @@ function AddExerciseOverlay({ alreadySelectedIds, onAdd, onClose }: AddExerciseO
     <div className={styles.pickerOverlay}>
       <div className={styles.pickerHeader}>
         <p className={styles.pickerTitle}>Add Exercise</p>
-        <IconButton size="sm" onClick={onClose} aria-label="Close">✕</IconButton>
+        <IconButton size="sm" onClick={onClose} aria-label="Close"><CloseIcon /></IconButton>
       </div>
       <div className={styles.pickerBody}>
         <ExercisePicker selectedIds={alreadySelectedIds} onToggle={handleToggle} />

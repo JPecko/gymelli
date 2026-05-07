@@ -1,4 +1,4 @@
-import { IconButton, StepperInput } from '@/shared/components'
+import { IconButton, StepperInput, TrashIcon } from '@/shared/components'
 import type { DraftExercise } from '../hooks/useTemplateEditor'
 import styles from './TemplateExerciseRow.module.scss'
 
@@ -38,7 +38,7 @@ export function TemplateExerciseRow({
             ↓
           </IconButton>
           <IconButton size="sm" onClick={onRemove} aria-label="Remove exercise">
-            ×
+            <TrashIcon />
           </IconButton>
         </div>
       </div>

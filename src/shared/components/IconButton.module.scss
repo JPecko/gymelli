@@ -29,13 +29,17 @@
 .sm {
   width: 2rem;
   height: 2rem;
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
+
+  svg { width: 1rem; height: 1rem; }
 }
 
 .md {
   width: 2.5rem;
   height: 2.5rem;
-  font-size: var(--text-sm);
+  font-size: var(--text-base);
+
+  svg { width: 1.25rem; height: 1.25rem; }
 }
 
 // ── Done / success state ─────────────────────────────────────────────────────
