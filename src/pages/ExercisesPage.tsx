@@ -61,6 +61,7 @@ export function ExercisesPage() {
                 meta={meta}
                 muscleGroupName={ex.muscle_group_name}
                 type={ex.type}
+                imageUrl={ex.image_url}
               />
             )
           })}

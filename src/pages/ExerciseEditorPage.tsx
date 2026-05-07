@@ -2,7 +2,7 @@ import { useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useExerciseEditor } from '@/features/exercises/hooks/useExerciseEditor'
 import type { TrackingType } from '@/features/exercises/exercises.types'
-import { Button, Input } from '@/shared/components'
+import { Button, Input, BottomBar } from '@/shared/components'
 import styles from './ExerciseEditorPage.module.scss'
 
 const TRACKING_OPTIONS: { value: TrackingType; label: string; hint: string }[] = [
@@ -167,8 +167,7 @@ export function ExerciseEditorPage() {
 
       {error && <p className={styles.error}>{error}</p>}
 
-      {/* ── Footer ────────────────────────────────────────────── */}
-      <footer className={styles.footer}>
+      <BottomBar>
         <Button
           variant="primary"
           size="lg"
@@ -178,7 +177,7 @@ export function ExerciseEditorPage() {
         >
           {isSaving ? 'Saving…' : isEdit ? 'Save Changes' : 'Create Exercise'}
         </Button>
-      </footer>
+      </BottomBar>
     </div>
   )
 }

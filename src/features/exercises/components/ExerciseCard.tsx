@@ -9,6 +9,7 @@ type ExerciseCardProps = {
   meta: string
   muscleGroupName: string
   type: 'compound' | 'isolation'
+  imageUrl?: string | null
 } & (
   | { exerciseId: string; selected?: never; onToggle?: never }
   | { exerciseId?: never; selected: boolean; onToggle: () => void }
@@ -19,6 +20,7 @@ export function ExerciseCard({
   meta,
   muscleGroupName,
   type,
+  imageUrl,
   exerciseId,
   selected,
   onToggle,
@@ -46,7 +48,7 @@ export function ExerciseCard({
         ) : (
           <img
             className={styles.image}
-            src={`/images/exercises/${slug}.png`}
+            src={imageUrl ?? `/images/exercises/${slug}.png`}
             alt={name}
             onError={() => setImgFailed(true)}
           />
