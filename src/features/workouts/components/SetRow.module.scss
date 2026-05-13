@@ -25,6 +25,12 @@
   background-color: rgba(76, 175, 125, 0.07);
 }
 
+.editing {
+  background-color: var(--color-gold-subtle);
+  outline: 1px solid var(--color-gold-dim);
+  border-radius: var(--radius-sm);
+}
+
 // ── Index + prev stacked ──────────────────────────────────────────────────────
 
 .indexCell {

@@ -210,6 +210,14 @@ export async function deleteSet(setId: string): Promise<void> {
   if (error) throw error
 }
 
+export async function updateSet(
+  setId: string,
+  patch: { weight_kg?: number | null; reps?: number | null; duration_seconds?: number | null; distance_km?: number | null },
+): Promise<void> {
+  const { error } = await supabase.from('exercise_sets').update(patch).eq('id', setId)
+  if (error) throw error
+}
+
 export async function deleteSessionExercise(sessionExerciseId: string): Promise<void> {
   const { error } = await supabase
     .from('workout_session_exercises')

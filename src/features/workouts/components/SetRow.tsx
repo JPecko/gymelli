@@ -37,6 +37,7 @@ export function SetRow({ index, set, previousSet, trackingType, onStart, onConfi
   const isCompleted = set.is_completed
 
   const [showOverlay, setShowOverlay] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
 
   function handlePlayClick() {
     if (!isActive) onStart()
@@ -46,7 +47,12 @@ export function SetRow({ index, set, previousSet, trackingType, onStart, onConfi
   let actionBtn: React.ReactNode
   if (isCompleted) {
     actionBtn = (
-      <IconButton size="sm" done disabled aria-label={`Set ${index + 1} done`}>✓</IconButton>
+      <IconButton
+        size="sm"
+        done
+        onClick={() => setIsEditing((e) => !e)}
+        aria-label={isEditing ? `Done editing set ${index + 1}` : `Edit set ${index + 1}`}
+      >✓</IconButton>
     )
   } else {
     actionBtn = (
@@ -62,7 +68,7 @@ export function SetRow({ index, set, previousSet, trackingType, onStart, onConfi
   }
 
   return (
-    <div className={clsx(styles.row, isActive && styles.active, isCompleted && styles.completed)} data-tracking={trackingType}>
+    <div className={clsx(styles.row, isActive && styles.active, isCompleted && styles.completed, isEditing && styles.editing)} data-tracking={trackingType}>
 
       {/* # + prev stacked */}
       <div className={styles.indexCell}>
@@ -78,7 +84,7 @@ export function SetRow({ index, set, previousSet, trackingType, onStart, onConfi
           onChange={(v) => onUpdate(isDistance ? 'distance_km' : 'weight_kg', v)}
           step={isRepsOnly ? 1 : isWeightReps ? 2.5 : 0.5}
           min={0}
-          disabled={isCompleted}
+          disabled={isCompleted && !isEditing}
           inputMode="decimal"
           aria-label={`Set ${index + 1} ${isDistance ? 'distance' : 'weight'}`}
         />
@@ -92,7 +98,7 @@ export function SetRow({ index, set, previousSet, trackingType, onStart, onConfi
           onChange={(v) => onUpdate('reps', v)}
           step={1}
           min={0}
-          disabled={isCompleted}
+          disabled={isCompleted && !isEditing}
           inputMode="numeric"
           aria-label={`Set ${index + 1} reps`}
         />
@@ -102,7 +108,7 @@ export function SetRow({ index, set, previousSet, trackingType, onStart, onConfi
           onChange={(v) => onUpdate('duration_seconds', v)}
           step={5}
           min={0}
-          disabled={isCompleted}
+          disabled={isCompleted && !isEditing}
           inputMode="numeric"
           aria-label={`Set ${index + 1} duration`}
         />

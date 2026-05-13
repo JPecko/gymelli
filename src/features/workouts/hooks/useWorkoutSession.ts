@@ -5,6 +5,7 @@ import {
   getSessionExercises,
   logSet,
   deleteSet,
+  updateSet,
   getPreviousSetsForExercise,
   finishSession,
   addSessionExercise,
@@ -76,6 +77,7 @@ export function useWorkoutSession(session: WorkoutSession, body_weight_kg: numbe
   const [restTimerDuration, setRestTimerDuration] = useState(90)
   const [totalRestSeconds, setTotalRestSeconds] = useState(0)
   const bwFilled = useRef(false)
+  const exercisesRef = useRef(exercises)
 
   useEffect(() => {
     async function load() {
@@ -120,9 +122,20 @@ export function useWorkoutSession(session: WorkoutSession, body_weight_kg: numbe
     )
   }, [body_weight_kg, exercises.length])
 
+  exercisesRef.current = exercises
+
   const updateDraftSet = useCallback(
     (exIdx: number, setIdx: number, field: 'weight_kg' | 'reps' | 'duration_seconds' | 'distance_km', value: number | null) => {
       setExercises(patchSet(exIdx, setIdx, { [field]: value }))
+      const set = exercisesRef.current[exIdx]?.sets[setIdx]
+      if (set?.is_completed && set.logged_id) {
+        updateSet(set.logged_id, {
+          weight_kg: field === 'weight_kg' ? value : set.weight_kg,
+          reps: field === 'reps' ? value : set.reps,
+          duration_seconds: field === 'duration_seconds' ? value : set.duration_seconds,
+          distance_km: field === 'distance_km' ? value : set.distance_km,
+        }).catch(() => {})
+      }
     },
     [],
   )

@@ -87,7 +87,7 @@ src/
   Existing components (all exported from `shared/components/index.ts`):
   - `Button` — variants: primary (gold fill), secondary (gold border), ghost. Sizes: sm/md/lg. Prop: fullWidth.
   - `Input` — label + input + error. font-size: 1rem enforced.
-  - `IconButton` — circular button. Props: `done` (success state), `size` (sm/md).
+  - `IconButton` — circular button. Props: `done` (success state), `size` (sm/md). SVG children are auto-sized via CSS (`sm` → 1rem, `md` → 1.25rem). Text children use `font-size: var(--text-sm)` (sm) / `var(--text-base)` (md).
   - `Badge` — inline pill label. Variants: `default` (neutral), `gold` (PR/achievement highlight).
   - `SetRow` — read-only display row: "Set N · X kg × Y". For logged set history.
   - `SetsCard` — card with header slot + list of `SetRow`. Props: `header: ReactNode`, `sets[]`, `emptyMessage?`.
@@ -97,12 +97,14 @@ src/
   - `ScoreRing` — SVG 270° arc ring. Props: `score: number`, `label: string`, `size?: number`, `showLabel?: boolean`. Fill colour driven by label (Poor/Fair → muted, Good → text-secondary, Great/Elite → gold). Score number uses `font-size: 1rem`.
   - `ConfirmSheet` — bottom sheet for confirmations. Props: `message`, `confirmLabel?`, `variant?: 'destructive' | 'primary'` (default `'destructive'`), `onConfirm`, `onCancel`. Destructive = red button; primary = gold button. `z-index: 200` (above BottomNav). No bottom padding compensation needed. Button container inside is capped at `--btn-max-width`.
   - `CardGrid` — responsive grid wrapper. Use for card lists (exercises, sessions, templates).
-  - `BottomBar` — fixed gradient footer bar, sits above BottomNav on mobile and above page bottom on desktop. Handles sidebar offset automatically. Contains a centred inner wrapper capped at `--btn-max-width`. Use for primary CTA buttons that float above scrollable content (e.g. "Start Workout", "Start"). Props: `children: ReactNode`.
+  - `BottomBar` — fixed gradient footer bar, sits above BottomNav on mobile and above page bottom on desktop. Handles sidebar offset automatically. Contains a centred inner wrapper capped at `--btn-max-width`. Use for primary CTA buttons that float above scrollable content (e.g. "Start Workout", "Start", "Save Changes"). Props: `children: ReactNode`. **Page must add `padding-bottom: calc(var(--nav-height) + 5rem)` to avoid content being hidden behind it.**
+  - `CloseIcon` — SVG × for close/cancel actions. `TrashIcon` — SVG bin for delete/remove actions. Both from `shared/components/icons.tsx`. **Always use `CloseIcon` for dismiss/cancel and `TrashIcon` for destructive delete** — never use raw `✕` or `×` characters.
 - **Auth-scoped components** live in `features/auth/components/` (not `shared/`):
   - `AuthCard` — full-screen centred shell with Gymelli logo. Used by LoginPage and SignUpPage.
 - **Always check `shared/hooks/` before creating a new hook.**
   Existing:
   - `useElapsedTime(startedAt)` → formatted elapsed string (e.g. `"4:32"`)
+  - `useElapsedSeconds()` → raw elapsed `number` (seconds since mount, 1s resolution). Use for timers that count up from when a component mounts. Used by `RestTimer` and `ActiveSetOverlay`.
   - `useCountdown(totalSeconds, onComplete)` → `{ remaining, progress, display }`. Counts down to 0 then calls `onComplete`. `totalSeconds` fixed on mount.
   - `useVersionCheck()` → `{ updateAvailable }`. Polls `/version.json` (static file generated at build time) every 5 min and on window focus. Compares against `APP_VERSION` (build-time constant).
   - `useSwipeGesture({ onSwipeLeft?, onSwipeRight?, threshold? })` → `{ onTouchStart, onTouchEnd }`. Fires only when gesture is primarily horizontal (`|dx| > |dy|`). Safe to use alongside `SwipeableItem` — `SwipeableItem` stops propagation on horizontal moves.
@@ -111,7 +113,7 @@ src/
   - `useSession(sessionId)` → `WorkoutSession | null`. Loads a session by ID. Used by `WorkoutSessionPage` before rendering the session view.
   - `useWorkoutSession(session, body_weight_kg)` → `{ exercises, active_index, is_loading, is_finishing, rest_timer_active, rest_timer_duration, total_rest_seconds, goToExercise, updateDraftSet, startSet, confirmSet, addSet, removeSet, addExercise, finishWorkout, dismissRestTimer }`. Core active-session state. `DraftSet` has 3 states: pending (`is_active=false, is_completed=false`) → active/`startSet` (`is_active=true`) → done/`confirmSet` (`is_completed=true`, triggers REST timer). Default sets without template: **1** (uses previous session's set count when available). Pre-fills `weight_kg` for `reps_only` exercises using `body_weight_kg × (effective_bw_factor ?? 0.6)`. `updateDraftSet` accepts `'weight_kg' | 'reps' | 'duration_seconds' | 'distance_km'`. `addExercise(exerciseId)` adds a new exercise mid-session (parallel API calls: `addSessionExercise` + `getExerciseById` + `getPreviousSetsForExercise`) and navigates to it.
   - `useExerciseNavigation(exerciseCount, activeIndex, goToExercise)` → `{ navigateTo, slideDir, swipeHandlers }`. Encapsulates full-page swipe gesture and slide animation between exercises. `navigateTo(idx)` sets `slideDir` (`'left'|'right'`) for CSS animation then calls `goToExercise`. Attach `swipeHandlers` to the scroll container (`threshold: 60`). Auto-clears `slideDir` after 280ms. Used by `WorkoutSessionPage`.
-  - `useStartWorkoutSession()` → `{ start(templateId, exercises), isStarting }`. Creates a session, adds all exercises with their defaults, then navigates to the session page. `exercises` is `SessionExerciseInput[]` (`exercise_id` + optional rest/sets/reps). Used by `TemplateCard`, `TemplateEditorPage`, `WorkoutSetupPage` — **always use this instead of calling `startSession` + `addSessionExercise` directly**.
+  - `useStartWorkoutSession()` → `{ start(templateId, exercises), isStarting }`. Creates a session, adds all exercises with their defaults, then navigates to the session page. `exercises` is `SessionExerciseInput[]` (`exercise_id` + optional rest/sets/reps). Used by `TemplateCard`, `TemplateEditorPage`, `WorkoutSetupPage`, `WorkoutSummaryPage` (Repeat Workout) — **always use this instead of calling `startSession` + `addSessionExercise` directly**.
   - `useLiveWorkoutScore({ exercises, started_at, total_rest_seconds, body_weight_kg, sex })` → `WorkoutScore | null`. Returns `null` until the first set is confirmed. Updates on every confirmed set + every 10s (for density). Used in `WorkoutSessionPage` header (right slot, replaces spacer once score is available).
   - `useWorkoutSummary(sessionId)` → `{ data: SummaryData | null, calories, score, profile, handleCaloriesSave }`. Loads session + exercises + sets + previous sets + PR detection. Also persists `pr_count` to DB on load so scores are consistent across all views. Types `SummarySet`, `SummaryExercise`, `SummaryData` are exported from this file.
   - `useWorkoutHistory()` → `{ sessions, scores, isLoading, handleDelete }`. Loads session history, computes scores via `computeWorkoutScore` using stored `pr_count`. `handleDelete(session)` is optimistic with rollback on error.
@@ -130,9 +132,15 @@ src/
 
 **Feature components — exercises (`features/exercises/components/`):** check before implementing new exercise UI.
   - `ExerciseFilters` — two rows of horizontal scrollable chips: Muscle Group + Equipment. Props: `muscleGroups?`, `activeMuscleGroupId?`, `onMuscleGroupChange?`, `equipment?`, `activeEquipmentId?`, `onEquipmentChange?`. Each row only renders if the array is non-empty and the change handler is provided. Used by `ExercisesPage` and `ExercisePicker`.
-  - `ExerciseCard` — unified card for library (nav variant: `exerciseId`) and picker (select variant: `selected`, `onToggle`).
+  - `ExerciseCard` — unified card for library (nav variant: `exerciseId`) and picker (select variant: `selected`, `onToggle`). Prop `imageUrl?: string | null` — pass `exercise.image_url`; falls back to static slug path on null. Always pass this prop from callers that have the full `Exercise` / `ExerciseWithMeta` object.
   - `GoalCard` — displays a saved `ExerciseGoal` with edit/remove actions. Props: `goal`, `tracking`, `onEdit`, `onRemove`.
   - `GoalForm` — form to create/edit an `ExerciseGoal`. Fields rendered conditionally per `tracking` type. Props: `goal`, `tracking`, `isSaving`, `onSave`, `onCancel`.
+
+**Feature components — workouts (`features/workouts/components/`):** check before implementing new workout UI.
+  - `ExerciseBlock` — full exercise card during session: header, full-width image, set table. Props: `state`, `showPrevChevron?`, `showNextChevron?`, `onStartSet`, `onConfirmSet`, `onUpdateSet`, `onAddSet`, `onRemoveSet`.
+  - `RestTimer` — bottom sheet overlay counting down rest between sets. Props: `durationSeconds?` (default 90), `onDismiss(elapsedSeconds)`. Uses `useElapsedSeconds`.
+  - `ActiveSetOverlay` — bottom sheet overlay that appears when ▷ is tapped on a set row. Shows set target values (weight/reps/duration/distance) + timer. Duration exercises count DOWN from target; all other types count UP (elapsed). Confirms the set via "Done" button; dismissible without confirming. Props: `set`, `setIndex`, `trackingType`, `onConfirm`, `onDismiss`. Uses `useElapsedSeconds`.
+  - `SetRow` (workout session version, not the shared read-only one) — 5-column interactive row. ▷ icon stays visible until set is completed; pulses gold when active. Clicking ▷ opens `ActiveSetOverlay`. Completed sets show ✓ (done state).
 
 **Import direction:** `features` → `shared` → never the reverse.
 

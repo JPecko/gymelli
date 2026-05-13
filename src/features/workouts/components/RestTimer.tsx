@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import clsx from 'clsx'
 import { Button } from '@/shared/components'
 import { useElapsedSeconds } from '@/shared/hooks/useElapsedSeconds'
@@ -18,17 +19,40 @@ function formatTime(seconds: number): string {
 
 export function RestTimer({ durationSeconds = DEFAULT_DURATION, onDismiss }: RestTimerProps) {
   const elapsed = useElapsedSeconds()
+  const [minimized, setMinimized] = useState(false)
 
   const isOvertime = elapsed >= durationSeconds
   const countdown = Math.max(0, durationSeconds - elapsed)
   const overtime = elapsed - durationSeconds
   const progress = isOvertime ? 0 : countdown / durationSeconds
-
   const circumference = 2 * Math.PI * 44
+
+  const timeDisplay = isOvertime ? `+${formatTime(overtime)}` : formatTime(countdown)
+
+  if (minimized) {
+    return (
+      <div className={styles.pill} onClick={() => setMinimized(false)} role="button" aria-label="Expand rest timer">
+        <span className={clsx(styles.pillLabel, isOvertime && styles.pillLabelOvertime)}>
+          {isOvertime ? 'Overtime' : 'Rest'}
+        </span>
+        <span className={clsx(styles.pillTime, isOvertime && styles.pillTimeOvertime)}>
+          {timeDisplay}
+        </span>
+        <span className={styles.pillExpand} aria-hidden>↑</span>
+      </div>
+    )
+  }
 
   return (
     <div className={styles.overlay} onClick={() => onDismiss(elapsed)}>
       <div className={styles.sheet} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.sheetTop}>
+          <div className={styles.handle} />
+          <button className={styles.minimizeBtn} onClick={() => setMinimized(true)} aria-label="Minimize rest timer">
+            ▽
+          </button>
+        </div>
+
         <p className={clsx(styles.label, isOvertime && styles.labelOvertime)}>
           {isOvertime ? 'Overtime' : 'Rest'}
         </p>
@@ -44,7 +68,7 @@ export function RestTimer({ durationSeconds = DEFAULT_DURATION, onDismiss }: Res
             />
           </svg>
           <span className={clsx(styles.time, isOvertime && styles.timeOvertime)}>
-            {isOvertime ? `+${formatTime(overtime)}` : formatTime(countdown)}
+            {timeDisplay}
           </span>
         </div>
 
